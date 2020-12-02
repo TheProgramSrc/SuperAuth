@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.theprogramsrc.superauth.api.SuperAuthAPIEvent;
 import xyz.theprogramsrc.superauth.api.SuperAuthAPIHandler;
+import xyz.theprogramsrc.superauth.api.actions.SuperAuthAction;
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthAfterLoginEvent;
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthAfterRegisterEvent;
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthBeforeLoginEvent;
@@ -46,8 +47,7 @@ import xyz.theprogramsrc.supercoreapi.spigot.packets.Title;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.SpigotConsole;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.storage.SpigotYMLConfig;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class SuperAuth extends SpigotPlugin {
 
@@ -58,6 +58,7 @@ public class SuperAuth extends SpigotPlugin {
     private AuthSettings authSettings;
     private ServerUtils serverUtils;
     private List<SuperAuthAPIHandler> handlers;
+    private LinkedHashMap<String, SuperAuthAction> actions;
     private BlockActionsListener blockActionsListener;
     private JoinListener joinListener;
     private boolean papi;
@@ -74,6 +75,7 @@ public class SuperAuth extends SpigotPlugin {
             new ForceLoginMemory();
             this.log("Loaded Memory Storage");
             this.handlers = new ArrayList<>();
+            this.actions = new LinkedHashMap<>();
         }catch (Exception e){
             this.addError(e);
             e.printStackTrace();
@@ -251,7 +253,7 @@ public class SuperAuth extends SpigotPlugin {
         this.runEvent(new SuperAuthAfterRegisterEvent(this.getAuthSettings(), this.getUserStorage(), player.getName()));
         CaptchaMemory.i.remove(player.getName());
         WasRegisteredMemory.i.remove(player.getName());
-        this.after(player, this.getAuthSettings().getAfterRegister());
+        this.after(player, this.getAuthSettings().getAfterRegister(), true);
         int in = this.afterRegisterTitleTimes[0], stay = this.afterRegisterTitleTimes[1], out = this.afterRegisterTitleTimes[2];
         String title = this.getAuthSettings().getAfterRegisterTitle(), subtitle = this.getAuthSettings().getAfterRegisterSubtitle();
         if(this.papi){
@@ -266,7 +268,7 @@ public class SuperAuth extends SpigotPlugin {
     public void afterLogin(Player player){
         this.runEvent(new SuperAuthAfterLoginEvent(this.getAuthSettings(), this.getUserStorage(), player.getName()));
         CaptchaMemory.i.remove(player.getName());
-        this.after(player, this.getAuthSettings().getAfterLogin());
+        this.after(player, this.getAuthSettings().getAfterLogin(), false);
         int in = this.afterLoginTitleTimes[0], stay = this.afterLoginTitleTimes[1], out = this.afterLoginTitleTimes[2];
         String title = this.getAuthSettings().getAfterLoginTitle(), subtitle = this.getAuthSettings().getAfterLoginSubtitle();
         if(this.papi){
@@ -279,9 +281,9 @@ public class SuperAuth extends SpigotPlugin {
         this.getSpigotTasks().runTaskLater(40L, ()-> ForceLoginMemory.i.remove(player.getName()));
     }
 
-    private void after(final Player player, List<String> actions){
+    private void after(final Player player, List<String> actions, boolean register){
         User user = this.userStorage.get(player.getName());
-        this.runActions(player, actions);
+        this.runActions(player, actions, false, register);
         user.setAuthorized(true);
         this.userStorage.save(user);
         getSpigotTasks().runTask(player::closeInventory);
@@ -289,17 +291,16 @@ public class SuperAuth extends SpigotPlugin {
 
     public void beforeRegister(Player player){
         this.runEvent(new SuperAuthBeforeRegisterEvent(this.getAuthSettings(), this.getUserStorage(), player.getName()));
-        this.before(player, this.getAuthSettings().getBeforeRegister());
+        this.before(player, this.getAuthSettings().getBeforeRegister(), true);
     }
 
     public void beforeLogin(Player player){
         this.runEvent(new SuperAuthBeforeLoginEvent(this.getAuthSettings(), this.getUserStorage(), player.getName()));
-        this.before(player, this.getAuthSettings().getBeforeLogin());
+        this.before(player, this.getAuthSettings().getBeforeLogin(), false);
     }
 
-    private void before(final Player player, List<String> actions){
-        User user = this.userStorage.get(player.getName());
-        runActions(player, actions);
+    private void before(final Player player, List<String> actions, boolean register){
+        runActions(player, actions, true, register);
     }
 
     private void updateChecker(){
@@ -331,13 +332,17 @@ public class SuperAuth extends SpigotPlugin {
         this.handlers.forEach(api-> api.onEvent(event));
     }
 
-    public void registerAPIHandler(JavaPlugin plugin, SuperAuthAPIHandler superAuthAPIHandler) {
-        this.handlers.add(superAuthAPIHandler);
-        log("The Plugin '" + plugin.getName() + "' (" + plugin.getDescription().getVersion() + ") Registered a new APIHandler.");
-        log("If you find any bugs with the plugin first try disabling the plugins that has registered API Handlers");
+    public static void registerAPIHandler(JavaPlugin plugin, SuperAuthAPIHandler superAuthAPIHandler) {
+        SuperAuth.spigot.handlers.add(superAuthAPIHandler);
+        SuperAuth.spigot.log("&c" + plugin.getName() + " &7has registered an API Handler");
     }
 
-    private void runActions(Player player, List<String> actions) {
+    public static void registerAction(JavaPlugin plugin, SuperAuthAction action){
+        SuperAuth.spigot.actions.put(action.getPrefix(), action);
+        SuperAuth.spigot.log("&c" + plugin.getName() + " &7has registered the action &b" + action.getPrefix());
+    }
+
+    private void runActions(Player player, List<String> actions, boolean before, boolean register) {
         new Thread(()->{
             for(String a : actions){
                 if(a.startsWith("msg:")){
@@ -448,6 +453,14 @@ public class SuperAuth extends SpigotPlugin {
                         }catch (Exception e){
                             this.addError(e);
                             e.printStackTrace();
+                        }
+                    }
+                }else{
+                    for (Map.Entry<String, SuperAuthAction> entry : this.actions.entrySet()) {
+                        String prefix = entry.getKey()+":";
+                        if(a.startsWith(prefix)){
+                            String argument = a.replaceFirst("(" + entry.getKey() + ":)+", "");
+                            entry.getValue().onExecute(player, argument, before, register);
                         }
                     }
                 }
