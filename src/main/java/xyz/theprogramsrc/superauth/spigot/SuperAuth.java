@@ -42,7 +42,6 @@ import xyz.theprogramsrc.supercoreapi.global.utils.StringUtils;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.global.utils.VersioningUtil;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotPlugin;
-import xyz.theprogramsrc.supercoreapi.spigot.commands.precreated.SuperCoreAPICommand;
 import xyz.theprogramsrc.supercoreapi.spigot.packets.Title;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.SpigotConsole;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.storage.SpigotYMLConfig;
@@ -115,7 +114,6 @@ public class SuperAuth extends SpigotPlugin {
             }
             new SuperAuthCommand();
             this.log("Registered '/sauth' command");
-            new SuperCoreAPICommand();
             this.log("&aIf you need help first check the wiki:&b https://wiki.theprogramsrc.xyz");
             this.log("&aIf you need direct support join to our discord:&b https://go.theprogramsrc.xyz/discord");
             this.checkBungeeMySQL();

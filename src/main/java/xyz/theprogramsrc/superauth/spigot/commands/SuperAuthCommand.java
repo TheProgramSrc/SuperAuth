@@ -12,12 +12,13 @@ import xyz.theprogramsrc.superauth.spigot.memory.ForceLoginMemory;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.spigot.commands.CommandResult;
 import xyz.theprogramsrc.supercoreapi.spigot.commands.SpigotCommand;
+import xyz.theprogramsrc.supercoreapi.spigot.commands.precreated.SuperCoreAPICommand;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.ReflectionUtils;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.SpigotConsole;
 
 import java.text.DecimalFormat;
 
-public class SuperAuthCommand extends SpigotCommand {
+public class SuperAuthCommand extends SuperCoreAPICommand {
 
     private final UserStorage userStorage;
 
@@ -47,6 +48,22 @@ public class SuperAuthCommand extends SpigotCommand {
                 }else{
                     new MyAccountGUI(player);
                 }
+            }
+        }else{
+            if(args[0].equalsIgnoreCase("info")){
+                if(user.isAdmin()){
+                    this.executeInfoCommand(player);
+                }else{
+                    return CommandResult.NO_PERMISSION;
+                }
+            }else if(args[0].equalsIgnoreCase("paste")){
+                if(user.isAdmin()){
+                    this.executePasteCommand(player);
+                }else{
+                    return CommandResult.NO_PERMISSION;
+                }
+            }else{
+                return CommandResult.INVALID_ARGS;
             }
         }
         return CommandResult.COMPLETED;
@@ -168,6 +185,12 @@ public class SuperAuthCommand extends SpigotCommand {
                     SuperAuth.spigot.getBlockActionsListener().onLoad();
                     SuperAuth.spigot.getJoinListener().onReload();
                     this.log("&aReload request sent.");
+                    return CommandResult.COMPLETED;
+                case "paste":
+                    this.executePasteCommand(console.parseConsoleCommandSender());
+                    return CommandResult.COMPLETED;
+                case "info":
+                    this.executeInfoCommand(console.parseConsoleCommandSender());
                     return CommandResult.COMPLETED;
                 default:
                     return CommandResult.INVALID_ARGS;
