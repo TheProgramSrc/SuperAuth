@@ -86,7 +86,7 @@ public class JoinListener extends SpigotModule {
                                     }
                                 }
                             }
-                        }.runTaskTimer(this.spigotPlugin, 0L, Utils.toTicks(3));
+                        }.runTaskTimer(this.spigotPlugin, 0L, Utils.toTicks(this.settings.getCommandUsageTimer()));
                     }
                 }else{
                     if(user.getAuthMethod().equals("DIALOG")){
@@ -112,7 +112,7 @@ public class JoinListener extends SpigotModule {
                                     }
                                 }
                             }
-                        }.runTaskTimer(this.spigotPlugin, 0L, Utils.toTicks(3));
+                        }.runTaskTimer(this.spigotPlugin, 0L, Utils.toTicks(this.settings.getCommandUsageTimer()));
                     }
                 }
             });
