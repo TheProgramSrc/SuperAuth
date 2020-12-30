@@ -44,13 +44,15 @@ public class GeneralListeners extends SpigotModule {
                 User user = this.userStorage.get(player.getName());
                 if(user == null)
                     continue;
-                SkinTexture skin = this.spigotPlugin.getSkinManager().getSkin(player);
-                if(user.getSkinTexture() == null){
-                    user.setSkinTexture(skin != null ? skin.toString() : "no_skin");
-                    this.userStorage.save(user);
-                }else if(user.getSkinTexture().equals("no_skin")){
-                    user.setSkinTexture(skin != null ? skin.toString() : "no_skin");
-                    this.userStorage.save(user);
+                if(!user.hasSkin()){
+                    SkinTexture skin = this.spigotPlugin.getSkinManager().getSkin(player);
+                    if(user.getSkinTexture() == null){
+                        user.setSkinTexture(skin != null ? skin.toString() : "no_skin");
+                        this.userStorage.save(user);
+                    }else if(user.getSkinTexture().equals("no_skin")){
+                        user.setSkinTexture(skin != null ? skin.toString() : "no_skin");
+                        this.userStorage.save(user);
+                    }
                 }
             }
         }
