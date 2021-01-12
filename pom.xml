@@ -6,7 +6,7 @@
 
     <groupId>xyz.theprogramsrc</groupId>
     <artifactId>SuperAuth</artifactId>
-    <version>3.8.2</version>
+    <version>3.8.3</version>
     <packaging>jar</packaging>
 
     <name>SuperAuth</name>
@@ -95,7 +95,7 @@
         <dependency>
             <groupId>xyz.theprogramsrc</groupId>
             <artifactId>SuperCoreAPI</artifactId>
-            <version>4.7.0</version>
+            <version>4.8.1</version>
             <scope>compile</scope>
         </dependency>
         <!-- Spigot -->
@@ -109,7 +109,7 @@
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-api</artifactId>
-            <version>1.16-R0.4-SNAPSHOT</version>
+            <version>1.16-R0.3</version>
             <scope>provided</scope>
         </dependency>
         <!-- Placeholder API -->
