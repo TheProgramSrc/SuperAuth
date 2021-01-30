@@ -6,6 +6,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByBlockEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import xyz.theprogramsrc.superauth.global.users.User;
@@ -53,6 +56,10 @@ public class BlockActionsListener extends SpigotModule {
                 }
 
                 if(blocked.contains("INTERACTION")){
+                    enabled++;
+                }
+
+                if(blocked.contains("DAMAGE")){
                     enabled++;
                 }
                 this.log("Loaded &a" + enabled + "&r Action Blockers");
@@ -171,7 +178,7 @@ public class BlockActionsListener extends SpigotModule {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.LOW)
     public void onChat(final AsyncPlayerChatEvent event){
         if(this.settings.getBlockedActions().contains("CHAT")){
             final Player player = event.getPlayer();
@@ -187,7 +194,7 @@ public class BlockActionsListener extends SpigotModule {
                                         event.setCancelled(true);
                                     }
                                 }else{
-                                    if(!msg.startsWith("/auth")){
+                                    if(!msg.startsWith("/" + this.settings.getAuthCommand().toLowerCase())){
                                         event.setCancelled(true);
                                     }
                                 }
@@ -199,11 +206,11 @@ public class BlockActionsListener extends SpigotModule {
                         }else{
                             if(!user.getAuthMethod().equals("DIALOG")){
                                 if(user.getAuthMethod().equals("COMMANDS")){
-                                    if(!msg.startsWith("/login") && !msg.startsWith("/register")){
+                                    if(!msg.startsWith("/" + this.settings.getLoginCommand().toLowerCase()) && !msg.startsWith("/" + this.settings.getRegisterCommand().toLowerCase())){
                                         event.setCancelled(true);
                                     }
                                 }else{
-                                    if(!msg.startsWith("/auth")){
+                                    if(!msg.startsWith("/" + this.settings.getAuthCommand().toLowerCase())){
                                         event.setCancelled(true);
                                     }
                                 }
@@ -249,5 +256,28 @@ public class BlockActionsListener extends SpigotModule {
                 }
             }
         }
+    }
+
+    private void onDamage(EntityDamageEvent e){
+        if (e.getEntity() instanceof Player && this.settings.getBlockedActions().contains("DAMAGE")) {
+            Player player = (Player) e.getEntity();
+            User user = this.userStorage.get(player.getName());
+            if(user != null){
+                if(!user.isAuthorized()){
+                    e.setDamage(0);
+                    e.setCancelled(true);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onDamage2(EntityDamageByEntityEvent e){
+        this.onDamage(e);
+    }
+
+    @EventHandler
+    public void onDamage3(EntityDamageByBlockEvent e){
+        this.onDamage(e);
     }
 }
