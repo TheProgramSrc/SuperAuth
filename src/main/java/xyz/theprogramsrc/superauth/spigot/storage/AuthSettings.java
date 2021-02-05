@@ -28,6 +28,9 @@ public class AuthSettings extends SpigotYMLConfig {
         if(!this.contains("Commands.Register")) this.add("Commands.Register", "register");
         if(!this.contains("Commands.Login")) this.add("Commands.Login", "login");
         if(!this.contains("Commands.Auth")) this.add("Commands.Auth", "auth");
+        if(!this.contains("Commands.Aliases.Register")) this.add("Commands.Aliases.Register", Utils.toList("reg", "r"));
+        if(!this.contains("Commands.Aliases.Login")) this.add("Commands.Aliases.Login", Utils.toList("l"));
+        if(!this.contains("Commands.Aliases.Auth")) this.add("Commands.Aliases.Login", Utils.toList("pin"));
         this.authMethod = AuthMethod.of(this.getString("AuthMethod"));
         if(!this.contains("AntiBots.MaxTime")) this.add("AntiBots.MaxTime", 30);
         if(!this.contains("AntiBots.Captcha.Enabled")) this.add("AntiBots.Captcha.Enabled", true);
@@ -60,6 +63,18 @@ public class AuthSettings extends SpigotYMLConfig {
 
     public AuthMethod getAuthMethod() {
         return authMethod == null ? AuthMethod.of(this.getString("AuthMethod")) : this.authMethod;
+    }
+
+    public List<String> getLoginAliases(){
+        return this.getStringList("Commands.Aliases.Login", Utils.toList(""));
+    }
+
+    public List<String> getRegisterAliases(){
+        return this.getStringList("Commands.Aliases.Register", Utils.toList(""));
+    }
+
+    public List<String> getAuthAliases(){
+        return this.getStringList("Commands.Aliases.Auth", Utils.toList(""));
     }
 
     public List<String> getBeforeRegister(){

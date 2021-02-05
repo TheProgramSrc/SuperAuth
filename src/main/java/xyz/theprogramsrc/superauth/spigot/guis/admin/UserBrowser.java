@@ -27,12 +27,12 @@ public abstract class UserBrowser extends BrowserGUI<User> {
     public UserBrowser(Player player){
         super(player);
         this.userStorage = SuperAuth.spigot.getUserStorage();
+        this.users = this.userStorage.requestUsers();
         this.open();
     }
 
     @Override
     public User[] getObjects() {
-        if(this.users == null) this.users = this.userStorage.requestUsers(false);
         return Arrays.stream(this.users).filter(Utils::nonNull).toArray(User[]::new);
     }
 

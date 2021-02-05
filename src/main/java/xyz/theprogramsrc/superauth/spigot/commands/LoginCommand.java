@@ -34,6 +34,11 @@ public class LoginCommand extends SpigotCommand {
     }
 
     @Override
+    public String[] getAliases() {
+        return Utils.toStringArray(this.authSettings.getLoginAliases());
+    }
+
+    @Override
     public CommandResult onPlayerExecute(Player player, String[] args) {
         User user = this.userStorage.get(player.getName(), true);
         if(user == null){

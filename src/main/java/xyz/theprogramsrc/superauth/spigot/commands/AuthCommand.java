@@ -9,6 +9,7 @@ import xyz.theprogramsrc.superauth.spigot.SuperAuth;
 import xyz.theprogramsrc.superauth.spigot.guis.auth.IdentifyAuthGUI;
 import xyz.theprogramsrc.superauth.spigot.objects.AuthMethod;
 import xyz.theprogramsrc.superauth.spigot.storage.AuthSettings;
+import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.spigot.commands.CommandResult;
 import xyz.theprogramsrc.supercoreapi.spigot.commands.SpigotCommand;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.SpigotConsole;
@@ -26,6 +27,11 @@ public class AuthCommand extends SpigotCommand {
     @Override
     public String getCommand() {
         return SuperAuth.spigot.getAuthSettings().getAuthCommand().toLowerCase();
+    }
+
+    @Override
+    public String[] getAliases() {
+        return Utils.toStringArray(this.authSettings.getAuthAliases());
     }
 
     @Override

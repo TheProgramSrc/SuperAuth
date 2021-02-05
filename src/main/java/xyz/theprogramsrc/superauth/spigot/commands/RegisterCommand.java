@@ -35,6 +35,11 @@ public class RegisterCommand extends SpigotCommand {
     }
 
     @Override
+    public String[] getAliases() {
+        return Utils.toStringArray(this.authSettings.getRegisterAliases());
+    }
+
+    @Override
     public CommandResult onPlayerExecute(Player player, String[] args) {
         User user = this.userStorage.get(player.getName());
         if(user == null){
