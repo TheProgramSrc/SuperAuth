@@ -84,12 +84,16 @@ public class BlockActionsListener extends SpigotModule {
                     List<String> whitelist = this.settings.getWhitelistedCommands();
                     whitelist.add(this.settings.getRegisterCommand());
                     whitelist.add(this.settings.getLoginCommand());
+                    whitelist.addAll(this.settings.getLoginAliases());
+                    whitelist.addAll(this.settings.getRegisterAliases());
                     if (whitelist.stream().noneMatch(s-> event.getMessage().contains(s))) {
                         event.setCancelled(true);
                     }
                 }else if(this.settings.getAuthMethod() == AuthMethod.GUI){
-                    String authCommand = this.settings.getAuthCommand();
-                    if(!event.getMessage().contains(authCommand)){
+                    List<String> whitelist = this.settings.getWhitelistedCommands();
+                    whitelist.add(this.settings.getAuthCommand());
+                    whitelist.addAll(this.settings.getAuthAliases());
+                    if (whitelist.stream().noneMatch(s-> event.getMessage().contains(s))) {
                         event.setCancelled(true);
                     }
                 }
@@ -100,12 +104,16 @@ public class BlockActionsListener extends SpigotModule {
                     List<String> whitelist = this.settings.getWhitelistedCommands();
                     whitelist.add(this.settings.getRegisterCommand());
                     whitelist.add(this.settings.getLoginCommand());
+                    whitelist.addAll(this.settings.getLoginAliases());
+                    whitelist.addAll(this.settings.getRegisterAliases());
                     if (whitelist.stream().noneMatch(s-> event.getMessage().contains(s))) {
                         event.setCancelled(true);
                     }
                 }else if(user.getAuthMethod().equalsIgnoreCase("GUI")){
-                    String authCommand = this.settings.getAuthCommand();
-                    if (!event.getMessage().contains(authCommand)) {
+                    List<String> whitelist = this.settings.getWhitelistedCommands();
+                    whitelist.add(this.settings.getAuthCommand());
+                    whitelist.addAll(this.settings.getAuthAliases());
+                    if (whitelist.stream().noneMatch(s-> event.getMessage().contains(s))) {
                         event.setCancelled(true);
                     }
                 }
@@ -189,12 +197,19 @@ public class BlockActionsListener extends SpigotModule {
                     if(!user.isAuthorized()){
                         if(user.getAuthMethod() == null){
                             if(this.settings.getAuthMethod() != AuthMethod.DIALOG){
+                                List<String> whitelist = this.settings.getWhitelistedCommands();
                                 if(this.settings.getAuthMethod() == AuthMethod.COMMANDS){
-                                    if(!msg.startsWith("/login") && !msg.startsWith("/register")){
+                                    whitelist.add(this.settings.getRegisterCommand());
+                                    whitelist.add(this.settings.getLoginCommand());
+                                    whitelist.addAll(this.settings.getLoginAliases());
+                                    whitelist.addAll(this.settings.getRegisterAliases());
+                                    if (whitelist.stream().noneMatch(s-> msg.startsWith("/" + s))) {
                                         event.setCancelled(true);
                                     }
                                 }else{
-                                    if(!msg.startsWith("/" + this.settings.getAuthCommand().toLowerCase())){
+                                    whitelist.add(this.settings.getAuthCommand());
+                                    whitelist.addAll(this.settings.getAuthAliases());
+                                    if (whitelist.stream().noneMatch(s-> msg.startsWith("/" + s))) {
                                         event.setCancelled(true);
                                     }
                                 }
@@ -205,12 +220,19 @@ public class BlockActionsListener extends SpigotModule {
                             }
                         }else{
                             if(!user.getAuthMethod().equals("DIALOG")){
+                                List<String> whitelist = this.settings.getWhitelistedCommands();
                                 if(user.getAuthMethod().equals("COMMANDS")){
-                                    if(!msg.startsWith("/" + this.settings.getLoginCommand().toLowerCase()) && !msg.startsWith("/" + this.settings.getRegisterCommand().toLowerCase())){
+                                    whitelist.add(this.settings.getRegisterCommand());
+                                    whitelist.add(this.settings.getLoginCommand());
+                                    whitelist.addAll(this.settings.getLoginAliases());
+                                    whitelist.addAll(this.settings.getRegisterAliases());
+                                    if (whitelist.stream().noneMatch(s-> msg.startsWith("/" + s))) {
                                         event.setCancelled(true);
                                     }
                                 }else{
-                                    if(!msg.startsWith("/" + this.settings.getAuthCommand().toLowerCase())){
+                                    whitelist.add(this.settings.getAuthCommand());
+                                    whitelist.addAll(this.settings.getAuthAliases());
+                                    if (whitelist.stream().noneMatch(s-> msg.startsWith("/" + s))) {
                                         event.setCancelled(true);
                                     }
                                 }
