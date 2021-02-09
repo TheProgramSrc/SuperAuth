@@ -35,7 +35,7 @@ public class LoginCommand extends SpigotCommand {
 
     @Override
     public String[] getAliases() {
-        return Utils.toStringArray(this.authSettings.getLoginAliases());
+        return Utils.toStringArray(SuperAuth.spigot.getAuthSettings().getLoginAliases());
     }
 
     @Override

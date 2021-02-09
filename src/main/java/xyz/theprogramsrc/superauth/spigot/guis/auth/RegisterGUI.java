@@ -48,7 +48,11 @@ public class RegisterGUI extends GUI {
 
     @Override
     protected String getTitle() {
-        return LBase.AUTH_REGISTER_GUI_TITLE.toString() + " &9» " + (this.input.isEmpty() ? LBase.NO_INPUT.options().upper().get() : this.input);
+        if(this.input == null){
+            return LBase.AUTH_REGISTER_GUI_TITLE.toString() + " &9» " + LBase.NO_INPUT.options().upper().get();
+        }else{
+            return LBase.AUTH_REGISTER_GUI_TITLE.toString() + " &9» " + (this.input.isEmpty() ? LBase.NO_INPUT.options().upper().get() : this.input);
+        }
     }
 
     @Override

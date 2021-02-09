@@ -1,7 +1,6 @@
 package xyz.theprogramsrc.superauth.spigot.commands;
 
 import org.bukkit.entity.Player;
-import xyz.theprogramsrc.superauth.api.auth.SuperAuthBeforeLoginEvent;
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
@@ -20,18 +19,25 @@ public class AuthCommand extends SpigotCommand {
     private final AuthSettings authSettings;
 
     public AuthCommand(){
+        this.debug("Loading auth command...");
         this.userStorage = SuperAuth.spigot.getUserStorage();
+        this.debug("Stored UserStorage variable");
         this.authSettings = SuperAuth.spigot.getAuthSettings();
+        this.debug("Stored AuthSettings variable");
     }
 
     @Override
     public String getCommand() {
-        return SuperAuth.spigot.getAuthSettings().getAuthCommand().toLowerCase();
+        String cmd = SuperAuth.spigot.getAuthSettings().getAuthCommand().toLowerCase();
+        this.debug("Registering AuthCommand with command '" + cmd + "'");
+        return cmd;
     }
 
     @Override
     public String[] getAliases() {
-        return Utils.toStringArray(this.authSettings.getAuthAliases());
+        String[] aliases = Utils.toStringArray(SuperAuth.spigot.getAuthSettings().getAuthAliases());
+        this.debug("Registering AuthCommand with aliases: " + String.join(", ", aliases));
+        return aliases;
     }
 
     @Override

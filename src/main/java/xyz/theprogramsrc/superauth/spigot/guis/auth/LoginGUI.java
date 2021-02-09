@@ -66,7 +66,11 @@ public class LoginGUI extends GUI {
 
     @Override
     protected String getTitle() {
-        return LBase.AUTH_LOGIN_GUI_TITLE + " &9» " + (this.input.isEmpty() ? LBase.NO_INPUT.options().upper().get() : this.input);
+        if(this.input == null){
+            return LBase.AUTH_LOGIN_GUI_TITLE + " &9» " + LBase.NO_INPUT.options().upper().get();
+        }else{
+            return LBase.AUTH_LOGIN_GUI_TITLE + " &9» " + (this.input.isEmpty() ? LBase.NO_INPUT.options().upper().get() : this.input);
+        }
     }
 
     @Override

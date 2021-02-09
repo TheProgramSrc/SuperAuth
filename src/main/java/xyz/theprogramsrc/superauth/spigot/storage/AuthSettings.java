@@ -22,7 +22,7 @@ public class AuthSettings extends SpigotYMLConfig {
         if(!this.contains("AuthEnabled")) this.add("AuthEnabled", true);
         if(!this.contains("HashingMethod")) this.add("HashingMethod", "SHA512");
         if(!this.contains("AuthMethod")) this.add("AuthMethod", "DIALOG");
-        if(!this.contains("PinLength")) this.add("PinLength", 3);
+        if(!this.contains("PinLength")) this.add("PinLength", 4);
         if(!this.contains("PasswordLength.Min")) this.add("PasswordLength.Min", 8);
         if(!this.contains("PasswordLength.Max")) this.add("PasswordLength.Max", 12);
         if(!this.contains("Commands.Register")) this.add("Commands.Register", "register");
@@ -30,7 +30,7 @@ public class AuthSettings extends SpigotYMLConfig {
         if(!this.contains("Commands.Auth")) this.add("Commands.Auth", "auth");
         if(!this.contains("Commands.Aliases.Register")) this.add("Commands.Aliases.Register", Utils.toList("reg", "r"));
         if(!this.contains("Commands.Aliases.Login")) this.add("Commands.Aliases.Login", Utils.toList("l"));
-        if(!this.contains("Commands.Aliases.Auth")) this.add("Commands.Aliases.Login", Utils.toList("pin"));
+        if(!this.contains("Commands.Aliases.Auth")) this.add("Commands.Aliases.Auth", Utils.toList("pin"));
         this.authMethod = AuthMethod.of(this.getString("AuthMethod"));
         if(!this.contains("AntiBots.MaxTime")) this.add("AntiBots.MaxTime", 30);
         if(!this.contains("AntiBots.Captcha.Enabled")) this.add("AntiBots.Captcha.Enabled", true);
@@ -66,63 +66,63 @@ public class AuthSettings extends SpigotYMLConfig {
     }
 
     public List<String> getLoginAliases(){
-        return this.getStringList("Commands.Aliases.Login", Utils.toList(""));
+        return this.getStringList("Commands.Aliases.Login", Utils.toList());
     }
 
     public List<String> getRegisterAliases(){
-        return this.getStringList("Commands.Aliases.Register", Utils.toList(""));
+        return this.getStringList("Commands.Aliases.Register", Utils.toList());
     }
 
     public List<String> getAuthAliases(){
-        return this.getStringList("Commands.Aliases.Auth", Utils.toList(""));
+        return this.getStringList("Commands.Aliases.Auth", Utils.toList());
     }
 
     public List<String> getBeforeRegister(){
-        return this.getStringList("Before.Register");
+        return this.getStringList("Before.Register", Utils.toList());
     }
 
     public List<String> getBeforeLogin(){
-        return this.getStringList("Before.Login");
+        return this.getStringList("Before.Login", Utils.toList());
     }
 
     public List<String> getAfterRegister(){
-        return this.getStringList("After.Register");
+        return this.getStringList("After.Register", Utils.toList());
     }
 
     public List<String> getAfterLogin(){
-        return this.getStringList("After.Login");
+        return this.getStringList("After.Login", Utils.toList());
     }
 
     public int getMaxTime(){
-        return this.contains("AntiBots.MaxTime") ? this.getInt("AntiBots.MaxTime") : 30;
+        return this.getInt("AntiBots.MaxTime", 30);
     }
 
     public boolean isCaptchaEnabled(){
-        return !this.contains("AntiBots.Captcha.Enabled") || this.getBoolean("AntiBots.Captcha.Enabled");
+        return this.getBoolean("AntiBots.Captcha.Enabled", true);
     }
 
     public double getCaptchaChance(){
-        return this.contains("AntiBots.Captcha.Chance") ? this.getDouble("AntiBots.Captcha.Chance") : 0.9D;
+        return this.getDouble("AntiBots.Captcha.Chance", 0.9D);
     }
 
     public int getCaptchaLength(){
-        return this.contains("AntiBots.Captcha.Length") ? this.getInt("AntiBots.Captcha.Length") : 5;
+        return this.getInt("AntiBots.Captcha.Length", 5);
     }
 
     public HashingMethod getHashingMethod(){
-        return HashingMethod.getOrDefault(this.getString("HashingMethod"), HashingMethod.SHA512);
+        return HashingMethod.getOrDefault(this.getString("HashingMethod", "SHA512"), HashingMethod.SHA512);
     }
 
     public String getLoginCommand(){
-        return this.getString("Commands.Login").toLowerCase();
+        return this.getString("Commands.Login", "login").toLowerCase();
     }
 
     public String getRegisterCommand(){
-        return this.getString("Commands.Register").toLowerCase();
+        return this.getString("Commands.Register", "register").toLowerCase();
     }
 
     public String getAuthCommand(){
-        return this.getString("Commands.Auth").toLowerCase();
+        return this.getString("Commands.Auth", "auth").toLowerCase();
     }
 
     public List<String> getWhitelistedCommands(){
@@ -134,47 +134,47 @@ public class AuthSettings extends SpigotYMLConfig {
     }
 
     public int getPinLength() {
-        return this.getInt("PinLength");
+        return this.getInt("PinLength", 4);
     }
 
     public boolean isAuthEnabled(){
-        return this.getBoolean("AuthEnabled");
+        return this.getBoolean("AuthEnabled", true);
     }
 
     public String getAfterLoginTitle(){
-        return this.getString("Title.After.Login");
+        return this.getString("Title.After.Login", "&bLogged In!");
     }
 
     public String getAfterRegisterTitle(){
-        return this.getString("Title.After.Register");
+        return this.getString("Title.After.Register", "&bRegistered In!");
     }
 
     public String getAfterLoginSubtitle(){
-        return this.getString("Subtitle.After.Login");
+        return this.getString("Subtitle.After.Login", "&7Now you can play!");
     }
 
     public String getAfterRegisterSubtitle(){
-        return this.getString("Subtitle.After.Register");
+        return this.getString("Subtitle.After.Register", "&7Thank you for choosing us!");
     }
 
     public String[] getAfterLoginTitleTime(){
         if(!this.contains("Title-Time.After.Login")){
-            return new String[0];
+            return new String[]{"10","20","10"};
         }
         return this.getString("Title-Time.After.Login").split(";");
     }
     public String[] getAfterRegisterTitleTime(){
         if(!this.contains("Title-Time.After.Register")){
-            return new String[0];
+            return new String[]{"10","20","10"};
         }
         return this.getString("Title-Time.After.Register").split(";");
     }
 
     public int getMinPasswordLength(){
-        return this.getInt("PasswordLength.Min");
+        return this.getInt("PasswordLength.Min", 8);
     }
 
     public int getMaxPasswordLength(){
-        return this.getInt("PasswordLength.Max");
+        return this.getInt("PasswordLength.Max", 12);
     }
 }

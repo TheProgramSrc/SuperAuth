@@ -84,7 +84,6 @@ public class SuperAuth extends SpigotPlugin {
     @Override
     public void onPluginEnable() {
         try{
-            new Metrics(this, 7004);
             this.registerTranslation(LBase.class);
             this.log("Default translation loaded");
             this.serverUtils = new ServerUtils();
@@ -95,7 +94,11 @@ public class SuperAuth extends SpigotPlugin {
             this.log("Loaded User Storage");
             this.authSettings = new AuthSettings();
             this.log("Loaded Auth Settings");
-            new CommandFilter(this.authSettings.getAuthCommand(), this.authSettings.getLoginCommand(), this.authSettings.getRegisterCommand()).register();
+            LinkedList<String> filteredCommands = new LinkedList<>(Utils.toList(this.authSettings.getAuthCommand(), this.authSettings.getLoginCommand(), this.authSettings.getRegisterCommand()));
+            filteredCommands.addAll(this.authSettings.getLoginAliases());
+            filteredCommands.addAll(this.authSettings.getRegisterAliases());
+            filteredCommands.addAll(this.authSettings.getAuthAliases());
+            new CommandFilter(Utils.toStringArray(filteredCommands)).register();
             this.log("Loaded Command Filter");
             new PreLoginListener();
             this.log("Loaded Pre-Login Listener");
@@ -105,6 +108,7 @@ public class SuperAuth extends SpigotPlugin {
             this.log("Loaded General Listeners");
             this.blockActionsListener = new BlockActionsListener();
             if(this.authSettings.isAuthEnabled()){
+                this.debug("Registering commands...");
                 new AuthCommand();
                 this.log("Registered '/" + this.getAuthSettings().getAuthCommand().toLowerCase() + "' command");
                 new RegisterCommand();
@@ -126,6 +130,8 @@ public class SuperAuth extends SpigotPlugin {
                 new PlaceholderAPIHook().register();
                 this.log("&aPlaceholderAPI Hook Registered.");
             }
+
+            new Metrics(this, 7004);
         }catch (Exception e){
             this.addError(e);
             e.printStackTrace();

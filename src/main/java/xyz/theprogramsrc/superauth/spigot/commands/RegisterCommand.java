@@ -36,7 +36,7 @@ public class RegisterCommand extends SpigotCommand {
 
     @Override
     public String[] getAliases() {
-        return Utils.toStringArray(this.authSettings.getRegisterAliases());
+        return Utils.toStringArray(SuperAuth.spigot.getAuthSettings().getRegisterAliases());
     }
 
     @Override
