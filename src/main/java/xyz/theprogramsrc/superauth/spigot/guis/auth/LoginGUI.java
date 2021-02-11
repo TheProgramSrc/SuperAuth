@@ -75,7 +75,7 @@ public class LoginGUI extends GUI {
 
     @Override
     public boolean canCloseGUI() {
-        return ForceLoginMemory.i.has(this.getPlayer().getName());
+        return ForceLoginMemory.i.has(this.getPlayer().getName()) && !this.getPlayer().isOnline() && this.user.isAuthorized();
     }
 
     @Override

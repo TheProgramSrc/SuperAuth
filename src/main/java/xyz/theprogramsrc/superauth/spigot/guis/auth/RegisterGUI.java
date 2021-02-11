@@ -56,6 +56,11 @@ public class RegisterGUI extends GUI {
     }
 
     @Override
+    public boolean canCloseGUI() {
+        return !this.getPlayer().isOnline() && this.user.isAuthorized();
+    }
+
+    @Override
     public boolean isTitleCentered() {
         return false;
     }

@@ -23,10 +23,7 @@ import xyz.theprogramsrc.superauth.spigot.commands.LoginCommand;
 import xyz.theprogramsrc.superauth.spigot.commands.RegisterCommand;
 import xyz.theprogramsrc.superauth.spigot.commands.SuperAuthCommand;
 import xyz.theprogramsrc.superauth.spigot.hooks.PlaceholderAPIHook;
-import xyz.theprogramsrc.superauth.spigot.listeners.BlockActionsListener;
-import xyz.theprogramsrc.superauth.spigot.listeners.GeneralListeners;
-import xyz.theprogramsrc.superauth.spigot.listeners.JoinListener;
-import xyz.theprogramsrc.superauth.spigot.listeners.PreLoginListener;
+import xyz.theprogramsrc.superauth.spigot.listeners.*;
 import xyz.theprogramsrc.superauth.spigot.memory.CaptchaMemory;
 import xyz.theprogramsrc.superauth.spigot.memory.ForceLoginMemory;
 import xyz.theprogramsrc.superauth.spigot.memory.WasRegisteredMemory;
@@ -105,6 +102,8 @@ public class SuperAuth extends SpigotPlugin {
             this.joinListener = new JoinListener();
             this.log("Loaded Join Listener");
             new GeneralListeners();
+            new SkinSyncListener();
+            new IPSyncListener();
             this.log("Loaded General Listeners");
             this.blockActionsListener = new BlockActionsListener();
             if(this.authSettings.isAuthEnabled()){

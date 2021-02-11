@@ -40,12 +40,12 @@ public class JoinListener extends SpigotModule {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onJoin(final PlayerJoinEvent event){
-        this.handleAuth(event.getPlayer(), true);
+        new Thread(() -> this.handleAuth(event.getPlayer(), true)).start();
     }
 
     public void onReload(){
         for(Player player : Bukkit.getOnlinePlayers()){
-            this.handleAuth(player, false);
+            new Thread(() -> this.handleAuth(player, false)).start();
         }
     }
 
@@ -372,6 +372,7 @@ public class JoinListener extends SpigotModule {
             User currentUser = this.userStorage.get(user.getUsername());
             if(currentUser != null){
                 if(!currentUser.isAuthorized()){
+                    player.closeInventory();
                     player.kickPlayer(this.getSuperUtils().color(LBase.TOOK_TOO_LONG.options().vars(max+"").toString()));
                 }
             }
