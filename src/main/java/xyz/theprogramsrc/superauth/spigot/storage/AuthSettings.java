@@ -49,6 +49,7 @@ public class AuthSettings extends SpigotYMLConfig {
         if(!this.contains("Title-Time.After.Register")) this.add("Title-Time.After.Register", "10;20;10");
         if(!this.contains("BlockedActions")) this.add("BlockedActions", Utils.toList("BLOCK_BREAK", "BLOCK_PLACE", "CHAT", "MOVEMENT", "INTERACTION", "CUSTOM_INVENTORY", "DAMAGE"));
         if(!this.contains("Auth.CommandUsageTimer")) this.add("Auth.CommandUsageTimer", 3);
+        if(!this.contains("Auth.PremiumAutoLogin")) this.add("Auth.PremiumAutoLogin", true);
     }
 
     @Override
@@ -57,8 +58,12 @@ public class AuthSettings extends SpigotYMLConfig {
         this.authMethod = AuthMethod.of(this.getString("AuthMethod"));
     }
 
+    public boolean getPremiumAutoLogin(){
+        return this.getBoolean("Auth.PremiumAutoLogin", true);
+    }
+
     public int getCommandUsageTimer(){
-        return this.getInt("Auth.CommandUsageTimer");
+        return this.getInt("Auth.CommandUsageTimer", 3);
     }
 
     public AuthMethod getAuthMethod() {

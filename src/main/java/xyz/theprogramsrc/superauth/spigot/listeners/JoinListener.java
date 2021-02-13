@@ -89,30 +89,34 @@ public class JoinListener extends SpigotModule {
                         }.runTaskTimer(this.spigotPlugin, 0L, Utils.toTicks(this.settings.getCommandUsageTimer()));
                     }
                 }else{
-                    if(user.getAuthMethod().equals("DIALOG")){
-                        this.loginDialog(user, player);
-                    }else if(user.getAuthMethod().equals("GUI")){
-                        new IdentifyAuthGUI(player, user, false);
+                    if(user.isPremium() && this.settings.getPremiumAutoLogin()){
+                        SuperAuth.spigot.afterRegister(player);
                     }else{
-                        user.setAuthorized(false);
-                        this.userStorage.save(user);
-                        new BukkitRunnable(){
-                            @Override
-                            public void run() {
-                                User finalUser = JoinListener.this.userStorage.get(player.getName());
-                                if(finalUser != null){
-                                    if(!finalUser.isAuthorized()){
-                                        if(!CaptchaMemory.i.has(player.getName())) {
-                                            JoinListener.this.getSuperUtils().sendMessage(player, LBase.LOGIN_COMMAND_USAGE.toString());
+                        if(user.getAuthMethod().equals("DIALOG")){
+                            this.loginDialog(user, player);
+                        }else if(user.getAuthMethod().equals("GUI")){
+                            new IdentifyAuthGUI(player, user, false);
+                        }else{
+                            user.setAuthorized(false);
+                            this.userStorage.save(user);
+                            new BukkitRunnable(){
+                                @Override
+                                public void run() {
+                                    User finalUser = JoinListener.this.userStorage.get(player.getName());
+                                    if(finalUser != null){
+                                        if(!finalUser.isAuthorized()){
+                                            if(!CaptchaMemory.i.has(player.getName())) {
+                                                JoinListener.this.getSuperUtils().sendMessage(player, LBase.LOGIN_COMMAND_USAGE.toString());
+                                            }else{
+                                                this.cancel();
+                                            }
                                         }else{
                                             this.cancel();
                                         }
-                                    }else{
-                                        this.cancel();
                                     }
                                 }
-                            }
-                        }.runTaskTimer(this.spigotPlugin, 0L, Utils.toTicks(this.settings.getCommandUsageTimer()));
+                            }.runTaskTimer(this.spigotPlugin, 0L, Utils.toTicks(this.settings.getCommandUsageTimer()));
+                        }
                     }
                 }
             });
