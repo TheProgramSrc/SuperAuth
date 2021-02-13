@@ -90,7 +90,7 @@ public class JoinListener extends SpigotModule {
                     }
                 }else{
                     if(user.isPremium() && this.settings.getPremiumAutoLogin()){
-                        SuperAuth.spigot.afterRegister(player);
+                        SuperAuth.spigot.afterLogin(player);
                     }else{
                         if(user.getAuthMethod().equals("DIALOG")){
                             this.loginDialog(user, player);

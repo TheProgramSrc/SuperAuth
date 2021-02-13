@@ -104,6 +104,8 @@ public enum LBase implements TranslationPack {
     MANAGE_USER_GUI_TITLE("&cUsers &9> &5$1"),
     MANAGE_USER_CHANGE_PASSWORD_NAME("Change Password"),
     MANAGE_USER_CHANGE_PASSWORD_DESCRIPTION("Click to change the password"),
+    MANAGE_USER_TOGGLE_MODE_NAME("Toggle Premium Mode"),
+    MANAGE_USER_TOGGLE_MODE_DESCRIPTION("Click to change to {Mode} mode"),
     MANAGE_USER_CHANGE_PASSWORD_GUI_TITLE("Password Change"),
     MANAGE_USER_CHANGE_PASSWORD_SAVE_NAME("&aSave"),
     MANAGE_USER_CHANGE_PASSWORD_SAVE_DESCRIPTION("&7Click to save the new password"),

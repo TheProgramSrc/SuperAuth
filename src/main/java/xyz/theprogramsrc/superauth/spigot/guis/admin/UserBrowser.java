@@ -18,6 +18,7 @@ import xyz.theprogramsrc.supercoreapi.spigot.utils.skintexture.SkinTexture;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.xseries.XMaterial;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 
 public abstract class UserBrowser extends BrowserGUI<User> {
 
@@ -26,6 +27,7 @@ public abstract class UserBrowser extends BrowserGUI<User> {
 
     public UserBrowser(Player player){
         super(player);
+        this.backEnabled = true;
         this.userStorage = SuperAuth.spigot.getUserStorage();
         this.users = this.userStorage.requestUsers();
         this.open();
@@ -62,15 +64,15 @@ public abstract class UserBrowser extends BrowserGUI<User> {
     }
 
     @Override
-    protected String getTitle() {
-        return LBase.USER_BROWSER_GUI_TITLE.toString();
+    protected GUIButton[] getButtons() {
+        LinkedList<GUIButton> buttons = new LinkedList<>(Utils.toList(super.getButtons()));
+        buttons.add(this.getRefreshCacheButton());
+        return buttons.toArray(new GUIButton[0]);
     }
 
     @Override
-    public void onEvent(GUIEvent event) {
-        if(event instanceof GUIOpenEvent){
-            this.addButton(this.getRefreshCacheButton());
-        }
+    protected String getTitle() {
+        return LBase.USER_BROWSER_GUI_TITLE.toString();
     }
 
     private GUIButton getRefreshCacheButton(){
