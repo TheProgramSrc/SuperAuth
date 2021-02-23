@@ -8,6 +8,10 @@ import xyz.theprogramsrc.supercoreapi.spigot.guis.GUI;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.GUIButton;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.action.ClickAction;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.objects.GUIRows;
+import xyz.theprogramsrc.supercoreapi.spigot.guis.precreated.settings.SettingPane;
+import xyz.theprogramsrc.supercoreapi.spigot.guis.precreated.settings.SettingsGUI;
+import xyz.theprogramsrc.supercoreapi.spigot.guis.precreated.settings.precreated.GeneralConfigurationSettingPane;
+import xyz.theprogramsrc.supercoreapi.spigot.guis.precreated.settings.precreated.LanguageSelectionSettingPane;
 import xyz.theprogramsrc.supercoreapi.spigot.items.SimpleItem;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.skintexture.SkinTexture;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.xseries.XMaterial;
@@ -30,6 +34,11 @@ public class AdminGUI extends GUI {
     }
 
     @Override
+    public boolean isTitleCentered() {
+        return true;
+    }
+
+    @Override
     protected GUIButton[] getButtons() {
         return new GUIButton[]{
                 this.getManageUsersButton(),
@@ -45,7 +54,7 @@ public class AdminGUI extends GUI {
                 .setLore(
                         "&7",
                         "&7" + LBase.ADMIN_GUI_USERS_DESCRIPTION);
-        return new GUIButton(11, item, a-> new UserBrowser(a.getPlayer()){
+        return new GUIButton(12, item, a-> new UserBrowser(a.getPlayer()){
             @Override
             public void onBack(ClickAction clickAction) {
                 AdminGUI.this.open();
@@ -55,12 +64,26 @@ public class AdminGUI extends GUI {
 
     private GUIButton getSettingsButton(){
         SimpleItem item = new SimpleItem(XMaterial.COMMAND_BLOCK)
-                .setDisplayName("&c" + Base.SETTINGS)
+                .setDisplayName("&c" + Base.SETTINGS_EDITOR_NAME)
                 .setLore(
                         "&7",
-                        "&c&l" + LBase.COMING_SOON.options().upper().get()
+                        "&7" + Base.SETTINGS_EDITOR_DESCRIPTION
                 );
-        return new GUIButton(13, item, null);
+        return new GUIButton(14, item, a-> new SettingsGUI(a.getPlayer()){
+
+            @Override
+            public SettingPane[] getSettingPanes() {
+                return new SettingPane[]{
+                        new GeneralConfigurationSettingPane(),
+                        new LanguageSelectionSettingPane(),
+                };
+            }
+
+            @Override
+            public void onBack(ClickAction clickAction) {
+                AdminGUI.this.open();
+            }
+        });
     }
 
     private GUIButton getCloseGUIButton(){

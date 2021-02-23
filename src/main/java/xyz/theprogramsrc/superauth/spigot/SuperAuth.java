@@ -82,6 +82,7 @@ public class SuperAuth extends SpigotPlugin {
     public void onPluginEnable() {
         try{
             this.registerTranslation(LBase.class);
+            this.setupGithubTranslationDownloader("TheProgramSrc", "PluginsResources", "superauth");
             this.log("Default translation loaded");
             this.serverUtils = new ServerUtils();
             this.log("Server Utils loaded");

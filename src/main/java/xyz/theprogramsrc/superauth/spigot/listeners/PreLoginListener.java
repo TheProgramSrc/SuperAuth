@@ -30,15 +30,18 @@ public class PreLoginListener extends SpigotModule  {
             event.setKickMessage(this.getSuperUtils().color(LBase.VPN_KICK.toString()));
             event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
         }else{
+            User user;
             if(!this.userStorage.exists(username)){
-                User user = new User(username)
+                user = new User(username)
                         .setIp(ip)
                         .setAuthorized(false)
                         .setRegistered(false);
                 this.userStorage.save(user);
+            }else{
+                user = this.userStorage.get(username);
             }
 
-            User user = this.userStorage.get(username);
+
             if(user.isAuthorized()){
                 user.setAuthorized(false);
                 this.userStorage.save(user);

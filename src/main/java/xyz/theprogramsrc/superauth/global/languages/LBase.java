@@ -14,7 +14,6 @@ public enum LBase implements TranslationPack {
     /* Short Words */
     PREMIUM("Premium"),
     CRACKED("Cracked"),
-    COMING_SOON("Coming Soon"),
     NO_INPUT("No Input"),
 
     /* Messages */
