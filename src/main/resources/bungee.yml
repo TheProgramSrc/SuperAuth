@@ -1,0 +1,6 @@
+main: xyz.theprogramsrc.superauth.bungee.SuperAuth
+name: SuperAuth
+version: ${project.version}
+author: TheProgramSrc
+description: Secure your users and server
+website: ${project.url}

@@ -1,0 +1,12 @@
+name: SuperAuth
+version: ${project.version}
+main: xyz.theprogramsrc.superauth.spigot.SuperAuth
+api-version: "1.13"
+authors: [TheProgramSrc]
+description: Secure your users and server
+website: https://theprogramsrc.xyz/
+softdepend: [PlaceholderAPI]
+
+permissions:
+  superauth.my-account:
+    description: "Allows you to open your account GUI"
