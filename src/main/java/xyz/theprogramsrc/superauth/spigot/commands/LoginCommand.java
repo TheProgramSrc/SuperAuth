@@ -60,7 +60,11 @@ public class LoginCommand extends SpigotCommand {
                     this.getSuperUtils().sendMessage(player, LBase.USE_REGISTER_COMMAND.options().vars(SuperAuth.spigot.getAuthSettings().getRegisterCommand().toLowerCase()).toString());
                 }else{
                     if(user.getAuthMethod().equals("COMMANDS")){
-                        this.exe(user, player, args);
+                        if(user.isAuthorized()){
+                            this.getSuperUtils().sendMessage(player, LBase.ALREADY_IDENTIFIED.toString());
+                        }else{
+                            this.exe(user, player, args);
+                        }
                     }
                 }
             }

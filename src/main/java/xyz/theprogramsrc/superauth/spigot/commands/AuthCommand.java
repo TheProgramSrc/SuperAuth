@@ -42,7 +42,7 @@ public class AuthCommand extends SpigotCommand {
 
     @Override
     public CommandResult onPlayerExecute(Player player, String[] args) {
-        User user = this.userStorage.get(player.getName());
+        User user = this.userStorage.get(player.getName(), true);
         if(user == null) {
             this.getSuperUtils().sendMessage(player, this.getSettings().getPrefix() + LBase.ERROR_FETCHING_DATA);
         }else{
