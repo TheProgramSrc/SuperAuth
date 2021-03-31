@@ -30,7 +30,7 @@ public class CommandAuthHandler extends SpigotModule {
                     if(finalUser != null){
                         if(!finalUser.isAuthorized()){
                             if(!CaptchaMemory.i.has(player.getName())) {
-                                CommandAuthHandler.this.getSuperUtils().sendMessage(player, LBase.REGISTER_COMMAND_USAGE.toString());
+                                CommandAuthHandler.this.getSuperUtils().sendMessage(player, LBase.REGISTER_COMMAND_USAGE.options().placeholder("{Command}", authSettings.getRegisterCommand().toLowerCase()).get());
                             }else{
                                 this.cancel();
                             }
@@ -51,7 +51,7 @@ public class CommandAuthHandler extends SpigotModule {
                     if(finalUser != null){
                         if(!finalUser.isAuthorized()){
                             if(!CaptchaMemory.i.has(player.getName())) {
-                                CommandAuthHandler.this.getSuperUtils().sendMessage(player, LBase.LOGIN_COMMAND_USAGE.toString());
+                                CommandAuthHandler.this.getSuperUtils().sendMessage(player, LBase.LOGIN_COMMAND_USAGE.options().placeholder("{Command}", authSettings.getLoginCommand().toLowerCase()).get());
                             }else{
                                 this.cancel();
                             }
