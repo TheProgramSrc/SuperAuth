@@ -233,7 +233,7 @@ public class DialogAuthHandler extends SpigotModule {
                 @Override
                 public boolean onResult(String playerInput) {
                     if(!playerInput.contentEquals(captcha)){
-                        this.getSuperUtils().sendMessage(player, LBase.WRONG_CAPTCHA.options().vars(captcha).toString());
+                        this.getSuperUtils().sendMessage(player, LBase.WRONG_CAPTCHA.options().vars(captcha).placeholder("{Captcha}", captcha).toString());
                         return false;
                     }else{
                         SuperAuth.spigot.runEvent(new SuperAuthAfterCaptchaEvent(DialogAuthHandler.this.authSettings, DialogAuthHandler.this.userStorage, player.getName()));

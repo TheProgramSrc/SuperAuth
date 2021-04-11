@@ -257,7 +257,7 @@ public class SuperAuth extends SpigotPlugin {
                 public void onSuccessCheck(String s) {
                     int r = VersioningUtil.checkVersions(SuperAuth.this.getPluginVersion(), s);
                     if(r == 1){
-                        SuperAuth.this.log(String.format("&bUpdate Found &7(v%s). Please update the plugin (http://songoda.com/marketplace/product/255)", s));
+                        SuperAuth.this.log(String.format("&bUpdate Found &7(v%s). Please update the plugin (https://theproramsrc.xyz)", s));
                     }else if(r == 2){
                         SuperAuth.this.log("&cIt seems like you're running a non-release version. Please be careful and do not use this on production");
                         SuperAuth.this.log("&cIf you find any bug please report it to the dev");

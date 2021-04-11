@@ -19,7 +19,7 @@ public class IPSyncListener extends SpigotModule {
         if(Utils.isConnected()){
             this.superAuth = SuperAuth.spigot;
             this.userStorage = this.superAuth.getUserStorage();
-            Thread thread = new Thread(() -> this.getSpigotTasks().runRepeatingTask(0L, Utils.toTicks(15), this::sync));
+            Thread thread = new Thread(() -> this.getSpigotTasks().runRepeatingTask(0L, Utils.toTicks(60), this::sync));
             thread.setPriority(3);
             thread.start();
         }
@@ -32,13 +32,16 @@ public class IPSyncListener extends SpigotModule {
             User user = this.userStorage.get(player.getName());
             if(user == null)
                 continue;
-            if(user.getIp() == null || user.getIp().equalsIgnoreCase("null")){
-                if(player.getAddress() == null)
-                    continue;
-                String ip = player.getAddress().getAddress().getHostAddress();
-                user.setIp(ip);
+
+            if(player.getAddress() == null)
+                continue;
+
+            String ip = user.getIp() == null ? "null" : user.getIp();
+            if(ip.equalsIgnoreCase("null")){
+                String playerIp = player.getAddress().getAddress().getHostAddress();
+                user.setIp(playerIp);
                 this.userStorage.save(user);
-                if(this.superAuth.getVPNBlocker().isVPN(ip)){
+                if(this.superAuth.getVPNBlocker().isVPN(playerIp)){
                     player.kickPlayer(this.getSuperUtils().color(LBase.VPN_KICK.toString()));
                 }
             }

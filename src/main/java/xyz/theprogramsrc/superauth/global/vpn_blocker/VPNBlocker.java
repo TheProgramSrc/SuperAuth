@@ -17,15 +17,21 @@ public class VPNBlocker {
     public VPNBlocker(SuperPlugin<?> plugin){
         this.plugin = plugin;
         this.cache = new HashMap<>();
-        this.apiEndpoint = "https://api.theprogramsrc.xyz/superauth/ip_checker/index.php?ip={IP}";
+        this.apiEndpoint = "https://api.theprogramsrc.xyz/superauth/ip_checker/?ip={IP}";
     }
 
     public boolean isVPN(String ip){
-        if(ip == null) return false;
-        if(ip.equals("")) return false;
-        if(ip.equals(" ")) return false;
-        if(this.cache.containsKey(ip)) return this.cache.get(ip);
-        if(this.cache.size() > 25000) this.cache.clear();
+        if(!Utils.isConnected())
+            return false;
+
+        if(ip == null)
+            return false;
+
+        if(ip.equals("") || ip.equals(" ") || this.cache.containsKey(ip))
+            return false;
+
+        if(this.cache.size() > 50000)
+            this.cache.clear();
         String url = this.apiEndpoint.replace("{IP}", ip);
         String content = Utils.readWithInputStream(url);
         if(content == null) {
@@ -39,7 +45,9 @@ public class VPNBlocker {
             this.plugin.log("&c" + json.get("message").getAsString());
             return false;
         }else{
-            return json.get("message").getAsString().equals("true");
+            boolean value = json.get("message").getAsString().equals("true");
+            this.cache.put(ip, value);
+            return value;
         }
     }
 }

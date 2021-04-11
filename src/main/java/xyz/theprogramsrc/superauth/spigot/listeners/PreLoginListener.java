@@ -22,7 +22,7 @@ public class PreLoginListener extends SpigotModule  {
         this.userStorage = SuperAuth.spigot.getUserStorage();
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPreLogin(AsyncPlayerPreLoginEvent event){
         String username = event.getName();
         String ip = event.getAddress().getHostAddress();
