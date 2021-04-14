@@ -95,7 +95,7 @@
         <dependency>
             <groupId>xyz.theprogramsrc</groupId>
             <artifactId>SuperCoreAPI</artifactId>
-            <version>4.12.0</version>
+            <version>4.12.1</version>
             <scope>compile</scope>
         </dependency>
         <!-- Spigot -->
