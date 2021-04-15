@@ -6,32 +6,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitRunnable;
-import xyz.theprogramsrc.superauth.api.auth.SuperAuthAfterCaptchaEvent;
-import xyz.theprogramsrc.superauth.api.auth.SuperAuthBeforeCaptchaEvent;
 import xyz.theprogramsrc.superauth.global.SessionStorage;
-import xyz.theprogramsrc.superauth.global.hashing.Hashing;
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
-import xyz.theprogramsrc.superauth.spigot.guis.auth.IdentifyAuthGUI;
 import xyz.theprogramsrc.superauth.spigot.handlers.AuthHandler;
-import xyz.theprogramsrc.superauth.spigot.handlers.DialogAuthHandler;
-import xyz.theprogramsrc.superauth.spigot.managers.ActionManager;
-import xyz.theprogramsrc.superauth.spigot.memory.CaptchaMemory;
-import xyz.theprogramsrc.superauth.spigot.memory.ForceLoginMemory;
 import xyz.theprogramsrc.superauth.spigot.storage.AuthSettings;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotModule;
-import xyz.theprogramsrc.supercoreapi.spigot.dialog.Dialog;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.skintexture.SkinTexture;
-
-import java.net.InetSocketAddress;
-import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static xyz.theprogramsrc.superauth.spigot.objects.AuthMethod.*;
 
 public class MainListener extends SpigotModule {
 
