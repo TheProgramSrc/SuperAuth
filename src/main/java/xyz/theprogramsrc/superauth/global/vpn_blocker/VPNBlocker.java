@@ -27,7 +27,7 @@ public class VPNBlocker {
         if(ip == null)
             return false;
 
-        if(ip.equals("") || ip.equals(" ") || this.cache.containsKey(ip))
+        if(ip.equals("") || ip.equals(" ") || ip.equals("null") || this.cache.containsKey(ip))
             return false;
 
         if(this.cache.size() > 50000)

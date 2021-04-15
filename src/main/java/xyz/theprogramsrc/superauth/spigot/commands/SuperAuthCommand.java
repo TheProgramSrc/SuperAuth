@@ -10,14 +10,9 @@ import xyz.theprogramsrc.superauth.spigot.guis.account.MyAccountGUI;
 import xyz.theprogramsrc.superauth.spigot.guis.admin.AdminGUI;
 import xyz.theprogramsrc.superauth.spigot.managers.ActionManager;
 import xyz.theprogramsrc.superauth.spigot.memory.ForceLoginMemory;
-import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.spigot.commands.CommandResult;
-import xyz.theprogramsrc.supercoreapi.spigot.commands.SpigotCommand;
 import xyz.theprogramsrc.supercoreapi.spigot.commands.precreated.SuperCoreAPICommand;
-import xyz.theprogramsrc.supercoreapi.spigot.utils.ReflectionUtils;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.SpigotConsole;
-
-import java.text.DecimalFormat;
 
 public class SuperAuthCommand extends SuperCoreAPICommand {
 
@@ -87,6 +82,38 @@ public class SuperAuthCommand extends SuperCoreAPICommand {
             this.log(LBase.WIKI_INFORMATION.toString());
         }else{
             switch (args[0].toLowerCase()) {
+                case "updateuser":
+                    if(args.length <= 3) {
+                        return CommandResult.INVALID_ARGS;
+                    }else{
+                        String username = args[1];
+                        if(!this.userStorage.exists(username)){
+                            this.log("&c" + LBase.USER_NOT_EXISTS);
+                        }else{
+                            User user = this.userStorage.get(username);
+                            if (!user.isRegistered()) {
+                                this.log("&c" + LBase.USER_NOT_REGISTERED);
+                            } else {
+                                String val = args[3];
+                                switch (args[2].toLowerCase()){
+                                    case "ip":
+                                        user.setIp(val);
+                                        this.userStorage.save(user);
+                                        this.log("&a" + LBase.CONSOLE_UPDATED_USER_IP_ADDRESS.options().placeholder("{NewIPAddress}", val).placeholder("{UserName}", user.getUsername()));
+                                        return CommandResult.COMPLETED;
+                                    case "premium":
+                                        user.setPremium(val.equalsIgnoreCase("true"));
+                                        boolean mode = user.isPremium();
+                                        this.userStorage.save(user);
+                                        this.log("&a" + LBase.CONSOLE_UPDATED_USER_MODE.options().placeholder("{NewMode}", (mode ? LBase.PREMIUM : LBase.CRACKED).toString()).placeholder("{UserName}", user.getUsername()));
+                                        return CommandResult.COMPLETED;
+                                    default:
+                                        return CommandResult.INVALID_ARGS;
+                                }
+                            }
+                        }
+                    }
+                    break;
                 case "setadmin":
                     if (args.length == 1) {
                         return CommandResult.INVALID_ARGS;
@@ -195,7 +222,7 @@ public class SuperAuthCommand extends SuperCoreAPICommand {
                     this.spigotPlugin.getPluginDataStorage().reload();
                     this.spigotPlugin.getTranslationManager().reloadTranslations();
                     SuperAuth.spigot.getBlockActionsListener().onLoad();
-                    SuperAuth.spigot.getJoinListener().onReload();
+                    SuperAuth.spigot.getMainListener().onReload();
                     SuperAuth.spigot.authActionsConfig.reload();
                     this.log("&aReload request sent.");
                     return CommandResult.COMPLETED;

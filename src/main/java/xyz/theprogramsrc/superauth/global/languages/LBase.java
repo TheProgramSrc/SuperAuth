@@ -57,6 +57,9 @@ public enum LBase implements TranslationPack {
     WIKI_INFORMATION("You can view all the commands at the wiki: https://wiki.theprogramsrc.xyz/"),
     FORCE_LOGIN_NOT_SUPPORTED("You can't use force login with the auth method DIALOG"),
 
+    CONSOLE_UPDATED_USER_IP_ADDRESS("&aSent request to update &7{UserName}'s&a account IP Address to: &b{NewIPAddress}"),
+    CONSOLE_UPDATED_USER_MODE("&aSent request to update &7{UserName}'s&a account mode to: &b{NewMode}"),
+
     /* DIALOGS */
     DIALOG_REGISTER_TITLE("&bRegister"),
     DIALOG_REGISTER_SUBTITLE("&7Write in the chat your password"),
@@ -129,7 +132,8 @@ public enum LBase implements TranslationPack {
     /* Kick Messages */
     VPN_KICK("It seems like you're using a VPN. Please turn it off and enter again."),
     CHANGE_MODE_KICK("&7To apply your settings please enter again."),
-    TOOK_TOO_LONG("&cPlease identify yourself in $1 seconds or less!"),
+    TOOK_TOO_LONG("&cPlease identify yourself in {Seconds} seconds or less!"),
+    YOUR_IP_HAS_CHANGED("&cWe detected that your IP Address has changed. If you're the owner of the account please contact an admin and share your new IP Address: &b{NewIPAddress}"),
 
     /* Error Messages */
     SERVER_ERROR_WHILE_CHECKING_IP("Cannot check IP, server returned the following message:"),
@@ -139,7 +143,7 @@ public enum LBase implements TranslationPack {
     ERROR_WHILE_CREATING_TABLES("Cannot create tables:"),
     ERROR_WHILE_UPDATING_TABLES("Cannot update tables:"),
     ERROR_WHILE_DELETING_USER("Couldn't delete user:"),
-    ERROR_WHILE_SAVING_USER_DATA("Error while saving $1's data:"),
+    ERROR_WHILE_SAVING_USER_DATA("Error while saving {UserName}'s data:"),
     ERROR_WHILE_HASHING_PASSWORD("Error while hashing password:"),
 
 

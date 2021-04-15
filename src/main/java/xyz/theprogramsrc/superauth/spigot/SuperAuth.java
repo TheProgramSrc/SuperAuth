@@ -4,6 +4,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import xyz.theprogramsrc.superauth.api.SuperAuthAPIEvent;
 import xyz.theprogramsrc.superauth.api.SuperAuthAPIHandler;
 import xyz.theprogramsrc.superauth.global.CommandFilter;
+import xyz.theprogramsrc.superauth.global.SessionStorage;
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
 import xyz.theprogramsrc.superauth.global.vpn_blocker.VPNBlocker;
@@ -42,7 +43,7 @@ public class SuperAuth extends SpigotPlugin {
     private ServerUtils serverUtils;
     private List<SuperAuthAPIHandler> handlers;
     private BlockActionsListener blockActionsListener;
-    private JoinListener joinListener;
+    private MainListener mainListener;
     public static LinkedHashMap<UUID, Long> actionThreadIds;
     public SpigotYMLConfig authActionsConfig;
 
@@ -54,6 +55,7 @@ public class SuperAuth extends SpigotPlugin {
             new CaptchaMemory();
             new WasRegisteredMemory();
             new ForceLoginMemory();
+            new SessionStorage(this);
             this.log("Loaded Memory Storage");
             this.handlers = new ArrayList<>();
             actionThreadIds = new LinkedHashMap<>();
@@ -88,7 +90,7 @@ public class SuperAuth extends SpigotPlugin {
             this.log("Loaded Command Filter");
             new PreLoginListener();
             this.log("Loaded Pre-Login Listener");
-            this.joinListener = new JoinListener();
+            this.mainListener = new MainListener();
             this.log("Loaded Join Listener");
             new GeneralListeners();
             new SkinSyncListener();
@@ -133,8 +135,8 @@ public class SuperAuth extends SpigotPlugin {
         spigot = null;
     }
 
-    public JoinListener getJoinListener() {
-        return this.joinListener;
+    public MainListener getMainListener() {
+        return this.mainListener;
     }
 
     public BlockActionsListener getBlockActionsListener() {

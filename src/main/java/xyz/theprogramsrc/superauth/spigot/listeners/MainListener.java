@@ -5,9 +5,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthAfterCaptchaEvent;
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthBeforeCaptchaEvent;
+import xyz.theprogramsrc.superauth.global.SessionStorage;
 import xyz.theprogramsrc.superauth.global.hashing.Hashing;
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.User;
@@ -25,12 +27,13 @@ import xyz.theprogramsrc.supercoreapi.spigot.SpigotModule;
 import xyz.theprogramsrc.supercoreapi.spigot.dialog.Dialog;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.skintexture.SkinTexture;
 
+import java.net.InetSocketAddress;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static xyz.theprogramsrc.superauth.spigot.objects.AuthMethod.*;
 
-public class JoinListener extends SpigotModule {
+public class MainListener extends SpigotModule {
 
     private UserStorage userStorage;
     private AuthSettings settings;
@@ -46,6 +49,16 @@ public class JoinListener extends SpigotModule {
         new Thread(() -> this.handleAuth(event.getPlayer(), true)).start();
     }
 
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onQuit(final PlayerQuitEvent event){
+        Player player = event.getPlayer();
+        User user = this.userStorage.get(player.getName());
+        if(user == null) return;
+        if(player.getAddress() != null && user.isAuthorized() && user.isRegistered()){
+            new Thread(() -> SessionStorage.i.set(player.getAddress().getAddress().getHostAddress() + player.getUniqueId(), System.currentTimeMillis()+"")).start();
+        }
+    }
+
     public void onReload(){
         for(Player player : Bukkit.getOnlinePlayers()){
             new Thread(() -> this.handleAuth(player, false)).start();
@@ -57,17 +70,23 @@ public class JoinListener extends SpigotModule {
             this.getSpigotTasks().runTaskLater(10, ()->{
                 User user = this.userStorage.get(player.getName());
                 if(user == null) return;
-                if(user.isAuthorized()){
-                    if(!disableAuthorization) return;
+                if(user.isAuthorized() && disableAuthorization){
                     user.setAuthorized(false);
-                    this.userStorage.save(user);
-                    user = this.userStorage.get(player.getName());
+                    user = this.userStorage.saveAndGet(user);
                 }
-                this.checkSkin(user, player);
-                if(!this.settings.isAuthEnabled()) return;
-                this.executeAntiBot(player, user);
 
-                new AuthHandler(player);
+                if((user.getIp() == null || user.getIp().equals("") || user.getIp().equals(" ") || user.getIp().equals("null")) && player.getAddress() != null){
+                    user.setIp(player.getAddress().getAddress().getHostAddress());
+                    user = this.userStorage.saveAndGet(user);
+                }
+
+                if(this.validateIpAddress(player, user)){
+                    this.checkSkin(user, player);
+                    if(!this.settings.isAuthEnabled()) return;
+                    this.executeAntiBot(player, user);
+
+                    new AuthHandler(player);
+                }
             });
         }catch (Exception e){
             this.plugin.addError(e);
@@ -82,7 +101,7 @@ public class JoinListener extends SpigotModule {
             if(currentUser != null){
                 if(!currentUser.isAuthorized()){
                     player.closeInventory();
-                    player.kickPlayer(this.getSuperUtils().color(LBase.TOOK_TOO_LONG.options().vars(max+"").toString()));
+                    player.kickPlayer(this.getSuperUtils().color(LBase.TOOK_TOO_LONG.options().vars(max+"").placeholder("{Time}", max+"").toString()));
                 }
             }
         });
@@ -99,5 +118,16 @@ public class JoinListener extends SpigotModule {
                 this.userStorage.save(user);
             }
         }
+    }
+
+    private boolean validateIpAddress(final Player player, User user){
+        if(player.getAddress() != null && user.getIp() != null && !user.getIp().equals("") && !user.getIp().equals(" ") && !user.getIp().equals("null")){
+            String ip = player.getAddress().getAddress().getHostAddress();
+            if(!user.getIp().equals(ip)){
+                player.kickPlayer(this.getSuperUtils().color(LBase.YOUR_IP_HAS_CHANGED.options().placeholder("{NewIPAddress}", ip).get()));
+                return false;
+            }
+        }
+        return true;
     }
 }

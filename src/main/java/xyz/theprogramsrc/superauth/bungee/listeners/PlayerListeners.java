@@ -10,6 +10,7 @@ import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.event.EventHandler;
 import xyz.theprogramsrc.superauth.bungee.SuperAuth;
+import xyz.theprogramsrc.superauth.global.SessionStorage;
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
@@ -62,19 +63,21 @@ public class PlayerListeners extends BungeeModule {
             }
         }
 
+        User user;
         if(this.userStorage.exists(username)){
-            User user = this.userStorage.get(username, true);
+            user = this.userStorage.get(username, true);
             if(user != null){
                 if(user.isAuthorized()) {
                     user.setAuthorized(false);
-                    if(user.getIp() == null || user.getIp().equals("") || user.getIp().equals(" "))
-                        if(ip != null)
-                            user.setIp(ip);
+                    if ((user.getIp() == null || user.getIp().equals("") || user.getIp().equals(" ") || user.getIp().equals("null")) && ip != null) {
+                        user.setIp(ip);
+                    }
+
                     this.userStorage.save(user);
                 }
             }
         }else{
-            User user = new User(username)
+            user = new User(username)
                     .setAuthorized(false);
             if(ip != null)
                 user.setIp(ip);

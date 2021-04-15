@@ -5,6 +5,7 @@ import xyz.theprogramsrc.superauth.bungee.commands.MainCommand;
 import xyz.theprogramsrc.superauth.bungee.commands.PremiumCommand;
 import xyz.theprogramsrc.superauth.bungee.listeners.PlayerListeners;
 import xyz.theprogramsrc.superauth.bungee.listeners.blockers.ServerChangeBlocker;
+import xyz.theprogramsrc.superauth.global.SessionStorage;
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
 import xyz.theprogramsrc.superauth.global.vpn_blocker.VPNBlocker;
@@ -39,6 +40,8 @@ public class SuperAuth extends BungeePlugin {
         this.log("Instance loaded");
         this.vpnBlocker = new VPNBlocker(this);
         this.log("VPNBlocker Loaded");
+        new SessionStorage(this);
+        this.log("Memory Storage Loaded");
     }
 
     @Override

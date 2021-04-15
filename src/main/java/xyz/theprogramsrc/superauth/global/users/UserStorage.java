@@ -36,8 +36,17 @@ public class UserStorage extends DataBaseStorage {
         return dataBase;
     }
 
-    public void save(final User user){
-        new Thread(() -> {
+    public User saveAndGet(User user){
+        this.save(user, false);
+        return this.get(user.getUsername());
+    }
+
+    public void save(User user){
+        this.save(user, true);
+    }
+
+    public void save(final User user, boolean async){
+        Runnable runnable = () -> {
             this.cache.remove(user.getUsername());
             this.dataBase.connect(c->{
                 try{
@@ -64,11 +73,16 @@ public class UserStorage extends DataBaseStorage {
                     s.closeOnCompletion();
                 }catch (SQLException ex){
                     this.plugin.addError(ex);
-                    this.plugin.log("&c" + LBase.ERROR_WHILE_SAVING_USER_DATA.options().vars(user.getUsername()).toString());
+                    this.plugin.log("&c" + LBase.ERROR_WHILE_SAVING_USER_DATA.options().vars(user.getUsername()).placeholder("{UserName}", user.getUsername()).toString());
                     ex.printStackTrace();
                 }
             });
-        }).start();
+        };
+        if(async){
+            new Thread(runnable).start();
+        }else{
+            runnable.run();
+        }
     }
 
     public User get(String username){
@@ -139,13 +153,13 @@ public class UserStorage extends DataBaseStorage {
                     while(rs.next()){
                         String username = rs.getString("user_name");
                         this.cache.remove(username);
-                        String password = rs.getString("user_password");
                         String ip = rs.getString("user_ip");
-                        String authMethod = rs.getString("auth_method");
+                        String password = rs.getString("user_password");
                         boolean premium = rs.getBoolean("is_premium");
                         boolean admin = rs.getBoolean("is_admin");
                         boolean authorized = rs.getBoolean("is_authorized");
                         boolean registered = rs.getBoolean("is_registered");
+                        String authMethod = rs.getString("auth_method");
                         String skinTexture;
                         if(rs.getString("skin_texture").equals("no_skin")){
                             skinTexture = null;
@@ -214,7 +228,7 @@ public class UserStorage extends DataBaseStorage {
                     ResultSet rs = s.executeQuery("PRAGMA table_info(" + this.table + ");");
                     boolean migration = false;
                     while(rs.next()){
-                        if(rs.getString("name").toLowerCase().equalsIgnoreCase("user_password")){
+                        if(rs.getString("name").equalsIgnoreCase("user_password")){
                             if(rs.getString("type").toLowerCase().contains("varchar")){
                                 migration = true;
                                 s.executeUpdate("CREATE TABLE IF NOT EXISTS tmp_" + this.table + " (user_name VARCHAR(100), user_password MEDIUMTEXT, user_ip MEDIUMTEXT, is_premium INT, is_admin INT, is_authorized INT, is_registered INT, auth_method VARCHAR(100), skin_texture VARCHAR(500));");

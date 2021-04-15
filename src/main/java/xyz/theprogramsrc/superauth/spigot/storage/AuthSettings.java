@@ -52,12 +52,22 @@ public class AuthSettings extends SpigotYMLConfig {
         if(!this.contains("BlockedActions")) this.add("BlockedActions", Utils.toList("BLOCK_BREAK", "BLOCK_PLACE", "CHAT", "MOVEMENT", "INTERACTION", "CUSTOM_INVENTORY", "DAMAGE"));
         if(!this.contains("Auth.CommandUsageTimer")) this.add("Auth.CommandUsageTimer", 3);
         if(!this.contains("Auth.PremiumAutoLogin")) this.add("Auth.PremiumAutoLogin", true);
+        if(!this.contains("Auth.Sessions.Enabled")) this.add("Auth.Sessions.Enabled", true);
+        if(!this.contains("Auth.Sessions.MaxTime")) this.add("Auth.Sessions.MaxTime", 300);
     }
 
     @Override
     public void reload() {
         super.reload();
         this.authMethod = AuthMethod.of(this.getString("AuthMethod"));
+    }
+
+    public int getSessionMaxTime(){
+        return this.getInt("Auth.Sessions.MaxTime", 300);
+    }
+
+    public boolean isSessionsEnabled(){
+        return this.getBoolean("Auth.Sessions.Enabled", true);
     }
 
     public boolean getPremiumAutoLogin(){

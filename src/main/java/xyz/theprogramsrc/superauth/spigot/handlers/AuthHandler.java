@@ -1,6 +1,7 @@
 package xyz.theprogramsrc.superauth.spigot.handlers;
 
 import org.bukkit.entity.Player;
+import xyz.theprogramsrc.superauth.global.SessionStorage;
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
@@ -27,7 +28,7 @@ public class AuthHandler extends SpigotModule {
         new Thread(() -> {
             this.debug("Initializing Auth Handler for user '" + this.player.getName() + "'");
             if(this.user.isRegistered()){
-                if(this.user.isPremium() && SuperAuth.spigot.getAuthSettings().getPremiumAutoLogin()){
+                if((this.user.isPremium() && SuperAuth.spigot.getAuthSettings().getPremiumAutoLogin()) || (this.hasValidSession() && SuperAuth.spigot.getAuthSettings().isSessionsEnabled())){
                     new ActionManager(this.player).after(true);
                 }else{
                     this.execute();
@@ -77,5 +78,26 @@ public class AuthHandler extends SpigotModule {
         }else{
             this.getSuperUtils().sendMessage(player, LBase.DIALOG_HOW_TO_USE.toString());
         }
+    }
+
+    private boolean hasValidSession(){
+        String path = this.user.getIp() + this.player.getUniqueId();
+        if(SessionStorage.i.has(path)){
+            String data = SessionStorage.i.get(path);
+            long maxTime = SuperAuth.spigot.getAuthSettings().getMaxTime() * 1000L;
+            long lastTime;
+            try {
+                lastTime = Long.parseLong(data);
+            }catch (NumberFormatException e){
+                lastTime = 0L;
+            }
+
+            if((System.currentTimeMillis() - lastTime) <= maxTime){
+                return true;
+            }
+            SessionStorage.i.remove(path);
+        }
+
+        return false;
     }
 }
