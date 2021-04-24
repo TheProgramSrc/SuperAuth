@@ -132,7 +132,7 @@ public enum LBase implements TranslationPack {
     /* Kick Messages */
     VPN_KICK("It seems like you're using a VPN. Please turn it off and enter again."),
     CHANGE_MODE_KICK("&7To apply your settings please enter again."),
-    TOOK_TOO_LONG("&cPlease identify yourself in {Seconds} seconds or less!"),
+    TOOK_TOO_LONG("&cPlease identify yourself in {Time} seconds or less!"),
     YOUR_IP_HAS_CHANGED("&cWe detected that your IP Address has changed. If you're the owner of the account please contact an admin and share your new IP Address: &b{NewIPAddress}"),
 
     /* Error Messages */

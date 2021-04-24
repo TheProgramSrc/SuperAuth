@@ -19,6 +19,7 @@ import xyz.theprogramsrc.superauth.spigot.memory.ForceLoginMemory;
 import xyz.theprogramsrc.superauth.spigot.memory.WasRegisteredMemory;
 import xyz.theprogramsrc.superauth.spigot.objects.AuthAction;
 import xyz.theprogramsrc.superauth.spigot.storage.AuthSettings;
+import xyz.theprogramsrc.superauth.spigot.storage.DatabaseMigration;
 import xyz.theprogramsrc.supercoreapi.global.Metrics;
 import xyz.theprogramsrc.supercoreapi.global.storage.DataBase;
 import xyz.theprogramsrc.supercoreapi.global.storage.DataBaseSettings;
@@ -233,6 +234,11 @@ public class SuperAuth extends SpigotPlugin {
                         public String password() {
                             return cfg.getString("MySQL.Password");
                         }
+
+                        @Override
+                        public boolean useSSL() {
+                            return cfg.getBoolean("MySQL.UseSSL");
+                        }
                     };
                 }
             };
@@ -275,8 +281,80 @@ public class SuperAuth extends SpigotPlugin {
         this.handlers.forEach(api-> api.onEvent(event));
     }
 
+    @SuppressWarnings("unused") // We will suppress the warning because this will be obviously used by other products
     public static void registerAPIHandler(JavaPlugin plugin, SuperAuthAPIHandler superAuthAPIHandler) {
         SuperAuth.spigot.handlers.add(superAuthAPIHandler);
         SuperAuth.spigot.log("&c" + plugin.getName() + " &7has registered an API Handler");
+    }
+
+    public void migrateBetweenDatabases(){
+        DataBase from = this.dataBase;
+        DataBase to;
+        SpigotYMLConfig cfg = this.getSettingsStorage().getConfig();
+        if(this.isSQLite()){
+            to = new MySQLDataBase(this) {
+                @Override
+                public DataBaseSettings getDataBaseSettings() {
+                    return new DataBaseSettings() {
+                        @Override
+                        public String host() {
+                            return cfg.getString("MySQL.Host");
+                        }
+
+                        @Override
+                        public String port() {
+                            return cfg.getString("MySQL.Port");
+                        }
+
+                        @Override
+                        public String database() {
+                            return cfg.getString("MySQL.DataBase");
+                        }
+
+                        @Override
+                        public String username() {
+                            return cfg.getString("MySQL.UserName");
+                        }
+
+                        @Override
+                        public String password() {
+                            return cfg.getString("MySQL.Password");
+                        }
+
+                        @Override
+                        public boolean useSSL() {
+                            return cfg.getBoolean("MySQL.UseSSL");
+                        }
+                    };
+                }
+            };
+        }else{
+            to = new SQLiteDataBase(this) {
+                @Override
+                public DataBaseSettings getDataBaseSettings() {
+                    return null;
+                }
+            };
+        }
+
+        new DatabaseMigration(from, to).init();
+        this.dataBase = to;
+        if(to instanceof MySQLDataBase && !cfg.getBoolean("MySQL.Enabled")){
+            cfg.set("MySQL.Enabled", true);
+        }else if(to instanceof SQLiteDataBase && cfg.getBoolean("MySQL.Enabled")){
+            cfg.set("MySQL.Enabled", false);
+        }
+
+        this.log("&cReloading config...");
+
+        this.getAuthSettings().reload();
+        this.getSettingsStorage().getConfig().reload();
+        this.getPluginDataStorage().reload();
+        this.getTranslationManager().reloadTranslations();
+        this.getBlockActionsListener().onLoad();
+        this.getMainListener().onReload();
+        this.authActionsConfig.reload();
+        this.log("&cConfiguration reloaded");
+        this.log("&cTO AVOID BUGS PLEASE RESTART YOUR SERVER NOW.");
     }
 }

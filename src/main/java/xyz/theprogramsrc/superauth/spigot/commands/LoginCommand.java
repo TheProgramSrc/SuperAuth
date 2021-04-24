@@ -1,6 +1,7 @@
 package xyz.theprogramsrc.superauth.spigot.commands;
 
 import org.bukkit.entity.Player;
+import xyz.theprogramsrc.superauth.api.auth.SuperAuthAfterCaptchaEvent;
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthBeforeCaptchaEvent;
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.User;
@@ -112,7 +113,7 @@ public class LoginCommand extends SpigotCommand {
                                     this.getSuperUtils().sendMessage(player, LBase.WRONG_CAPTCHA.options().vars(captcha).toString());
                                     return false;
                                 }else{
-                                    SuperAuth.spigot.runEvent(new SuperAuthBeforeCaptchaEvent(LoginCommand.this.authSettings, LoginCommand.this.userStorage, player.getName()));
+                                    SuperAuth.spigot.runEvent(new SuperAuthAfterCaptchaEvent(LoginCommand.this.authSettings, LoginCommand.this.userStorage, player.getName()));
                                     new ActionManager(this.getPlayer()).after(true);
                                     return true;
                                 }
@@ -123,6 +124,8 @@ public class LoginCommand extends SpigotCommand {
                                 return false;
                             }
                         };
+                    }else{
+                        new ActionManager(player).after(true);
                     }
                 }else{
                     new ActionManager(player).after(true);

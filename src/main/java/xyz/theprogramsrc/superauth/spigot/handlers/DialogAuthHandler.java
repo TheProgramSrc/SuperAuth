@@ -172,8 +172,8 @@ public class DialogAuthHandler extends SpigotModule {
 
                     try{
                         String password = Hashing.hash(self.authSettings.getHashingMethod(), in);
-                        user.setPassword(password).setAuthMethod("DIALOG").setRegistered(true);
-                        self.userStorage.save(user);
+                        User u = user.setPassword(password).setAuthMethod("DIALOG").setRegistered(true);
+                        self.userStorage.save(u, false);
                         success.set(true);
                         return true;
                     }catch (NoSuchAlgorithmException ex){
@@ -222,12 +222,12 @@ public class DialogAuthHandler extends SpigotModule {
 
                 @Override
                 public String getSubtitle() {
-                    return LBase.DIALOG_CAPTCHA_SUBTITLE.options().vars(captcha).toString();
+                    return LBase.DIALOG_CAPTCHA_SUBTITLE.options().vars(captcha).placeholder("{Captcha}", captcha).toString();
                 }
 
                 @Override
                 public String getActionbar() {
-                    return LBase.DIALOG_CAPTCHA_ACTIONBAR.options().vars(captcha).toString();
+                    return LBase.DIALOG_CAPTCHA_ACTIONBAR.options().vars(captcha).placeholder("{Captcha}", captcha).toString();
                 }
 
                 @Override

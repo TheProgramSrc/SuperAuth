@@ -11,40 +11,33 @@ import xyz.theprogramsrc.supercoreapi.spigot.SpigotModule;
 
 public class IPSyncListener extends SpigotModule {
 
-    private UserStorage userStorage;
-    private SuperAuth superAuth;
-
     @Override
     public void onLoad() {
         if(Utils.isConnected()){
-            this.superAuth = SuperAuth.spigot;
-            this.userStorage = this.superAuth.getUserStorage();
-            Thread thread = new Thread(() -> this.getSpigotTasks().runRepeatingTask(0L, Utils.toTicks(60), this::sync));
-            thread.setPriority(3);
-            thread.start();
-        }
-    }
-
-    public void sync(){
-        for(Player player : Bukkit.getOnlinePlayers()){
-            if(player == null)
-                continue;
-            User user = this.userStorage.get(player.getName());
-            if(user == null)
-                continue;
-
-            if(player.getAddress() == null)
-                continue;
-
-            String ip = user.getIp() == null ? "null" : user.getIp();
-            if(ip.equalsIgnoreCase("null")){
-                String playerIp = player.getAddress().getAddress().getHostAddress();
-                user.setIp(playerIp);
-                this.userStorage.save(user);
-                if(this.superAuth.getVPNBlocker().isVPN(playerIp)){
-                    player.kickPlayer(this.getSuperUtils().color(LBase.VPN_KICK.toString()));
+            final SuperAuth superAuth = SuperAuth.spigot;
+            final UserStorage userStorage = superAuth.getUserStorage();
+            this.getSpigotTasks().runRepeatingTask(0L, Utils.toTicks(60), () -> {
+                for(Player player : Bukkit.getOnlinePlayers()){
+                    if(Utils.isConnected() && player != null && player.getAddress() != null){
+                        new Thread(() -> {
+                            User user = userStorage.get(player.getName());
+                            if(user != null){
+                                String ip = user.getIp() == null ? "null" : user.getIp();
+                                String playerIp = player.getAddress().getAddress().getHostAddress();
+                                if(!ip.equalsIgnoreCase("null")){
+                                    user.setIp(playerIp);
+                                    userStorage.save(user);
+                                    if(superAuth.getVPNBlocker().isVPN(playerIp)){
+                                        this.getSpigotTasks().runTask(() -> player.kickPlayer(this.getSuperUtils().color(LBase.VPN_KICK.toString())));
+                                    }
+                                }else if(!playerIp.equals(ip)){
+                                    this.getSpigotTasks().runTask(() -> player.kickPlayer(this.getSuperUtils().color(LBase.YOUR_IP_HAS_CHANGED.options().placeholder("{NewIPAddress}", ip).get())));
+                                }
+                            }
+                        }).start();
+                    }
                 }
-            }
+            });
         }
     }
 }

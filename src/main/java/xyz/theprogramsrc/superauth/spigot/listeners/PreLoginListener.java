@@ -15,7 +15,6 @@ public class PreLoginListener extends SpigotModule  {
     private VPNBlocker vpnBlocker;
     private UserStorage userStorage;
 
-
     @Override
     public void onLoad() {
         this.vpnBlocker = SuperAuth.spigot.getVPNBlocker();
@@ -48,6 +47,5 @@ public class PreLoginListener extends SpigotModule  {
             }
         }
     }
-
 
 }

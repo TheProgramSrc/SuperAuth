@@ -1,6 +1,7 @@
 package xyz.theprogramsrc.superauth.spigot.commands;
 
 import org.bukkit.entity.Player;
+import xyz.theprogramsrc.superauth.api.auth.SuperAuthAfterCaptchaEvent;
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthBeforeCaptchaEvent;
 import xyz.theprogramsrc.superauth.global.hashing.Hashing;
 import xyz.theprogramsrc.superauth.global.languages.LBase;
@@ -65,6 +66,7 @@ public class RegisterCommand extends SpigotCommand {
     }
 
     private void exe(User user, Player player, String[] args){
+
         try{
             if(args.length == 0){
                 return;
@@ -83,7 +85,7 @@ public class RegisterCommand extends SpigotCommand {
 
             String password = Hashing.hash(this.authSettings.getHashingMethod(), input);
             user.setPassword(password).setRegistered(true).setAuthMethod("COMMANDS");
-            this.userStorage.save(user);
+            this.userStorage.save(user, false);
 
             if(this.authSettings.isCaptchaEnabled()){
                 if(Utils.random(0.0, 1.0) <= this.authSettings.getCaptchaChance()){
@@ -110,12 +112,12 @@ public class RegisterCommand extends SpigotCommand {
                         @Override
                         public boolean onResult(String playerInput) {
                             if(!playerInput.contentEquals(captcha)){
-                                this.getSuperUtils().sendMessage(player, LBase.WRONG_CAPTCHA.options().vars(captcha).toString());
+                                this.getSuperUtils().sendMessage(player, LBase.WRONG_CAPTCHA.options().placeholder("{Captcha}", captcha).vars(captcha).toString());
                                 return false;
                             }else{
                                 RegisterCommand self = RegisterCommand.this;
-                                SuperAuth.spigot.runEvent(new SuperAuthBeforeCaptchaEvent(self.authSettings, self.userStorage, player.getName()));
-                                new ActionManager(this.getPlayer()).after(false);
+                                SuperAuth.spigot.runEvent(new SuperAuthAfterCaptchaEvent(self.authSettings, self.userStorage, player.getName()));
+                                new ActionManager(player).after(false);
                                 return true;
                             }
                         }
@@ -125,6 +127,8 @@ public class RegisterCommand extends SpigotCommand {
                             return false;
                         }
                     };
+                }else{
+                    new ActionManager(player).after(false);
                 }
             }else{
                 new ActionManager(player).after(false);

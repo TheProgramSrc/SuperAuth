@@ -7,6 +7,7 @@ import xyz.theprogramsrc.supercoreapi.global.storage.DataBaseStorage;
 import xyz.theprogramsrc.supercoreapi.global.storage.SQLiteDataBase;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -50,27 +51,7 @@ public class UserStorage extends DataBaseStorage {
             this.cache.remove(user.getUsername());
             this.dataBase.connect(c->{
                 try{
-                    String username = user.getUsername();
-                    String password = user.getPassword();
-                    String ip = user.getIp();
-                    String authMethod = user.getAuthMethod();
-                    String skin_texture;
-                    if(user.hasSkin()){
-                        skin_texture = Utils.encodeBase64(user.getSkinTexture());
-                    }else{
-                        skin_texture = "no_skin";
-                    }
-                    int premium = user.isPremium() ? 1 : 0;
-                    int admin = user.isAdmin() ? 1 : 0;
-                    int authorized = user.isAuthorized() ? 1 : 0;
-                    int registered = user.isRegistered() ? 1 : 0;
-                    Statement s = c.createStatement();
-                    if(!this.exists(username)){
-                        s.executeUpdate("INSERT INTO " + this.table + " (user_name, user_password, user_ip, is_premium, is_admin, is_authorized, is_registered, auth_method, skin_texture) VALUES ('"+username+"', '"+password+"', '"+ip+"', '"+premium+"', '"+admin+"', '"+authorized+"', '"+registered+"', '"+authMethod+"', '"+skin_texture+"');");
-                    }else{
-                        s.executeUpdate("UPDATE " + this.table + " SET user_password='"+password+"', user_ip='"+ip+"', is_premium='"+premium+"', is_admin='"+admin+"', is_authorized='"+authorized+"', is_registered='"+registered+"', auth_method='"+authMethod+"', skin_texture='"+skin_texture+"' WHERE user_name='"+username+"';");
-                    }
-                    s.closeOnCompletion();
+                    saveUser(user, c);
                 }catch (SQLException ex){
                     this.plugin.addError(ex);
                     this.plugin.log("&c" + LBase.ERROR_WHILE_SAVING_USER_DATA.options().vars(user.getUsername()).placeholder("{UserName}", user.getUsername()).toString());
@@ -83,6 +64,30 @@ public class UserStorage extends DataBaseStorage {
         }else{
             runnable.run();
         }
+    }
+
+    public void saveUser(User user, Connection c) throws SQLException{
+        String username = user.getUsername();
+        String password = user.getPassword();
+        String ip = user.getIp();
+        String authMethod = user.getAuthMethod();
+        String skin_texture;
+        if(user.hasSkin()){
+            skin_texture = Utils.encodeBase64(user.getSkinTexture());
+        }else{
+            skin_texture = "no_skin";
+        }
+        int premium = user.isPremium() ? 1 : 0;
+        int admin = user.isAdmin() ? 1 : 0;
+        int authorized = user.isAuthorized() ? 1 : 0;
+        int registered = user.isRegistered() ? 1 : 0;
+        Statement s = c.createStatement();
+        if(!this.exists(username)){
+            s.executeUpdate("INSERT INTO " + this.table + " (user_name, user_password, user_ip, is_premium, is_admin, is_authorized, is_registered, auth_method, skin_texture) VALUES ('"+username+"', '"+password+"', '"+ip+"', '"+premium+"', '"+admin+"', '"+authorized+"', '"+registered+"', '"+authMethod+"', '"+skin_texture+"');");
+        }else{
+            s.executeUpdate("UPDATE " + this.table + " SET user_password='"+password+"', user_ip='"+ip+"', is_premium='"+premium+"', is_admin='"+admin+"', is_authorized='"+authorized+"', is_registered='"+registered+"', auth_method='"+authMethod+"', skin_texture='"+skin_texture+"' WHERE user_name='"+username+"';");
+        }
+        s.closeOnCompletion();
     }
 
     public User get(String username){

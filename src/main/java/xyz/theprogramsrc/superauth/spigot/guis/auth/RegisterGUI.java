@@ -125,8 +125,8 @@ public class RegisterGUI extends GUI {
         return new GUIButton(53, item, a->{
             try{
                 String password = Hashing.hash(this.authSettings.getHashingMethod(), this.input);
-                this.user.setPassword(password).setRegistered(true).setAuthMethod("GUI");
-                this.userStorage.save(this.user);
+                User u = this.user.setPassword(password).setRegistered(true).setAuthMethod("GUI");
+                this.userStorage.save(u, false);
                 this.finish(a);
             }catch (NoSuchAlgorithmException ex){
                 this.plugin.addError(ex);

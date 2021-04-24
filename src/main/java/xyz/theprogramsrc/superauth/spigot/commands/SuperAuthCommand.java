@@ -10,9 +10,15 @@ import xyz.theprogramsrc.superauth.spigot.guis.account.MyAccountGUI;
 import xyz.theprogramsrc.superauth.spigot.guis.admin.AdminGUI;
 import xyz.theprogramsrc.superauth.spigot.managers.ActionManager;
 import xyz.theprogramsrc.superauth.spigot.memory.ForceLoginMemory;
+import xyz.theprogramsrc.superauth.spigot.storage.DatabaseMigration;
+import xyz.theprogramsrc.supercoreapi.global.storage.DataBase;
+import xyz.theprogramsrc.supercoreapi.global.storage.DataBaseSettings;
+import xyz.theprogramsrc.supercoreapi.global.storage.MySQLDataBase;
+import xyz.theprogramsrc.supercoreapi.global.storage.SQLiteDataBase;
 import xyz.theprogramsrc.supercoreapi.spigot.commands.CommandResult;
 import xyz.theprogramsrc.supercoreapi.spigot.commands.precreated.SuperCoreAPICommand;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.SpigotConsole;
+import xyz.theprogramsrc.supercoreapi.spigot.utils.storage.SpigotYMLConfig;
 
 public class SuperAuthCommand extends SuperCoreAPICommand {
 
@@ -233,15 +239,20 @@ public class SuperAuthCommand extends SuperCoreAPICommand {
                     this.executeInfoCommand(console.parseConsoleCommandSender());
                     new Thread(()-> {
                         if(!SuperAuth.spigot.isSQLite()){
-                            this.log("Testing DataBase Connection");
+                            this.log("&7Testing connection with MySQL DataBase...");
                             boolean test = SuperAuth.spigot.getDataBase().testConnection();
                             if(test){
                                 this.log("&aTest Passed!");
                             }else{
                                 this.log("&cTest failed!");
                             }
+                        }else{
+                            this.log("&7The plugin is currently connected to SQLite");
                         }
-                    });
+                    }).start();
+                    return CommandResult.COMPLETED;
+                case "migrate":
+                    SuperAuth.spigot.migrateBetweenDatabases();
                     return CommandResult.COMPLETED;
                 default:
                     return CommandResult.INVALID_ARGS;

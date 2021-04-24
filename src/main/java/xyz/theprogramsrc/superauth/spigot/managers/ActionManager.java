@@ -111,7 +111,7 @@ public class ActionManager extends SpigotModule {
                 if(authAction != null){
                     String argument = data[1];
                     if(authAction.canExecute(before, login)){
-                        authAction.run(argument, player);
+                        authAction.run(this.placeholderManager.applyPlaceholders(argument, player), player);
                     }
                 }
             }
