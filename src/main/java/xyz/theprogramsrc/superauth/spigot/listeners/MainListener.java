@@ -105,7 +105,7 @@ public class MainListener extends SpigotModule {
     }
 
     private boolean validateIpAddress(final Player player, User user){
-        if(player.getAddress() != null && user.getIp() != null && !user.getIp().equals("") && !user.getIp().equals(" ") && !user.getIp().equals("null")){
+        if(player.getAddress() != null && user.getIp() != null && !user.getIp().equals("") && !user.getIp().equals(" ") && !user.getIp().equals("null") && this.settings.isBlockIPChanges()){
             String ip = player.getAddress().getAddress().getHostAddress();
             if(!ip.equals(user.getIp())){
                 player.kickPlayer(this.getSuperUtils().color(LBase.YOUR_IP_HAS_CHANGED.options().placeholder("{NewIPAddress}", ip).get()));

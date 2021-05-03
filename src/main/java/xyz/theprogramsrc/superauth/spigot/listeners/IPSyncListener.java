@@ -17,6 +17,7 @@ public class IPSyncListener extends SpigotModule {
             final SuperAuth superAuth = SuperAuth.spigot;
             final UserStorage userStorage = superAuth.getUserStorage();
             this.getSpigotTasks().runRepeatingTask(0L, Utils.toTicks(60), () -> {
+                boolean blockIPChanges = superAuth.getAuthSettings().isBlockIPChanges();
                 for(Player player : Bukkit.getOnlinePlayers()){
                     if(Utils.isConnected() && player != null && player.getAddress() != null){
                         new Thread(() -> {
@@ -30,7 +31,7 @@ public class IPSyncListener extends SpigotModule {
                                     if(superAuth.getVPNBlocker().isVPN(playerIp)){
                                         this.getSpigotTasks().runTask(() -> player.kickPlayer(this.getSuperUtils().color(LBase.VPN_KICK.toString())));
                                     }
-                                }else if(!playerIp.equals(ip)){
+                                }else if(!playerIp.equals(ip) && blockIPChanges){
                                     this.getSpigotTasks().runTask(() -> player.kickPlayer(this.getSuperUtils().color(LBase.YOUR_IP_HAS_CHANGED.options().placeholder("{NewIPAddress}", ip).get())));
                                 }
                             }
