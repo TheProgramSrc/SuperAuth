@@ -52,12 +52,12 @@ public class SuperAuth extends SpigotPlugin {
     public void onPluginLoad() {
         spigot = this;
         try{
-            this.vpnBlocker = new VPNBlocker(this);
             new CaptchaMemory();
             new WasRegisteredMemory();
             new ForceLoginMemory();
-            new SessionStorage(this);
             this.log("Loaded Memory Storage");
+            new SessionStorage(this);
+            this.log("Loaded Session Storage");
             this.handlers = new ArrayList<>();
             actionThreadIds = new LinkedHashMap<>();
         }catch (Exception e){
@@ -80,6 +80,8 @@ public class SuperAuth extends SpigotPlugin {
             this.log("Loaded User Storage");
             this.authSettings = new AuthSettings();
             this.log("Loaded Auth Settings");
+            this.vpnBlocker = new VPNBlocker(this, this.authSettings.isVPNBlocker());
+            this.log("Loaded VPNBlocker");
             this.authActionsConfig = new SpigotYMLConfig(this.getPluginFolder(), "AuthActions.yml");
             AuthAction.registerDefaults();
             this.log("Loaded Auth Actions");

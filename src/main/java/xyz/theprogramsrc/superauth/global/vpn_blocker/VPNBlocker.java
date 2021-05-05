@@ -13,14 +13,19 @@ public class VPNBlocker {
     private final HashMap<String, Boolean> cache;
     private final String apiEndpoint;
     private final SuperPlugin<?> plugin;
+    private final boolean enabled;
 
-    public VPNBlocker(SuperPlugin<?> plugin){
+    public VPNBlocker(SuperPlugin<?> plugin, boolean enabled){
         this.plugin = plugin;
         this.cache = new HashMap<>();
         this.apiEndpoint = "https://api.theprogramsrc.xyz/superauth/ip_checker/?ip={IP}";
+        this.enabled = enabled;
     }
 
     public boolean isVPN(String ip){
+        if(!this.enabled)
+            return false;
+
         if(!Utils.isConnected())
             return false;
 

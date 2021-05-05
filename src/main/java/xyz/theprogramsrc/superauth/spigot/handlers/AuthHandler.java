@@ -84,7 +84,7 @@ public class AuthHandler extends SpigotModule {
         String path = this.user.getIp() + this.player.getUniqueId();
         if(SessionStorage.i.has(path)){
             String data = SessionStorage.i.get(path);
-            long maxTime = SuperAuth.spigot.getAuthSettings().getMaxTime() * 1000L;
+            long maxTime = SuperAuth.spigot.getAuthSettings().getSessionMaxTime() * 1000L;
             long lastTime;
             try {
                 lastTime = Long.parseLong(data);

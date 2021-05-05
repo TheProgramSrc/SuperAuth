@@ -39,6 +39,7 @@ public class AuthSettings extends SpigotYMLConfig {
         if(!this.contains("AntiBots.Captcha.Chance")) this.add("AntiBots.Captcha.Chance", 0.9D);
         if(!this.contains("AntiBots.Captcha.Length")) this.add("AntiBots.Captcha.Length", 5);
         if(!this.contains("AntiBots.BlockIPChanges")) this.add("AntiBots.BlockIPChanges", true);
+        if(!this.contains("AntiBots.VPNBlocker")) this.add("AntiBots.VPNBlocker", false);
         if(!this.contains("Before.Register")) this.add("Before.Register", Utils.toList("msg:&aHello! Please register yourself"));
         if(!this.contains("Before.Login")) this.add("Before.Login", Utils.toList("msg:&aHello Again! Please authenticate yourself"));
         if(!this.contains("After.Register")) this.add("After.Register", Utils.toList("msg:&aGreat! Now you can play", "cmd:kit nooby", "server:rules"));
@@ -61,6 +62,10 @@ public class AuthSettings extends SpigotYMLConfig {
     public void reload() {
         super.reload();
         this.authMethod = AuthMethod.of(this.getString("AuthMethod"));
+    }
+
+    public boolean isVPNBlocker(){
+        return this.getBoolean("AntiBots.VPNBlocker", false);
     }
 
     public boolean isBlockIPChanges(){

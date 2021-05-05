@@ -38,8 +38,6 @@ public class SuperAuth extends BungeePlugin {
     public void onPluginLoad() {
         bungee = this;
         this.log("Instance loaded");
-        this.vpnBlocker = new VPNBlocker(this);
-        this.log("VPNBlocker Loaded");
         new SessionStorage(this);
         this.log("Memory Storage Loaded");
     }
@@ -48,6 +46,8 @@ public class SuperAuth extends BungeePlugin {
     public void onPluginEnable() {
         this.registerTranslation(LBase.class);
         this.log("Default translation loaded");
+        this.vpnBlocker = new VPNBlocker(this, this.getSettings().getConfig().getBoolean("VPNBlockerEnabled", true));
+        this.log("VPNBlocker Loaded");
         this.serverUtils = new ServerUtils();
         this.log("Server Utils loaded");
         this.loadSettings();
