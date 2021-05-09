@@ -9,6 +9,8 @@ import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotModule;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.storage.SpigotYMLConfig;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -195,6 +197,25 @@ public abstract class AuthAction extends SpigotModule {
             private String locToString(Location loc){
                 if(loc.getWorld() == null) return null;
                 return loc.getWorld().getName() + ";" + loc.getX() + ";" + loc.getY() + ";" + loc.getZ() + ";" + loc.getYaw() + ";" + loc.getPitch();
+            }
+        };
+
+        new AuthAction("resourcepack"){
+            @Override
+            public void onExecute(String argument, Player player) {
+                try{
+                    String url;
+                    if(argument.startsWith("http")){ // Take as url
+                        url = argument;
+                    }else{ // Take as file
+                        url = new File(argument).toURI().toURL().toString();
+                    }
+                    player.setResourcePack(url);
+                }catch (IOException e){
+                    this.plugin.addError(e);
+                    this.log("&cFailed to apply Resource Pack:");
+                    e.printStackTrace();
+                }
             }
         };
     }
