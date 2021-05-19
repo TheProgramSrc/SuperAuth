@@ -95,7 +95,6 @@ public class SuperAuth extends SpigotPlugin {
             this.log("Loaded Pre-Login Listener");
             this.mainListener = new MainListener();
             this.log("Loaded Join Listener");
-            new GeneralListeners();
             new SkinSyncListener();
             new IPSyncListener();
             this.log("Loaded General Listeners");

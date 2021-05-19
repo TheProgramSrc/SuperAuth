@@ -262,25 +262,6 @@ public class BlockActionsListener extends SpigotModule {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onInventoryOpen(InventoryOpenEvent e){
-        if(this.settings.getBlockedActions().contains("CUSTOM_INVENTORY")){
-            Player player = ((Player)e.getPlayer());
-            User user = this.userStorage.get(player.getName());
-            if(user != null){
-                if(user.getAuthMethod() == null || !user.isRegistered()){
-                    if(this.settings.getAuthMethod() != AuthMethod.GUI){
-                        player.closeInventory();
-                    }
-                }else{
-                    if(!user.getAuthMethod().equalsIgnoreCase("GUI")){
-                        player.closeInventory();
-                    }
-                }
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
     public void onDamage2(EntityDamageByEntityEvent e){
         this.onDamage(e);
     }

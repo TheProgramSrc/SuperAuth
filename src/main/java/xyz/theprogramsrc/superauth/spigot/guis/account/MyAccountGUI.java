@@ -8,6 +8,7 @@ import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
 import xyz.theprogramsrc.superauth.spigot.storage.AuthSettings;
+import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.spigot.dialog.Dialog;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.GUI;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.GUIButton;
@@ -19,6 +20,8 @@ import xyz.theprogramsrc.supercoreapi.spigot.items.SimpleItem;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.xseries.XMaterial;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedList;
+import java.util.List;
 
 public class MyAccountGUI extends GUI {
 
@@ -43,11 +46,20 @@ public class MyAccountGUI extends GUI {
     }
 
     @Override
-    public void onEvent(GUIEvent event) {
-        if(event instanceof GUIOpenEvent){
-            this.addButton(this.getChangePassword());
-            this.addButton(this.getTogglePremiumMode());
+    protected GUIButton[] getButtons() {
+        LinkedList<GUIButton> buttons = new LinkedList<>();
+        List<Integer> used = Utils.toList(12, 14, this.getRows().getSize()-1);
+        for(int i = 0; i < this.getRows().getSize(); ++i){
+            if(!used.contains(i)){
+                buttons.add(new GUIButton(i, this.getPreloadedItems().emptyItem()));
+            }
         }
+
+        buttons.add(this.getTogglePremiumMode());
+        buttons.add(this.getChangePassword());
+        buttons.add(new GUIButton(this.getRows().getSize()-1, this.getPreloadedItems().getBackItem(), a-> this.close()));
+
+        return buttons.toArray(new GUIButton[0]);
     }
 
     private GUIButton getTogglePremiumMode(){

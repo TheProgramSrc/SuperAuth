@@ -42,24 +42,28 @@ public class ActionManager extends SpigotModule {
     }
 
     public void after(boolean login){
-        if(login){
-            this.afterLogin();
-        }else{
-            this.afterRegister();
-        }
+        this.getSpigotTasks().runAsyncTask(() -> {
+            if(login){
+                this.afterLogin();
+            }else{
+                this.afterRegister();
+            }
 
-        User user = this.userStorage.get(player.getName());
-        user.setAuthorized(true);
-        this.userStorage.save(user);
-        this.getSpigotTasks().runTaskLater(2L, this.player::closeInventory);
+            User user = this.userStorage.get(player.getName());
+            user.setAuthorized(true);
+            this.userStorage.save(user);
+            this.getSpigotTasks().runTaskLater(2L, this.player::closeInventory);
+        });
     }
 
     public void before(boolean login){
-        if(login){
-            this.beforeLogin();
-        }else{
-            this.beforeRegister();
-        }
+        this.getSpigotTasks().runTask(() -> {
+            if(login){
+                this.beforeLogin();
+            }else{
+                this.beforeRegister();
+            }
+        });
     }
 
     private void beforeLogin(){
