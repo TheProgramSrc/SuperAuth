@@ -40,7 +40,7 @@ public class AuthHandler extends SpigotModule {
     }
 
     private void execute(){
-        this.beforeAuth();
+        this.getSpigotTasks().runAsyncTask(this::beforeAuth);
         if(this.getAuthMethod() == COMMANDS){ // Command Auth Handler
             new CommandAuthHandler(this.player, this.user);
         }else if(this.getAuthMethod() == GUI){ // GUI Auth Handler

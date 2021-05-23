@@ -121,6 +121,8 @@ public class ActionManager extends SpigotModule {
             }
             SuperAuth.actionThreadIds.remove(this.player.getUniqueId());
         });
+        String name = "SuperAuth Actions " + (before ? "Before" : "After") + " " + (login ? "Login" : "Register");
+        thread.setName("SuperAuth Actions ");
         SuperAuth.actionThreadIds.put(this.player.getUniqueId(), thread.getId());
         thread.start();
     }

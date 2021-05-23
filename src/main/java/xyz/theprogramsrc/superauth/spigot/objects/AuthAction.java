@@ -53,6 +53,10 @@ public abstract class AuthAction extends SpigotModule {
         return new AuthActionFlags[]{ AuthActionFlags.ALL };
     }
 
+    public boolean isAsync() {
+        return true;
+    }
+
     public abstract void onExecute(String argument, Player player);
 
     public boolean canExecute(boolean before, boolean login){
@@ -89,7 +93,12 @@ public abstract class AuthAction extends SpigotModule {
         new AuthAction("cmd"){
             @Override
             public void onExecute(final String argument, final Player player) {
-                this.getSpigotTasks().runTask(() -> Bukkit.dispatchCommand(player, argument));
+                Bukkit.dispatchCommand(player, argument);
+            }
+
+            @Override
+            public boolean isAsync() {
+                return false;
             }
         };
 
@@ -97,7 +106,12 @@ public abstract class AuthAction extends SpigotModule {
         new AuthAction("console"){
             @Override
             public void onExecute(final String argument, final Player player) {
-                this.getSpigotTasks().runTask(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), argument));
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), argument);
+            }
+
+            @Override
+            public boolean isAsync() {
+                return false;
             }
         };
         
@@ -115,9 +129,14 @@ public abstract class AuthAction extends SpigotModule {
                     }else{
                         double x = Double.parseDouble(args[1]), y = Double.parseDouble(args[2]), z = Double.parseDouble(args[3]);
                         float yaw = Float.parseFloat(args[4]), pitch = Float.parseFloat(args[5]);
-                        getSpigotTasks().runTask(() -> player.teleport(new Location(world, x, y, z, yaw, pitch)));
+                        player.teleport(new Location(world, x, y, z, yaw, pitch));
                     }
                 }
+            }
+
+            @Override
+            public boolean isAsync() {
+                return false;
             }
         };
         
@@ -125,7 +144,12 @@ public abstract class AuthAction extends SpigotModule {
         new AuthAction("server"){
             @Override
             public void onExecute(String argument, Player player) {
-                getSpigotTasks().runTask(()-> SuperAuth.spigot.getServerUtils().spigot().sendToServer(player, argument));
+                SuperAuth.spigot.getServerUtils().spigot().sendToServer(player, argument);
+            }
+
+            @Override
+            public boolean isAsync() {
+                return false;
             }
         };
 
@@ -167,7 +191,7 @@ public abstract class AuthAction extends SpigotModule {
                     }else{
                         Location location = this.locFromString(this.cfg.getString(path));
                         if(location != null){
-                            this.getSpigotTasks().runTask(() -> player.teleport(location));
+                            player.teleport(location);
                         }
                     }
                 }else{
@@ -198,6 +222,11 @@ public abstract class AuthAction extends SpigotModule {
                 if(loc.getWorld() == null) return null;
                 return loc.getWorld().getName() + ";" + loc.getX() + ";" + loc.getY() + ";" + loc.getZ() + ";" + loc.getYaw() + ";" + loc.getPitch();
             }
+
+            @Override
+            public boolean isAsync(){
+                return false;
+            }
         };
 
         new AuthAction("resourcepack"){
@@ -217,6 +246,11 @@ public abstract class AuthAction extends SpigotModule {
                     e.printStackTrace();
                 }
             }
+
+            @Override
+            public boolean isAsync(){
+                return false;
+            }
         };
     }
 
@@ -226,7 +260,11 @@ public abstract class AuthAction extends SpigotModule {
         if(saved != id || !SuperAuth.actionThreadIds.containsKey(player.getUniqueId())){
             this.log("&cThe action &7" + this.id + "&c is running in a non-action thread! To avoid problems the plugin will ignore this action");
         }else{
-            this.onExecute(argument, player);
+            if(this.isAsync()){
+                this.getSpigotTasks().runAsyncTask(() -> this.onExecute(argument, player));
+            }else {
+                this.getSpigotTasks().runTask(() -> this.onExecute(argument, player));
+            }
         }
     }
 

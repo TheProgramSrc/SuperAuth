@@ -9,10 +9,13 @@ import xyz.theprogramsrc.superauth.spigot.SuperAuth;
 import xyz.theprogramsrc.superauth.spigot.managers.ActionManager;
 import xyz.theprogramsrc.superauth.spigot.memory.CaptchaMemory;
 import xyz.theprogramsrc.superauth.spigot.storage.AuthSettings;
+import xyz.theprogramsrc.supercoreapi.global.objects.RecurringTask;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotModule;
 
 public class CommandAuthHandler extends SpigotModule {
+
+    private RecurringTask task;
 
     public CommandAuthHandler(Player player, User user){
         this.debug("Loading user '" + player.getName() + "' with " + this.getClass().getSimpleName());
@@ -23,44 +26,38 @@ public class CommandAuthHandler extends SpigotModule {
 
         if(!user.isRegistered()){
             actionManager.before(false);
-            new BukkitRunnable(){
-                @Override
-                public void run() {
-                    User finalUser = userStorage.get(player.getName());
-                    if(finalUser != null){
-                        if(!finalUser.isAuthorized()){
-                            if(!CaptchaMemory.i.has(player.getName())) {
-                                CommandAuthHandler.this.getSuperUtils().sendMessage(player, LBase.REGISTER_COMMAND_USAGE.options().placeholder("{Command}", authSettings.getRegisterCommand().toLowerCase()).get());
-                            }else{
-                                this.cancel();
-                            }
+            this.task = this.getSpigotTasks().runAsyncRepeatingTask(0L, Utils.toTicks(authSettings.getCommandUsageTimer()), () -> {
+                User finalUser = userStorage.get(player.getName());
+                if(finalUser != null){
+                    if(!finalUser.isAuthorized()){
+                        if(!CaptchaMemory.i.has(player.getName())) {
+                            CommandAuthHandler.this.getSuperUtils().sendMessage(player, LBase.REGISTER_COMMAND_USAGE.options().placeholder("{Command}", authSettings.getRegisterCommand().toLowerCase()).get());
                         }else{
-                            this.cancel();
+                            this.task.stop();
                         }
+                    }else{
+                        this.task.stop();
                     }
                 }
-            }.runTaskTimer(this.spigotPlugin, 0L, Utils.toTicks(authSettings.getCommandUsageTimer()));
+            });
         }else{
             actionManager.before(true);
             user.setAuthorized(false);
             userStorage.save(user);
-            new BukkitRunnable(){
-                @Override
-                public void run() {
-                    User finalUser = userStorage.get(player.getName());
-                    if(finalUser != null){
-                        if(!finalUser.isAuthorized()){
-                            if(!CaptchaMemory.i.has(player.getName())) {
-                                CommandAuthHandler.this.getSuperUtils().sendMessage(player, LBase.LOGIN_COMMAND_USAGE.options().placeholder("{Command}", authSettings.getLoginCommand().toLowerCase()).get());
-                            }else{
-                                this.cancel();
-                            }
+            this.task = this.getSpigotTasks().runAsyncRepeatingTask(0L, Utils.toTicks(authSettings.getCommandUsageTimer()), () -> {
+                User finalUser = userStorage.get(player.getName());
+                if(finalUser != null){
+                    if(!finalUser.isAuthorized()){
+                        if(!CaptchaMemory.i.has(player.getName())) {
+                            CommandAuthHandler.this.getSuperUtils().sendMessage(player, LBase.LOGIN_COMMAND_USAGE.options().placeholder("{Command}", authSettings.getLoginCommand().toLowerCase()).get());
                         }else{
-                            this.cancel();
+                            this.task.stop();
                         }
+                    }else{
+                        this.task.stop();
                     }
                 }
-            }.runTaskTimer(this.spigotPlugin, 0L, Utils.toTicks(authSettings.getCommandUsageTimer()));
+            });
         }
     }
 }

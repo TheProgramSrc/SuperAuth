@@ -113,7 +113,6 @@ public class DialogAuthHandler extends SpigotModule {
             };
 
             String username = player.getName();
-
             new BukkitRunnable(){
                 @Override
                 public void run() {
@@ -129,7 +128,7 @@ public class DialogAuthHandler extends SpigotModule {
                         }
                     }
                 }
-            }.runTaskTimer(this.spigotPlugin, 0L, 20L);
+            }.runTaskTimerAsynchronously(this.spigotPlugin, 0L, 20L);
         });
     }
 
@@ -265,7 +264,7 @@ public class DialogAuthHandler extends SpigotModule {
                         }
                     }
                 }
-            }.runTaskTimer(this.spigotPlugin, 0L, 20L);
+            }.runTaskTimerAsynchronously(this.spigotPlugin, 0L, 20L);
         });
     }
 }

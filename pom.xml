@@ -6,7 +6,7 @@
 
     <groupId>xyz.theprogramsrc</groupId>
     <artifactId>SuperAuth</artifactId>
-    <version>3.14.1</version>
+    <version>3.15.0</version>
     <packaging>jar</packaging>
 
     <name>SuperAuth</name>
@@ -95,8 +95,7 @@
         <dependency>
             <groupId>xyz.theprogramsrc</groupId>
             <artifactId>SuperCoreAPI</artifactId>
-            <version>4.12.5</version>
-            <scope>compile</scope>
+            <version>4.13.0</version>
         </dependency>
         <!-- Spigot -->
         <dependency>

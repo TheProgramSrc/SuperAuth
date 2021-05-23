@@ -110,7 +110,7 @@ public class LoginCommand extends SpigotCommand {
                             @Override
                             public boolean onResult(String playerInput) {
                                 if(!playerInput.contentEquals(captcha)){
-                                    this.getSuperUtils().sendMessage(player, LBase.WRONG_CAPTCHA.options().vars(captcha).toString());
+                                    this.getSuperUtils().sendMessage(player, LBase.WRONG_CAPTCHA.options().vars(captcha).placeholder("{Captcha}", captcha).toString());
                                     return false;
                                 }else{
                                     SuperAuth.spigot.runEvent(new SuperAuthAfterCaptchaEvent(LoginCommand.this.authSettings, LoginCommand.this.userStorage, player.getName()));
