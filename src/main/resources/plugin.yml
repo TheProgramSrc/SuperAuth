@@ -4,8 +4,12 @@ main: xyz.theprogramsrc.superauth.spigot.SuperAuth
 api-version: "1.13"
 authors: [TheProgramSrc]
 description: Secure your users and server
-website: https://theprogramsrc.xyz/
+website: ${project.url}
 softdepend: [PlaceholderAPI]
+
+libraries:
+  - org.xerial:sqlite-jdbc:3.25.2
+  - com.zaxxer:HikariCP:3.3.1
 
 permissions:
   superauth.my-account:

@@ -4,3 +4,7 @@ version: ${project.version}
 author: TheProgramSrc
 description: Secure your users and server
 website: ${project.url}
+
+libraries:
+  - org.xerial:sqlite-jdbc:3.25.2
+  - com.zaxxer:HikariCP:3.3.1
