@@ -21,6 +21,7 @@ import xyz.theprogramsrc.superauth.spigot.objects.AuthAction;
 import xyz.theprogramsrc.superauth.spigot.storage.AuthSettings;
 import xyz.theprogramsrc.superauth.spigot.storage.DatabaseMigration;
 import xyz.theprogramsrc.supercoreapi.global.Metrics;
+import xyz.theprogramsrc.supercoreapi.global.files.yml.YMLConfig;
 import xyz.theprogramsrc.supercoreapi.global.storage.DataBase;
 import xyz.theprogramsrc.supercoreapi.global.storage.DataBaseSettings;
 import xyz.theprogramsrc.supercoreapi.global.storage.MySQLDataBase;
@@ -30,7 +31,6 @@ import xyz.theprogramsrc.supercoreapi.global.utils.ServerUtils;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.global.utils.VersioningUtil;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotPlugin;
-import xyz.theprogramsrc.supercoreapi.spigot.utils.storage.SpigotYMLConfig;
 
 import java.util.*;
 
@@ -46,7 +46,7 @@ public class SuperAuth extends SpigotPlugin {
     private BlockActionsListener blockActionsListener;
     private MainListener mainListener;
     public static LinkedHashMap<UUID, Long> actionThreadIds;
-    public SpigotYMLConfig authActionsConfig;
+    public YMLConfig authActionsConfig;
 
     @Override
     public void onPluginLoad() {
@@ -82,7 +82,7 @@ public class SuperAuth extends SpigotPlugin {
             this.log("Loaded Auth Settings");
             this.vpnBlocker = new VPNBlocker(this, this.authSettings.isVPNBlocker());
             this.log("Loaded VPNBlocker");
-            this.authActionsConfig = new SpigotYMLConfig(this.getPluginFolder(), "AuthActions.yml");
+            this.authActionsConfig = new YMLConfig(this.getPluginFolder(), "AuthActions.yml");
             AuthAction.registerDefaults();
             this.log("Loaded Auth Actions");
             LinkedList<String> filteredCommands = new LinkedList<>(Utils.toList(this.authSettings.getAuthCommand(), this.authSettings.getLoginCommand(), this.authSettings.getRegisterCommand()));
@@ -177,7 +177,7 @@ public class SuperAuth extends SpigotPlugin {
     }
 
     private void setupSettings(){
-        final SpigotYMLConfig cfg = this.getSettingsStorage().getConfig();
+        final YMLConfig cfg = this.getSettingsStorage().getConfig();
         if(!cfg.contains("UpdateChecker")) cfg.add("UpdateChecker", true);
         if(!cfg.contains("MySQL.Enabled") || !cfg.contains("MySQL.Host") || !cfg.contains("MySQL.Port") || !cfg.contains("MySQL.DataBase") || !cfg.contains("MySQL.UserName") || !cfg.contains("MySQL.Password") || !cfg.contains("MySQL.UseSSL")){
             if(!cfg.contains("MySQL.Enabled")) cfg.add("MySQL.Enabled", false);
@@ -291,7 +291,7 @@ public class SuperAuth extends SpigotPlugin {
     public void migrateBetweenDatabases(){
         DataBase from = this.dataBase;
         DataBase to;
-        SpigotYMLConfig cfg = this.getSettingsStorage().getConfig();
+        YMLConfig cfg = this.getSettingsStorage().getConfig();
         if(this.isSQLite()){
             to = new MySQLDataBase(this) {
                 @Override
@@ -348,13 +348,13 @@ public class SuperAuth extends SpigotPlugin {
 
         this.log("&cReloading config...");
 
-        this.getAuthSettings().reload();
-        this.getSettingsStorage().getConfig().reload();
+        this.getAuthSettings().load();
+        this.getSettingsStorage().getConfig().load();
         this.getPluginDataStorage().reload();
-        this.getTranslationManager().reloadTranslations();
+        this.getTranslationManager().loadTranslations();
         this.getBlockActionsListener().onLoad();
         this.getMainListener().onReload();
-        this.authActionsConfig.reload();
+        this.authActionsConfig.load();
         this.log("&cConfiguration reloaded");
         this.log("&cTO AVOID BUGS PLEASE RESTART YOUR SERVER NOW.");
     }

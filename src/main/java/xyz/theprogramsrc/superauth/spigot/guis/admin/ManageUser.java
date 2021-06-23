@@ -8,13 +8,13 @@ import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
 import xyz.theprogramsrc.superauth.spigot.storage.AuthSettings;
+import xyz.theprogramsrc.supercoreapi.libs.xseries.XMaterial;
 import xyz.theprogramsrc.supercoreapi.spigot.dialog.Dialog;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.GUI;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.GUIButton;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.action.ClickAction;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.objects.GUIRows;
 import xyz.theprogramsrc.supercoreapi.spigot.items.SimpleItem;
-import xyz.theprogramsrc.supercoreapi.spigot.utils.xseries.XMaterial;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -67,14 +67,12 @@ public abstract class ManageUser extends GUI {
                         "&7",
                         "&7" + LBase.MANAGE_USER_TOGGLE_MODE_DESCRIPTION
                 ).addPlaceholder("{Mode}", (premium ? ("&a&l" + LBase.CRACKED) : ("&6&l" + LBase.PREMIUM)) + "&7");
-        return new GUIButton(14, item, a->{
-            new Thread(()->{
-                User user = this.userStorage.get(a.getPlayer().getName());
-                user.setPremium(!user.isPremium());
-                this.userStorage.save(user);
-                this.open();
-            }).start();
-        });
+        return new GUIButton(14, item, a-> new Thread(()->{
+            User user = this.userStorage.get(a.getPlayer().getName());
+            user.setPremium(!user.isPremium());
+            this.userStorage.save(user);
+            this.open();
+        }).start());
     }
 
     private GUIButton getChangePasswordButton(){

@@ -9,15 +9,13 @@ import xyz.theprogramsrc.superauth.global.users.UserStorage;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
 import xyz.theprogramsrc.superauth.spigot.storage.AuthSettings;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
+import xyz.theprogramsrc.supercoreapi.libs.xseries.XMaterial;
 import xyz.theprogramsrc.supercoreapi.spigot.dialog.Dialog;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.GUI;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.GUIButton;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.action.ClickAction;
-import xyz.theprogramsrc.supercoreapi.spigot.guis.events.GUIEvent;
-import xyz.theprogramsrc.supercoreapi.spigot.guis.events.GUIOpenEvent;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.objects.GUIRows;
 import xyz.theprogramsrc.supercoreapi.spigot.items.SimpleItem;
-import xyz.theprogramsrc.supercoreapi.spigot.utils.xseries.XMaterial;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;

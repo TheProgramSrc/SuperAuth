@@ -18,7 +18,6 @@ import xyz.theprogramsrc.supercoreapi.global.storage.SQLiteDataBase;
 import xyz.theprogramsrc.supercoreapi.spigot.commands.CommandResult;
 import xyz.theprogramsrc.supercoreapi.spigot.commands.precreated.SuperCoreAPICommand;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.SpigotConsole;
-import xyz.theprogramsrc.supercoreapi.spigot.utils.storage.SpigotYMLConfig;
 
 public class SuperAuthCommand extends SuperCoreAPICommand {
 
@@ -223,13 +222,13 @@ public class SuperAuthCommand extends SuperCoreAPICommand {
                     }
                     break;
                 case "reload":
-                    SuperAuth.spigot.getAuthSettings().reload();
-                    this.getSettings().getConfig().reload();
+                    SuperAuth.spigot.getAuthSettings().load();
+                    this.getSettings().getConfig().load();
                     this.spigotPlugin.getPluginDataStorage().reload();
-                    this.spigotPlugin.getTranslationManager().reloadTranslations();
+                    this.spigotPlugin.getTranslationManager().loadTranslations();
                     SuperAuth.spigot.getBlockActionsListener().onLoad();
                     SuperAuth.spigot.getMainListener().onReload();
-                    SuperAuth.spigot.authActionsConfig.reload();
+                    SuperAuth.spigot.authActionsConfig.load();
                     this.log("&aReload request sent.");
                     return CommandResult.COMPLETED;
                 case "paste":

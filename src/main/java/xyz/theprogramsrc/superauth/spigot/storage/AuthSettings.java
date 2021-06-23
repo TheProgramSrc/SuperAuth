@@ -3,24 +3,19 @@ package xyz.theprogramsrc.superauth.spigot.storage;
 import xyz.theprogramsrc.superauth.global.hashing.HashingMethod;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
 import xyz.theprogramsrc.superauth.spigot.objects.AuthMethod;
+import xyz.theprogramsrc.supercoreapi.global.files.yml.YMLConfig;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
-import xyz.theprogramsrc.supercoreapi.spigot.utils.storage.SpigotYMLConfig;
 
 import java.io.File;
 import java.util.List;
 
-public class AuthSettings extends SpigotYMLConfig {
+public class AuthSettings extends YMLConfig {
 
     private AuthMethod authMethod;
     private int[] afterLoginTitleTimes, afterRegisterTitleTimes;
 
     public AuthSettings(){
         super(new File(SuperAuth.spigot.getDataFolder(), "AuthSettings.yml"));
-        this.load();
-        this.checkTimings();
-    }
-
-    public void load(){
         if(!this.contains("AuthEnabled")) this.add("AuthEnabled", true);
         if(!this.contains("HashingMethod")) this.add("HashingMethod", "SHA512");
         if(!this.contains("AuthMethod")) this.add("AuthMethod", "DIALOG");
@@ -56,11 +51,12 @@ public class AuthSettings extends SpigotYMLConfig {
         if(!this.contains("Auth.PremiumAutoLogin")) this.add("Auth.PremiumAutoLogin", true);
         if(!this.contains("Auth.Sessions.Enabled")) this.add("Auth.Sessions.Enabled", true);
         if(!this.contains("Auth.Sessions.MaxTime")) this.add("Auth.Sessions.MaxTime", 300);
+        this.checkTimings();
     }
 
     @Override
-    public void reload() {
-        super.reload();
+    public void load() {
+        super.load();
         this.authMethod = AuthMethod.of(this.getString("AuthMethod"));
     }
 

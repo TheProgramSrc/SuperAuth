@@ -10,7 +10,7 @@ import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
 import xyz.theprogramsrc.superauth.global.vpn_blocker.VPNBlocker;
 import xyz.theprogramsrc.supercoreapi.bungee.BungeePlugin;
-import xyz.theprogramsrc.supercoreapi.bungee.utils.storage.BungeeYMLConfig;
+import xyz.theprogramsrc.supercoreapi.global.files.yml.YMLConfig;
 import xyz.theprogramsrc.supercoreapi.global.storage.DataBaseSettings;
 import xyz.theprogramsrc.supercoreapi.global.storage.MySQLDataBase;
 import xyz.theprogramsrc.supercoreapi.global.utils.ServerUtils;
@@ -94,7 +94,7 @@ public class SuperAuth extends BungeePlugin {
     }
 
     public void loadSettings(){
-        final BungeeYMLConfig cfg = this.getSettings().getConfig();
+        final YMLConfig cfg = this.getSettings().getConfig();
         if(!cfg.contains("AuthServer")) cfg.add("AuthServer", "Auth");
         this.authServer = cfg.getString("AuthServer");
         if(!cfg.contains("BlockedActions")) cfg.add("BlockedActions", Utils.toList("SERVER_CHANGE"));

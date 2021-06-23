@@ -7,15 +7,13 @@ import xyz.theprogramsrc.superauth.global.users.UserStorage;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
 import xyz.theprogramsrc.supercoreapi.global.translations.Base;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
+import xyz.theprogramsrc.supercoreapi.libs.xseries.XMaterial;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.BrowserGUI;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.GUIButton;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.action.ClickAction;
 import xyz.theprogramsrc.supercoreapi.spigot.guis.action.ClickType;
-import xyz.theprogramsrc.supercoreapi.spigot.guis.events.GUIEvent;
-import xyz.theprogramsrc.supercoreapi.spigot.guis.events.GUIOpenEvent;
 import xyz.theprogramsrc.supercoreapi.spigot.items.SimpleItem;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.skintexture.SkinTexture;
-import xyz.theprogramsrc.supercoreapi.spigot.utils.xseries.XMaterial;
 
 import java.util.Arrays;
 import java.util.LinkedList;

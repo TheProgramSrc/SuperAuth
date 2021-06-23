@@ -5,9 +5,9 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
+import xyz.theprogramsrc.supercoreapi.global.files.yml.YMLConfig;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotModule;
-import xyz.theprogramsrc.supercoreapi.spigot.utils.storage.SpigotYMLConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +17,7 @@ import java.util.List;
 public abstract class AuthAction extends SpigotModule {
 
     private final static LinkedHashMap<String, AuthAction> actions = new LinkedHashMap<>();
-    private final SpigotYMLConfig cfg = SuperAuth.spigot.authActionsConfig;
+    private final YMLConfig cfg = SuperAuth.spigot.authActionsConfig;
     private final String id;
 
     public AuthAction(String id){
@@ -171,12 +171,12 @@ public abstract class AuthAction extends SpigotModule {
         // Last Location
         new AuthAction("lastlocation"){
 
-            private SpigotYMLConfig cfg;
+            private YMLConfig cfg;
 
             @Override
             public void onLoad() {
                 super.onLoad();
-                this.cfg = new SpigotYMLConfig(this.getPluginFolder(), "LastLocation.yml");
+                this.cfg = new YMLConfig(this.getPluginFolder(), "LastLocation.yml");
             }
 
             @Override

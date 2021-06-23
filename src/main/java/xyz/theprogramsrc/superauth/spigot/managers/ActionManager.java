@@ -15,8 +15,8 @@ import xyz.theprogramsrc.superauth.spigot.objects.AuthAction;
 import xyz.theprogramsrc.superauth.spigot.storage.AuthSettings;
 import xyz.theprogramsrc.supercoreapi.global.placeholders.Placeholder;
 import xyz.theprogramsrc.supercoreapi.global.placeholders.SpigotPlaceholderManager;
+import xyz.theprogramsrc.supercoreapi.libs.xseries.messages.Titles;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotModule;
-import xyz.theprogramsrc.supercoreapi.spigot.packets.Title;
 
 import java.util.List;
 
@@ -82,7 +82,7 @@ public class ActionManager extends SpigotModule {
                 out = this.authSettings.getAfterLoginTitleTimes()[2];
         String title = this.getSuperUtils().color(this.placeholderManager.applyPlaceholders(this.authSettings.getAfterLoginTitle(), this.player)),
                 subtitle = this.getSuperUtils().color(this.placeholderManager.applyPlaceholders(this.authSettings.getAfterLoginSubtitle(), this.player));
-        this.getSpigotTasks().runTaskLater(20L, () -> Title.sendTitle(player, in, stay, out, title, subtitle));
+        this.getSpigotTasks().runTaskLater(20L, () -> Titles.sendTitle(player, in, stay, out, title, subtitle));
         this.getSpigotTasks().runTaskLater(40L, ()-> ForceLoginMemory.i.remove(player.getName()));
     }
 
@@ -103,7 +103,7 @@ public class ActionManager extends SpigotModule {
                 out = this.authSettings.getAfterRegisterTitleTimes()[2];
         String title = this.getSuperUtils().color(this.placeholderManager.applyPlaceholders(this.authSettings.getAfterRegisterTitle(), this.player)),
                 subtitle = this.getSuperUtils().color(this.placeholderManager.applyPlaceholders(this.authSettings.getAfterRegisterSubtitle(), this.player));
-        this.getSpigotTasks().runTaskLater(20L, () -> Title.sendTitle(player, in, stay, out, title, subtitle));
+        this.getSpigotTasks().runTaskLater(20L, () -> Titles.sendTitle(player, in, stay, out, title, subtitle));
     }
 
     private void runActions(List<String> actions, boolean before, boolean login) {
@@ -121,8 +121,7 @@ public class ActionManager extends SpigotModule {
             }
             SuperAuth.actionThreadIds.remove(this.player.getUniqueId());
         });
-        String name = "SuperAuth Actions " + (before ? "Before" : "After") + " " + (login ? "Login" : "Register");
-        thread.setName("SuperAuth Actions ");
+        thread.setName("SuperAuth Actions " + (before ? "Before" : "After") + " " + (login ? "Login" : "Register") + " - " + this.player.getName());
         SuperAuth.actionThreadIds.put(this.player.getUniqueId(), thread.getId());
         thread.start();
     }
