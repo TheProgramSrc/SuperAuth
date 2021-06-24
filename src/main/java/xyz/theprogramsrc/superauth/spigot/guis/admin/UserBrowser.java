@@ -39,7 +39,7 @@ public abstract class UserBrowser extends BrowserGUI<User> {
     @Override
     public GUIButton getButton(final User user) {
         SimpleItem item = new SimpleItem(XMaterial.PLAYER_HEAD)
-                .setDisplayName("&a" + user.getUsername())
+                .setDisplayName("&a" + LBase.USER_BROWSER_BUTTON_NAME.options().placeholder("{User}", user.getUsername()))
                 .setLore(
                         "&7",
                         "&9" + Base.LEFT_CLICK + "&7 " + LBase.USER_BROWSER_BUTTON_LEFT,

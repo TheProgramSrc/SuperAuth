@@ -1,5 +1,6 @@
 package xyz.theprogramsrc.superauth.spigot;
 
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.theprogramsrc.superauth.api.SuperAuthAPIEvent;
 import xyz.theprogramsrc.superauth.api.SuperAuthAPIHandler;
@@ -122,7 +123,12 @@ public class SuperAuth extends SpigotPlugin {
                 this.log("&aPlaceholderAPI Hook Registered.");
             }
 
-            new Metrics(this, 7004);
+            this.getPluginDataStorage().add("low_resource_usage", false);
+            this.getPluginDataStorage().add("share_stats", true);
+
+            if(this.getPluginDataStorage().getBoolean("share_stats")){
+                new Metrics(this, 7004);
+            }
         }catch (Exception e){
             this.addError(e);
             e.printStackTrace();
@@ -289,6 +295,7 @@ public class SuperAuth extends SpigotPlugin {
     }
 
     public void migrateBetweenDatabases(){
+        this.log("&aCollecting information for the migration...");
         DataBase from = this.dataBase;
         DataBase to;
         YMLConfig cfg = this.getSettingsStorage().getConfig();
@@ -338,24 +345,29 @@ public class SuperAuth extends SpigotPlugin {
             };
         }
 
-        new DatabaseMigration(from, to).init();
-        this.dataBase = to;
-        if(to instanceof MySQLDataBase && !cfg.getBoolean("MySQL.Enabled")){
-            cfg.set("MySQL.Enabled", true);
-        }else if(to instanceof SQLiteDataBase && cfg.getBoolean("MySQL.Enabled")){
-            cfg.set("MySQL.Enabled", false);
+        DatabaseMigration migration = new DatabaseMigration(from, to);
+
+        this.log("&aInitializing migration... (Users won't be able to join the server)");
+        boolean success = migration.init();
+        if(success){
+            this.log("&aSuccessfully migrated all the users. Now the plugin will modify your configuration to load with the desired Database System and will restart the server.");
+            this.dataBase = to;
+            if(to instanceof MySQLDataBase && !cfg.getBoolean("MySQL.Enabled")){
+                cfg.set("MySQL.Enabled", true);
+                this.log("&aNow the plugin will work with MySQL (External Database)");
+            }else if(to instanceof SQLiteDataBase && cfg.getBoolean("MySQL.Enabled")){
+                cfg.set("MySQL.Enabled", false);
+                this.log("&aNow the plugin will work with SQLite (Local Database)");
+            }
+        }else{
+            this.log("&4FAILED TO MIGRATE THE DATABASE. THE PLUGIN WILL REVERT THE CHANGES RESTART THE SERVER.");
+            this.log("&4If you think this should not happen please contact us in our discord: https://go.theprogramsrc.xyz/discord");
+            this.log("&cReverting the changes...");
+            migration.revert();
+            this.log("&cThe changes were reverted.");
+
         }
-
-        this.log("&cReloading config...");
-
-        this.getAuthSettings().load();
-        this.getSettingsStorage().getConfig().load();
-        this.getPluginDataStorage().reload();
-        this.getTranslationManager().loadTranslations();
-        this.getBlockActionsListener().onLoad();
-        this.getMainListener().onReload();
-        this.authActionsConfig.load();
-        this.log("&cConfiguration reloaded");
-        this.log("&cTO AVOID BUGS PLEASE RESTART YOUR SERVER NOW.");
+        this.log("&aRestarting server...");
+        this.getSpigotTasks().runTask(() -> Bukkit.dispatchCommand(this.getServer().getConsoleSender(), "restart"));
     }
 }

@@ -40,7 +40,8 @@ public abstract class ManageUser extends GUI {
 
     @Override
     protected String getTitle() {
-        return LBase.MANAGE_USER_GUI_TITLE.options().vars(this.user.getUsername()).get();
+        // Remove var in v3.17
+        return LBase.MANAGE_USER_GUI_TITLE.options().vars(this.user.getUsername()).placeholder("{User}", this.user.getUsername()).get();
     }
 
     @Override

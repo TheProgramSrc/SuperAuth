@@ -13,28 +13,30 @@ public class SkinSyncListener extends SpigotModule {
     @Override
     public void onLoad() {
         final UserStorage userStorage = SuperAuth.spigot.getUserStorage();
-        this.getSpigotTasks().runRepeatingTask(0L, Utils.toTicks(60), () -> {
-            for(final Player player : Bukkit.getOnlinePlayers()){
-                this.getSpigotTasks().runAsyncTask(() -> {
-                    if(Utils.isConnected()){
-                        User user = userStorage.get(player.getName());
-                        if(user != null){
-                            if(!user.hasSkin()){
-                                String skin;
-                                try{
-                                    skin = this.spigotPlugin.getSkinManager().getSkin(player).toString();
-                                }catch (Exception ignored){
-                                    skin = "no_skin";
+        if(!this.getPlugin().getPluginDataStorage().getBoolean("low_resource_usage")){
+            this.getSpigotTasks().runRepeatingTask(0L, Utils.toTicks(60), () -> {
+                for(final Player player : Bukkit.getOnlinePlayers()){
+                    this.getSpigotTasks().runAsyncTask(() -> {
+                        if(Utils.isConnected()){
+                            User user = userStorage.get(player.getName());
+                            if(user != null){
+                                if(!user.hasSkin()){
+                                    String skin;
+                                    try{
+                                        skin = this.spigotPlugin.getSkinManager().getSkin(player).toString();
+                                    }catch (Exception ignored){
+                                        skin = "no_skin";
+                                    }
+
+
+                                    user.setSkinTexture(skin);
+                                    userStorage.save(user);
                                 }
-
-
-                                user.setSkinTexture(skin);
-                                userStorage.save(user);
                             }
                         }
-                    }
-                });
-            }
-        });
+                    });
+                }
+            });
+        }
     }
 }

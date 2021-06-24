@@ -13,6 +13,7 @@ import xyz.theprogramsrc.superauth.global.users.UserStorage;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
 import xyz.theprogramsrc.superauth.spigot.handlers.AuthHandler;
 import xyz.theprogramsrc.superauth.spigot.storage.AuthSettings;
+import xyz.theprogramsrc.superauth.spigot.storage.DatabaseMigration;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotModule;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.skintexture.SkinTexture;
@@ -32,21 +33,25 @@ public class MainListener extends SpigotModule {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onJoin(final PlayerJoinEvent event){
-        this.getSpigotTasks().runAsyncTask(() -> this.handleAuth(event.getPlayer(), true));
+        if(!DatabaseMigration.migrating){ // Ignore the event if we're migrating
+            this.getSpigotTasks().runAsyncTask(() -> this.handleAuth(event.getPlayer(), true));
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onQuit(final PlayerQuitEvent event){
-        Player player = event.getPlayer();
-        String ip = Objects.requireNonNull(player.getAddress()).getAddress().getHostAddress();
-        this.getSpigotTasks().runAsyncTask(() -> {
-            User user = this.userStorage.get(player.getName());
-            if(user == null) return;
-            if(player.getAddress() != null && user.isAuthorized() && user.isRegistered()){
-                SessionStorage.i.set(ip + player.getUniqueId(), System.currentTimeMillis()+"");
-            }
-            this.userStorage.removeCache(player.getName());
-        });
+        if(!DatabaseMigration.migrating) { // Ignore the event if we're migrating
+            Player player = event.getPlayer();
+            String ip = Objects.requireNonNull(player.getAddress()).getAddress().getHostAddress();
+            this.getSpigotTasks().runAsyncTask(() -> {
+                User user = this.userStorage.get(player.getName());
+                if(user == null) return;
+                if(player.getAddress() != null && user.isAuthorized() && user.isRegistered()){
+                    SessionStorage.i.set(ip + player.getUniqueId(), System.currentTimeMillis()+"");
+                }
+                this.userStorage.removeCache(player.getName());
+            });
+        }
     }
 
     public void onReload(){
@@ -87,7 +92,7 @@ public class MainListener extends SpigotModule {
             if(currentUser != null){
                 if(!currentUser.isAuthorized()){
                     player.closeInventory();
-                    player.kickPlayer(this.getSuperUtils().color(LBase.TOOK_TOO_LONG.options().vars(max+"").placeholder("{Time}", max+"").toString()));
+                    player.kickPlayer(this.getSuperUtils().color(LBase.TOOK_TOO_LONG.options().vars(max+"").placeholder("{Time}", max+"").toString())); // Remove var in v3.17
                 }
             }
         });

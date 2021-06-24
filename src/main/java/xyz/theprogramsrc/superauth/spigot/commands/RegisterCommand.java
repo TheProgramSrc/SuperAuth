@@ -51,7 +51,8 @@ public class RegisterCommand extends SpigotCommand {
                 if(user.isRegistered() && user.isAuthorized()){
                     this.getSuperUtils().sendMessage(player, LBase.ALREADY_IDENTIFIED.toString());
                 }else if(user.isRegistered() && !user.isAuthorized()){
-                    this.getSuperUtils().sendMessage(player, LBase.USE_LOGIN_COMMAND.options().vars(SuperAuth.spigot.getAuthSettings().getLoginCommand().toLowerCase()).toString());
+                    String cmd = SuperAuth.spigot.getAuthSettings().getLoginCommand().toLowerCase(); // Remove var in v3.17
+                    this.getSuperUtils().sendMessage(player, LBase.USE_LOGIN_COMMAND.options().vars(cmd).placeholder("{Command}", cmd).toString());
                 }else if(!user.isRegistered() && !user.isAuthorized()){
                     this.exe(user, player, args);
                 }
@@ -101,12 +102,14 @@ public class RegisterCommand extends SpigotCommand {
 
                         @Override
                         public String getSubtitle() {
-                            return LBase.DIALOG_CAPTCHA_SUBTITLE.options().vars(captcha).toString();
+                            // Remove var in v3.17
+                            return LBase.DIALOG_CAPTCHA_SUBTITLE.options().vars(captcha).placeholder("{Captcha}", captcha).toString();
                         }
 
                         @Override
                         public String getActionbar() {
-                            return LBase.DIALOG_CAPTCHA_ACTIONBAR.options().vars(captcha).toString();
+                            // Remove var in v3.17
+                            return LBase.DIALOG_CAPTCHA_ACTIONBAR.options().vars(captcha).placeholder("{Captcha}", captcha).toString();
                         }
 
                         @Override

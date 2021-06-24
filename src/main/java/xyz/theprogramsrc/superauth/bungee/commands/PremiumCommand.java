@@ -41,7 +41,8 @@ public class PremiumCommand extends BungeeCommand {
                     return CommandResult.NO_PERMISSION;
                 }else{
                     if(!this.waiting.contains(player.getUniqueId())){
-                        this.getSuperUtils().sendMessage(player, LBase.CONFIRMATION_MESSAGE.options().vars("/" + SuperAuth.bungee.getPremiumCommand().toLowerCase()).toString());
+                        String cmd = "/" + SuperAuth.bungee.getPremiumCommand().toLowerCase(); // Remove in v3.17
+                        this.getSuperUtils().sendMessage(player, LBase.CONFIRMATION_MESSAGE.options().vars(cmd).placeholder("{Command}", cmd).toString());
                         this.getSuperUtils().sendMessage(player, LBase.CHANGE_MODE_WARNING.toString());
                         this.waiting.add(player.getUniqueId());
                     }else{

@@ -16,6 +16,7 @@ public enum LBase implements TranslationPack {
     NO_INPUT("General.NoInput", "No Input"),
 
     /* Messages */
+    CONFIG_RELOADED("Messages.ConfigurationReloaded", "&aThe configuration files were reloaded"),
     PASSWORD_TOO_SHORT("Errors.PasswordTooShort","&cError. Please use a password with at least {Length} characters."),
     PASSWORD_TOO_LONG("Errors.PasswordTooLong","&cError. Please use a password with no more than {Length} characters."),
     DIALOG_HOW_TO_USE("HowToUse.Dialog","&aTo authenticate yourself just write in the chat your password. Don't worry because it wont be showed publicly."),
@@ -54,7 +55,7 @@ public enum LBase implements TranslationPack {
     USE_LOGIN_COMMAND("Errors.AlreadyRegistered","&cYou're already registered! Use the command &e/{Command} <Password>"),
     USE_REGISTER_COMMAND("Errors.NotRegistered","&cYou're not registered! Please register yourself using the command &e/{Command} <Password>"),
 
-    WIKI_INFORMATION("Messages.Wiki","You can view all the commands at the wiki: https://wiki.theprogramsrc.xyz/"),
+    WIKI_INFORMATION("Messages.Wiki","You can view all the information regarding the plugin in our wiki: https://wiki.theprogramsrc.xyz/"),
     FORCE_LOGIN_NOT_SUPPORTED("Errors.ForceLoginNotSupported","You can't use force login with the auth method DIALOG"),
 
     CONSOLE_UPDATED_USER_IP_ADDRESS("Messages.UpdatedIPAddress","&aSent request to update &7{UserName}'s&a account IP Address to: &b{NewIPAddress}"),

@@ -8,6 +8,7 @@ import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
 import xyz.theprogramsrc.superauth.global.vpn_blocker.VPNBlocker;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
+import xyz.theprogramsrc.superauth.spigot.storage.DatabaseMigration;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotModule;
 
 public class PreLoginListener extends SpigotModule  {
@@ -23,27 +24,29 @@ public class PreLoginListener extends SpigotModule  {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPreLogin(AsyncPlayerPreLoginEvent event){
-        String username = event.getName();
-        String ip = event.getAddress().getHostAddress();
-        if(this.vpnBlocker.isVPN(ip)){
-            event.setKickMessage(this.getSuperUtils().color(LBase.VPN_KICK.toString()));
-            event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
-        }else{
-            User user;
-            if(!this.userStorage.exists(username)){
-                user = new User(username)
-                        .setIp(ip)
-                        .setAuthorized(false)
-                        .setRegistered(false);
-                this.userStorage.save(user);
+        if(!DatabaseMigration.migrating) { // Ignore the event if we're migrating
+            String username = event.getName();
+            String ip = event.getAddress().getHostAddress();
+            if(this.vpnBlocker.isVPN(ip)){
+                event.setKickMessage(this.getSuperUtils().color(LBase.VPN_KICK.toString()));
+                event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
             }else{
-                user = this.userStorage.get(username);
-            }
+                User user;
+                if(!this.userStorage.exists(username)){
+                    user = new User(username)
+                            .setIp(ip)
+                            .setAuthorized(false)
+                            .setRegistered(false);
+                    this.userStorage.save(user);
+                }else{
+                    user = this.userStorage.get(username);
+                }
 
 
-            if(user.isAuthorized()){
-                user.setAuthorized(false);
-                this.userStorage.save(user);
+                if(user.isAuthorized()){
+                    user.setAuthorized(false);
+                    this.userStorage.save(user);
+                }
             }
         }
     }

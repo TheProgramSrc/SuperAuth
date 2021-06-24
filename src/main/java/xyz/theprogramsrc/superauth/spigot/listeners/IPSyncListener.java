@@ -15,7 +15,7 @@ public class IPSyncListener extends SpigotModule {
 
     @Override
     public void onLoad() {
-        if(Utils.isConnected()){
+        if(Utils.isConnected() && !this.getPlugin().getPluginDataStorage().getBoolean("low_resource_usage")){
             final SuperAuth superAuth = SuperAuth.spigot;
             final UserStorage userStorage = superAuth.getUserStorage();
             this.getSpigotTasks().runRepeatingTask(0L, Utils.toTicks(60), () -> {

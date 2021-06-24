@@ -61,7 +61,7 @@ public class AuthHandler extends SpigotModule {
                     player,
                     LBase.COMMAND_HOW_TO_USE
                             .options()
-                            .vars(SuperAuth.spigot.getAuthSettings().getRegisterCommand().toLowerCase(), SuperAuth.spigot.getAuthSettings().getLoginCommand().toLowerCase())
+                            .vars(SuperAuth.spigot.getAuthSettings().getRegisterCommand().toLowerCase(), SuperAuth.spigot.getAuthSettings().getLoginCommand().toLowerCase()) // Remove var in v3.17
                             .placeholder("{RegisterCommand}", SuperAuth.spigot.getAuthSettings().getRegisterCommand().toLowerCase())
                             .placeholder("{LoginCommand}", SuperAuth.spigot.getAuthSettings().getLoginCommand().toLowerCase())
                             .toString()
@@ -71,7 +71,7 @@ public class AuthHandler extends SpigotModule {
                     player,
                     LBase.GUI_HOW_TO_USE
                             .options()
-                            .vars(SuperAuth.spigot.getAuthSettings().getAuthCommand().toLowerCase())
+                            .vars(SuperAuth.spigot.getAuthSettings().getAuthCommand().toLowerCase()) // Remove var in v3.17
                             .placeholder("{Command}", SuperAuth.spigot.getAuthSettings().getAuthCommand().toLowerCase())
                             .toString()
             );

@@ -58,7 +58,8 @@ public class LoginCommand extends SpigotCommand {
                 }
             }else{
                 if(!user.isRegistered()){
-                    this.getSuperUtils().sendMessage(player, LBase.USE_REGISTER_COMMAND.options().vars(SuperAuth.spigot.getAuthSettings().getRegisterCommand().toLowerCase()).toString());
+                    String cmd = SuperAuth.spigot.getAuthSettings().getRegisterCommand().toLowerCase(); // Remove var in v3.17
+                    this.getSuperUtils().sendMessage(player, LBase.USE_REGISTER_COMMAND.options().vars(cmd).placeholder("{Command}", cmd).toString());
                 }else{
                     if(user.getAuthMethod().equals("COMMANDS")){
                         if(user.isAuthorized()){
@@ -99,17 +100,20 @@ public class LoginCommand extends SpigotCommand {
 
                             @Override
                             public String getSubtitle() {
-                                return LBase.DIALOG_CAPTCHA_SUBTITLE.options().vars(captcha).toString();
+                                // Remove var in v3.17
+                                return LBase.DIALOG_CAPTCHA_SUBTITLE.options().vars(captcha).placeholder("{Captcha}", captcha).toString();
                             }
 
                             @Override
                             public String getActionbar() {
-                                return LBase.DIALOG_CAPTCHA_ACTIONBAR.options().vars(captcha).toString();
+                                // Remove var in v3.17
+                                return LBase.DIALOG_CAPTCHA_ACTIONBAR.options().vars(captcha).placeholder("{Captcha}", captcha).toString();
                             }
 
                             @Override
                             public boolean onResult(String playerInput) {
                                 if(!playerInput.contentEquals(captcha)){
+                                    // Remove var in v3.17
                                     this.getSuperUtils().sendMessage(player, LBase.WRONG_CAPTCHA.options().vars(captcha).placeholder("{Captcha}", captcha).toString());
                                     return false;
                                 }else{

@@ -221,18 +221,18 @@ public class DialogAuthHandler extends SpigotModule {
 
                 @Override
                 public String getSubtitle() {
-                    return LBase.DIALOG_CAPTCHA_SUBTITLE.options().vars(captcha).placeholder("{Captcha}", captcha).toString();
+                    return LBase.DIALOG_CAPTCHA_SUBTITLE.options().vars(captcha).placeholder("{Captcha}", captcha).toString(); // Remove var in v3.17
                 }
 
                 @Override
                 public String getActionbar() {
-                    return LBase.DIALOG_CAPTCHA_ACTIONBAR.options().vars(captcha).placeholder("{Captcha}", captcha).toString();
+                    return LBase.DIALOG_CAPTCHA_ACTIONBAR.options().vars(captcha).placeholder("{Captcha}", captcha).toString(); // Remove var in v3.17
                 }
 
                 @Override
                 public boolean onResult(String playerInput) {
                     if(!playerInput.contentEquals(captcha)){
-                        this.getSuperUtils().sendMessage(player, LBase.WRONG_CAPTCHA.options().vars(captcha).placeholder("{Captcha}", captcha).toString());
+                        this.getSuperUtils().sendMessage(player, LBase.WRONG_CAPTCHA.options().vars(captcha).placeholder("{Captcha}", captcha).toString()); // Remove var in v3.17
                         return false;
                     }else{
                         SuperAuth.spigot.runEvent(new SuperAuthAfterCaptchaEvent(DialogAuthHandler.this.authSettings, DialogAuthHandler.this.userStorage, player.getName()));

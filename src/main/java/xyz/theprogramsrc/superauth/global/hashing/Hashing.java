@@ -45,6 +45,6 @@ public class Hashing {
             v.append(method.name());
             if(i != HashingMethod.values().length-1) v.append("|");
         }
-        return password.matches("\\$("+v.toString()+")\\$*.{16}\\$(.*)");
+        return password.matches("\\$("+ v +")\\$*.{16}\\$(.*)");
     }
 }

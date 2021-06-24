@@ -132,11 +132,13 @@ public class SuperAuthCommand extends SuperCoreAPICommand {
                                 this.log("&c" + LBase.USER_NOT_REGISTERED);
                             } else {
                                 if (user.isAdmin()) {
-                                    this.log(LBase.ALREADY_ADMIN.options().vars(user.getUsername()).get());
+                                    // Remove var in v3.17
+                                    this.log(LBase.ALREADY_ADMIN.options().vars(user.getUsername()).placeholder("{User}", user.getUsername()).get());
                                 } else {
                                     user.setAdmin(true);
                                     this.userStorage.save(user);
-                                    this.log(LBase.ADDED_ADMIN.options().vars(user.getUsername()).get());
+                                    // Remove var in v3.17
+                                    this.log(LBase.ADDED_ADMIN.options().vars(user.getUsername()).placeholder("{User}", user.getUsername()).get());
                                 }
                             }
                         }
@@ -155,11 +157,13 @@ public class SuperAuthCommand extends SuperCoreAPICommand {
                                 this.log("&c" + LBase.USER_NOT_REGISTERED);
                             } else {
                                 if (!user.isAdmin()) {
-                                    this.log(LBase.ALREADY_NON_ADMIN.options().vars(user.getUsername()).get());
+                                    // Remove var in v3.17
+                                    this.log(LBase.ALREADY_NON_ADMIN.options().vars(user.getUsername()).placeholder("{User}", user.getUsername()).get());
                                 } else {
                                     user.setAdmin(false);
                                     this.userStorage.save(user);
-                                    this.log(LBase.REMOVED_ADMIN.options().vars(user.getUsername()).get());
+                                    // Remove var in v3.17
+                                    this.log(LBase.REMOVED_ADMIN.options().vars(user.getUsername()).placeholder("{User}", user.getUsername()).get());
                                 }
                             }
                         }
@@ -189,7 +193,8 @@ public class SuperAuthCommand extends SuperCoreAPICommand {
                                         }else{
                                             ForceLoginMemory.i.add(player.getName(), "1");
                                             new ActionManager(player).after(true);
-                                            this.log("&a" + LBase.FORCED_LOGIN.options().vars(user.getUsername()).get());
+                                            // Remove var in v3.17
+                                            this.log("&a" + LBase.FORCED_LOGIN.options().vars(user.getUsername()).placeholder("{User}", user.getUsername()).get());
                                         }
                                     }
                                 }

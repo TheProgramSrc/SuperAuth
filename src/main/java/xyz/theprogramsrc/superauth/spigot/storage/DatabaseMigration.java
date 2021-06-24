@@ -9,10 +9,11 @@ import xyz.theprogramsrc.supercoreapi.global.storage.DataBase;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotModule;
 
 import java.sql.SQLException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DatabaseMigration extends SpigotModule {
 
-    private boolean migrating;
+    public static boolean migrating = false;
     private final DataBase from, to;
 
     public DatabaseMigration(DataBase from, DataBase to){
@@ -20,14 +21,15 @@ public class DatabaseMigration extends SpigotModule {
         this.to = to;
     }
 
-    public void init(){
+    public boolean init(){
         this.log("&cCollecting data...");
         UserStorage usFrom = new UserStorage(plugin, this.from),
                 usTo = new UserStorage(plugin, this.to);
         spigotPlugin.getServer().getOnlinePlayers().forEach(p-> p.kickPlayer(this.getSuperUtils().color("&bSuperAuth &cis currently migrating its data. Please try again later.")));
         this.log("&cInitializing migration...");
-        this.migrating = true;
+        migrating = true;
         final User[] users = usFrom.requestUsers(true);
+        AtomicInteger errors = new AtomicInteger(0);
         usTo.getDataBase().connect(c-> {
             for (User user : users) {
                 try{
@@ -35,20 +37,24 @@ public class DatabaseMigration extends SpigotModule {
                 }catch (SQLException e){
                     this.log("&cFailed to save migrate user '" + user.getUsername() + "':");
                     e.printStackTrace();
+                    errors.getAndIncrement();
                 }
             }
         });
         this.log("&cMigration finished");
-        this.migrating = false;
+        return errors.get() == 0;
     }
 
-    public boolean isMigrating(){
-        return this.migrating;
+    public void revert(){ // Here we remove the data from the new database :)
+        UserStorage userStorage = new UserStorage(plugin, this.to);
+        for (User user : userStorage.requestUsers(true)) {
+            userStorage.remove(user);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent e){
-        if(this.migrating){
+        if(migrating){
             e.getPlayer().kickPlayer(this.getSuperUtils().color("&bSuperAuth &cis currently migrating its data. Please try again later."));
         }
     }

@@ -74,7 +74,8 @@ public class CaptchaGUI extends GUI {
 
     @Override
     protected String getTitle() {
-        return (this.wrong ? LBase.WRONG_CAPTCHA_GUI_TITLE : LBase.AUTH_CAPTCHA_GUI_TITLE.options().vars(this.generated+"")) + "";
+        String captcha = this.generated+"";
+        return (this.wrong ? LBase.WRONG_CAPTCHA_GUI_TITLE : LBase.AUTH_CAPTCHA_GUI_TITLE.options().vars(captcha).placeholder("{Captcha}", captcha)) + ""; // Remove var in v3.17
     }
 
     @Override
