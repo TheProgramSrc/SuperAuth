@@ -194,10 +194,8 @@ public class SuperAuth extends SpigotPlugin {
             if(!cfg.contains("MySQL.Password")) cfg.add("MySQL.Password", Utils.randomPassword(16));
             if(!cfg.contains("MySQL.UseSSL")) cfg.add("MySQL.UseSSL", false);
             if(this.isFirstStart()){
-                this.log("&cPlease fill in the MySQL Settings. If you're going to use SQLite just start the server again");
+                this.log("&cPlease fill in the MySQL Settings. If you're going to use SQLite you can ignore this message.");
                 this.log("&9Information: If the path 'MySQL.Password' doesn't exists, the plugin will generate a random password with 16 characters length");
-                this.emergencyStop();
-                return;
             }
         }
 
