@@ -13,7 +13,7 @@ public class SkinSyncListener extends SpigotModule {
     @Override
     public void onLoad() {
         final UserStorage userStorage = SuperAuth.spigot.getUserStorage();
-        if(!this.getPlugin().getPluginDataStorage().getBoolean("low_resource_usage")){
+        if(!this.getPlugin().getPluginDataStorage().isLowResourceUsageEnabled()){
             this.getSpigotTasks().runRepeatingTask(0L, Utils.toTicks(60), () -> {
                 for(final Player player : Bukkit.getOnlinePlayers()){
                     this.getSpigotTasks().runAsyncTask(() -> {

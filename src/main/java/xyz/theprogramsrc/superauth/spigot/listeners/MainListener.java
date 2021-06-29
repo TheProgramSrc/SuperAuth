@@ -38,7 +38,7 @@ public class MainListener extends SpigotModule {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(final PlayerQuitEvent event){
         if(!DatabaseMigration.migrating) { // Ignore the event if we're migrating
             Player player = event.getPlayer();

@@ -123,7 +123,7 @@ public class SuperAuth extends SpigotPlugin {
                 this.log("&aPlaceholderAPI Hook Registered.");
             }
 
-            if(this.getPluginDataStorage().getBoolean("share_stats")){
+            if(this.getPluginDataStorage().isShareStatsEnabled()){
                 new Metrics(this, 7004);
             }
         }catch (Exception e){
