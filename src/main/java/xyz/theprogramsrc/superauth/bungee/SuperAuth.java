@@ -45,7 +45,6 @@ public class SuperAuth extends BungeePlugin {
     @Override
     public void onPluginEnable() {
         this.registerTranslation(LBase.class);
-        this.log("Default translation loaded");
         this.vpnBlocker = new VPNBlocker(this, this.getSettings().getConfig().getBoolean("VPNBlockerEnabled", true));
         this.log("VPNBlocker Loaded");
         this.serverUtils = new ServerUtils();
