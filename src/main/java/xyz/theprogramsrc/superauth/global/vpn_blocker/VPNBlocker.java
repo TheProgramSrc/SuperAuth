@@ -21,6 +21,21 @@ public class VPNBlocker {
         this.cache = new HashMap<>();
         this.apiEndpoint = "https://api-v2.theprogramsrc.xyz/api/superauth/vpnip/check/{IP}";
         this.enabled = enabled;
+        if(enabled && Utils.isConnected()){
+            try{
+                CustomConnection connection = ConnectionBuilder.connect("https://api-v2.theprogramsrc.xyz/api/superauth/vpnip/status");
+                if(connection.isValidResponse() && connection.isResponseNotNull()){
+                    JsonObject json = connection.getResponseJson();
+                    int amount = json.get("data").getAsJsonObject().get("available").getAsNumber().intValue();
+                    this.plugin.log("&aSuccessfully loaded &7" + amount + "&a VPN IPs to the VPN IP Blocker.");
+                    this.plugin.log("&aThis number may change in the next start and during the execution of the plugin.");
+                }
+            }catch(IOException e){
+                this.plugin.log("&cFailed to connect to the VPNBlockerAPI");
+                this.plugin.addError(e);
+                e.printStackTrace();
+            }
+        }
     }
 
     public boolean isVPN(String ip){
