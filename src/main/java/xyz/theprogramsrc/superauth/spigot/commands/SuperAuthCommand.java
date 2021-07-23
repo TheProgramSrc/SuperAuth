@@ -2,6 +2,7 @@ package xyz.theprogramsrc.superauth.spigot.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
@@ -10,11 +11,6 @@ import xyz.theprogramsrc.superauth.spigot.guis.account.MyAccountGUI;
 import xyz.theprogramsrc.superauth.spigot.guis.admin.AdminGUI;
 import xyz.theprogramsrc.superauth.spigot.managers.ActionManager;
 import xyz.theprogramsrc.superauth.spigot.memory.ForceLoginMemory;
-import xyz.theprogramsrc.superauth.spigot.storage.DatabaseMigration;
-import xyz.theprogramsrc.supercoreapi.global.storage.DataBase;
-import xyz.theprogramsrc.supercoreapi.global.storage.DataBaseSettings;
-import xyz.theprogramsrc.supercoreapi.global.storage.MySQLDataBase;
-import xyz.theprogramsrc.supercoreapi.global.storage.SQLiteDataBase;
 import xyz.theprogramsrc.supercoreapi.spigot.commands.CommandResult;
 import xyz.theprogramsrc.supercoreapi.spigot.commands.precreated.SuperCoreAPICommand;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.SpigotConsole;

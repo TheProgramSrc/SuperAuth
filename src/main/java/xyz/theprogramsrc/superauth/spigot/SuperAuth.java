@@ -1,7 +1,14 @@
 package xyz.theprogramsrc.superauth.spigot;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+
 import xyz.theprogramsrc.superauth.api.SuperAuthAPIEvent;
 import xyz.theprogramsrc.superauth.api.SuperAuthAPIHandler;
 import xyz.theprogramsrc.superauth.global.CommandFilter;
@@ -14,7 +21,11 @@ import xyz.theprogramsrc.superauth.spigot.commands.LoginCommand;
 import xyz.theprogramsrc.superauth.spigot.commands.RegisterCommand;
 import xyz.theprogramsrc.superauth.spigot.commands.SuperAuthCommand;
 import xyz.theprogramsrc.superauth.spigot.hooks.PlaceholderAPIHook;
-import xyz.theprogramsrc.superauth.spigot.listeners.*;
+import xyz.theprogramsrc.superauth.spigot.listeners.BlockActionsListener;
+import xyz.theprogramsrc.superauth.spigot.listeners.IPSyncListener;
+import xyz.theprogramsrc.superauth.spigot.listeners.MainListener;
+import xyz.theprogramsrc.superauth.spigot.listeners.PreLoginListener;
+import xyz.theprogramsrc.superauth.spigot.listeners.SkinSyncListener;
 import xyz.theprogramsrc.superauth.spigot.memory.CaptchaMemory;
 import xyz.theprogramsrc.superauth.spigot.memory.ForceLoginMemory;
 import xyz.theprogramsrc.superauth.spigot.memory.WasRegisteredMemory;
@@ -32,8 +43,6 @@ import xyz.theprogramsrc.supercoreapi.global.utils.ServerUtils;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.global.utils.VersioningUtil;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotPlugin;
-
-import java.util.*;
 
 public class SuperAuth extends SpigotPlugin {
 
@@ -281,7 +290,6 @@ public class SuperAuth extends SpigotPlugin {
         this.handlers.forEach(api-> api.onEvent(event));
     }
 
-    @SuppressWarnings("unused") // We will suppress the warning because this will be obviously used by other products
     public static void registerAPIHandler(JavaPlugin plugin, SuperAuthAPIHandler superAuthAPIHandler) {
         SuperAuth.spigot.handlers.add(superAuthAPIHandler);
         SuperAuth.spigot.log("&c" + plugin.getName() + " &7has registered an API Handler");

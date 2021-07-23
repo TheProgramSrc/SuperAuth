@@ -10,7 +10,6 @@ import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.event.EventHandler;
 import xyz.theprogramsrc.superauth.bungee.SuperAuth;
-import xyz.theprogramsrc.superauth.global.SessionStorage;
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
