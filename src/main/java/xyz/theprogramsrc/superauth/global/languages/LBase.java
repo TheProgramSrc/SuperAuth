@@ -1,12 +1,12 @@
 package xyz.theprogramsrc.superauth.global.languages;
 
-import xyz.theprogramsrc.supercoreapi.global.translations.Translation;
-import xyz.theprogramsrc.supercoreapi.global.translations.TranslationManager;
-import xyz.theprogramsrc.supercoreapi.global.translations.TranslationPack;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import xyz.theprogramsrc.supercoreapi.global.translations.Translation;
+import xyz.theprogramsrc.supercoreapi.global.translations.TranslationManager;
+import xyz.theprogramsrc.supercoreapi.global.translations.TranslationPack;
 
 public enum LBase implements TranslationPack {
 
@@ -24,6 +24,7 @@ public enum LBase implements TranslationPack {
     COMMAND_HOW_TO_USE("HowToUse.Command","&aTo register use the command /{RegisterCommand} <Password>. To login use the command /{LoginCommand} <Password>"),
     REGISTER_COMMAND_USAGE("HowToUse.Register","&cUse &e/{Command} <Password> &cto register."),
     LOGIN_COMMAND_USAGE("HowToUse.Login","&cUse &e/{Command} <Password> &cto login."),
+    PASSWORD_UPDATED("Messages.PasswordUpdated","&aThe password was updated."),
 
     ERROR_WHILE_HASHING("Errors.Hashing","&cThe hashing util is not working right now, try again later."),
     WRONG_CAPTCHA("Errors.Captcha","&cWrong captcha! &aEnter this captcha: &b{Captcha}"),

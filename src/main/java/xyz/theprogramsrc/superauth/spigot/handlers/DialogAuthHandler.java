@@ -1,7 +1,11 @@
 package xyz.theprogramsrc.superauth.spigot.handlers;
 
+import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthAfterCaptchaEvent;
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthBeforeCaptchaEvent;
 import xyz.theprogramsrc.superauth.global.hashing.Hashing;
@@ -15,9 +19,6 @@ import xyz.theprogramsrc.superauth.spigot.storage.AuthSettings;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotModule;
 import xyz.theprogramsrc.supercoreapi.spigot.dialog.Dialog;
-
-import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DialogAuthHandler extends SpigotModule {
     
@@ -116,17 +117,18 @@ public class DialogAuthHandler extends SpigotModule {
             new BukkitRunnable(){
                 @Override
                 public void run() {
-                    User u = DialogAuthHandler.this.userStorage.get(username);
-                    if(u != null){
-                        if(!u.isAuthorized()){
-                            if(ForceLoginMemory.i.has(username)){
-                                DialogAuthHandler.this.getSpigotTasks().runTaskLater(40L, dialog::close);
+                    DialogAuthHandler.this.userStorage.get(username, u -> {
+                        if(u != null){
+                            if(!u.isAuthorized()){
+                                if(ForceLoginMemory.i.has(username)){
+                                    DialogAuthHandler.this.getSpigotTasks().runTaskLater(40L, dialog::close);
+                                    this.cancel();
+                                }
+                            }else{
                                 this.cancel();
                             }
-                        }else{
-                            this.cancel();
                         }
-                    }
+                    });
                 }
             }.runTaskTimerAsynchronously(this.spigotPlugin, 0L, 20L);
         });
@@ -172,8 +174,18 @@ public class DialogAuthHandler extends SpigotModule {
                     try{
                         String password = Hashing.hash(self.authSettings.getHashingMethod(), in);
                         User u = user.setPassword(password).setAuthMethod("DIALOG").setRegistered(true);
-                        self.userStorage.save(u, false);
-                        success.set(true);
+                        self.userStorage.save(u, () -> {
+                            if(self.authSettings.isCaptchaEnabled()){
+                                double rand = Utils.random(0.0, 1.0);
+                                if(rand <= self.authSettings.getCaptchaChance()){
+                                    self.captchaDialog(player, true);
+                                }else{
+                                    DialogAuthHandler.this.actionManager.after(false);
+                                }
+                            }else{
+                                DialogAuthHandler.this.actionManager.after(false);
+                            }
+                        });
                         return true;
                     }catch (NoSuchAlgorithmException ex){
                         this.plugin.addError(ex);
@@ -187,23 +199,6 @@ public class DialogAuthHandler extends SpigotModule {
                 @Override
                 public boolean canClose() {
                     return false;
-                }
-
-                @Override
-                public void onDialogClose() {
-                    if(success.get()){
-                        DialogAuthHandler self = DialogAuthHandler.this;
-                        if(self.authSettings.isCaptchaEnabled()){
-                            double rand = Utils.random(0.0, 1.0);
-                            if(rand <= self.authSettings.getCaptchaChance()){
-                                self.captchaDialog(player, true);
-                            }else{
-                                DialogAuthHandler.this.actionManager.after(false);
-                            }
-                        }else{
-                            DialogAuthHandler.this.actionManager.after(false);
-                        }
-                    }
                 }
             };
         });
@@ -252,17 +247,18 @@ public class DialogAuthHandler extends SpigotModule {
             new BukkitRunnable(){
                 @Override
                 public void run() {
-                    User u = DialogAuthHandler.this.userStorage.get(username);
-                    if(u != null){
-                        if(!u.isAuthorized()){
-                            if(ForceLoginMemory.i.has(username)){
-                                DialogAuthHandler.this.getSpigotTasks().runTaskLater(40L, dialog::close);
+                    DialogAuthHandler.this.userStorage.get(username, u -> {
+                        if(u != null){
+                            if(!u.isAuthorized()){
+                                if(ForceLoginMemory.i.has(username)){
+                                    DialogAuthHandler.this.getSpigotTasks().runTaskLater(40L, dialog::close);
+                                    this.cancel();
+                                }
+                            }else{
                                 this.cancel();
                             }
-                        }else{
-                            this.cancel();
                         }
-                    }
+                    });
                 }
             }.runTaskTimerAsynchronously(this.spigotPlugin, 0L, 20L);
         });

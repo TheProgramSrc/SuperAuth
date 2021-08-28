@@ -14,11 +14,9 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
 import xyz.theprogramsrc.superauth.spigot.objects.AuthMethod;
@@ -79,89 +77,75 @@ public class BlockActionsListener extends SpigotModule {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onCommand(PlayerCommandPreprocessEvent event){
         Player player = event.getPlayer();
-        User user = this.userStorage.get(player.getName());
-        if(user == null) return;
-        if(!user.isAuthorized()){
-            if(user.getAuthMethod() == null || !user.isRegistered()){
-                if(this.settings.getAuthMethod() == AuthMethod.DIALOG){
-                    event.setCancelled(true);
-                }else if(this.settings.getAuthMethod() == AuthMethod.COMMANDS){
-                    List<String> whitelist = this.settings.getWhitelistedCommands();
-                    whitelist.add(this.settings.getRegisterCommand());
-                    whitelist.add(this.settings.getLoginCommand());
-                    whitelist.addAll(this.settings.getLoginAliases());
-                    whitelist.addAll(this.settings.getRegisterAliases());
-                    if (whitelist.stream().noneMatch(s-> event.getMessage().contains(s))) {
+        this.userStorage.get(player.getName(), user -> {
+            if(user == null) return;
+            if(!user.isAuthorized()){
+                if(user.getAuthMethod() == null || !user.isRegistered()){
+                    if(this.settings.getAuthMethod() == AuthMethod.DIALOG){
                         event.setCancelled(true);
+                    }else if(this.settings.getAuthMethod() == AuthMethod.COMMANDS){
+                        List<String> whitelist = this.settings.getWhitelistedCommands();
+                        whitelist.add(this.settings.getRegisterCommand());
+                        whitelist.add(this.settings.getLoginCommand());
+                        whitelist.addAll(this.settings.getLoginAliases());
+                        whitelist.addAll(this.settings.getRegisterAliases());
+                        if (whitelist.stream().noneMatch(s-> event.getMessage().contains(s))) {
+                            event.setCancelled(true);
+                        }
+                    }else if(this.settings.getAuthMethod() == AuthMethod.GUI){
+                        List<String> whitelist = this.settings.getWhitelistedCommands();
+                        whitelist.add(this.settings.getAuthCommand());
+                        whitelist.addAll(this.settings.getAuthAliases());
+                        if (whitelist.stream().noneMatch(s-> event.getMessage().contains(s))) {
+                            event.setCancelled(true);
+                        }
                     }
-                }else if(this.settings.getAuthMethod() == AuthMethod.GUI){
-                    List<String> whitelist = this.settings.getWhitelistedCommands();
-                    whitelist.add(this.settings.getAuthCommand());
-                    whitelist.addAll(this.settings.getAuthAliases());
-                    if (whitelist.stream().noneMatch(s-> event.getMessage().contains(s))) {
+                }else{
+                    if(user.getAuthMethod().equalsIgnoreCase("DIALOG")){
                         event.setCancelled(true);
-                    }
-                }
-            }else{
-                if(user.getAuthMethod().equalsIgnoreCase("DIALOG")){
-                    event.setCancelled(true);
-                }else if(user.getAuthMethod().equalsIgnoreCase("COMMANDS")){
-                    List<String> whitelist = this.settings.getWhitelistedCommands();
-                    whitelist.add(this.settings.getRegisterCommand());
-                    whitelist.add(this.settings.getLoginCommand());
-                    whitelist.addAll(this.settings.getLoginAliases());
-                    whitelist.addAll(this.settings.getRegisterAliases());
-                    if (whitelist.stream().noneMatch(s-> event.getMessage().contains(s))) {
-                        event.setCancelled(true);
-                    }
-                }else if(user.getAuthMethod().equalsIgnoreCase("GUI")){
-                    List<String> whitelist = this.settings.getWhitelistedCommands();
-                    whitelist.add(this.settings.getAuthCommand());
-                    whitelist.addAll(this.settings.getAuthAliases());
-                    if (whitelist.stream().noneMatch(s-> event.getMessage().contains(s))) {
-                        event.setCancelled(true);
+                    }else if(user.getAuthMethod().equalsIgnoreCase("COMMANDS")){
+                        List<String> whitelist = this.settings.getWhitelistedCommands();
+                        whitelist.add(this.settings.getRegisterCommand());
+                        whitelist.add(this.settings.getLoginCommand());
+                        whitelist.addAll(this.settings.getLoginAliases());
+                        whitelist.addAll(this.settings.getRegisterAliases());
+                        if (whitelist.stream().noneMatch(s-> event.getMessage().contains(s))) {
+                            event.setCancelled(true);
+                        }
+                    }else if(user.getAuthMethod().equalsIgnoreCase("GUI")){
+                        List<String> whitelist = this.settings.getWhitelistedCommands();
+                        whitelist.add(this.settings.getAuthCommand());
+                        whitelist.addAll(this.settings.getAuthAliases());
+                        if (whitelist.stream().noneMatch(s-> event.getMessage().contains(s))) {
+                            event.setCancelled(true);
+                        }
                     }
                 }
             }
-        }
+        });
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInteract(PlayerInteractEvent event){
         if(this.settings.getBlockedActions().contains("INTERACTION")){
             Player player = event.getPlayer();
-            User user = this.userStorage.get(player.getName());
-            if(user != null){
-                if(!user.isAuthorized()){
+            this.userStorage.isUserAuthorized(player.getName(), false, authorized -> {
+                if(!authorized){
                     event.setCancelled(true);
                 }
-            }
+            });
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onInteract1(PlayerInteractAtEntityEvent event){
+    public void onInteractAtEntity(PlayerInteractAtEntityEvent event){
         if(this.settings.getBlockedActions().contains("INTERACTION")){
             Player player = event.getPlayer();
-            User user = this.userStorage.get(player.getName());
-            if(user != null){
-                if(!user.isAuthorized()) {
+            this.userStorage.isUserAuthorized(player.getName(), false, authorized -> {
+                if(!authorized){
                     event.setCancelled(true);
                 }
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onInteract2(PlayerInteractEntityEvent event){
-        if(this.settings.getBlockedActions().contains("INTERACTION")){
-            Player player = event.getPlayer();
-            User user = this.userStorage.get(player.getName());
-            if(user != null){
-                if(!user.isAuthorized()){
-                    event.setCancelled(true);
-                }
-            }
+            });
         }
     }
 
@@ -169,12 +153,11 @@ public class BlockActionsListener extends SpigotModule {
     public void onBreak(BlockBreakEvent event){
         if(this.settings.getBlockedActions().contains("BLOCK_BREAK")){
             Player player = event.getPlayer();
-            User user = this.userStorage.get(player.getName());
-            if(user != null){
-                if(!user.isAuthorized()) {
+            this.userStorage.isUserAuthorized(player.getName(), false, authorized -> {
+                if(!authorized){
                     event.setCancelled(true);
                 }
-            }
+            });
         }
     }
 
@@ -182,12 +165,11 @@ public class BlockActionsListener extends SpigotModule {
     public void onPlace(BlockPlaceEvent event){
         if(this.settings.getBlockedActions().contains("BLOCK_PLACE")){
             Player player = event.getPlayer();
-            User user = this.userStorage.get(player.getName());
-            if(user != null){
-                if(!user.isAuthorized()){
+            this.userStorage.isUserAuthorized(player.getName(), false, authorized -> {
+                if(!authorized){
                     event.setCancelled(true);
                 }
-            }
+            });
         }
     }
 
@@ -195,61 +177,62 @@ public class BlockActionsListener extends SpigotModule {
     public void onChat(final AsyncPlayerChatEvent event){
         if(this.settings.getBlockedActions().contains("CHAT")){
             final Player player = event.getPlayer();
-            final User user = this.userStorage.get(player.getName());
-            if(user != null){
-                final String msg = event.getMessage();
-                if(!user.isAuthorized()){
-                    if(user.getAuthMethod() == null){
-                        if(this.settings.getAuthMethod() != AuthMethod.DIALOG){
-                            List<String> whitelist = this.settings.getWhitelistedCommands();
-                            if(this.settings.getAuthMethod() == AuthMethod.COMMANDS){
-                                whitelist.add(this.settings.getRegisterCommand());
-                                whitelist.add(this.settings.getLoginCommand());
-                                whitelist.addAll(this.settings.getLoginAliases());
-                                whitelist.addAll(this.settings.getRegisterAliases());
-                                boolean res = whitelist.stream().noneMatch(s-> msg.startsWith("/" + s));
-                                this.log("Testing commands (" + String.join(", ", whitelist) + ") with result: " + (res ? 'y' : 'n'));
-                                if (res) {
-                                    event.setCancelled(true);
+            this.userStorage.get(player.getName(), user -> {
+                if(user != null){
+                    final String msg = event.getMessage();
+                    if(!user.isAuthorized()){
+                        if(user.getAuthMethod() == null){
+                            if(this.settings.getAuthMethod() != AuthMethod.DIALOG){
+                                List<String> whitelist = this.settings.getWhitelistedCommands();
+                                if(this.settings.getAuthMethod() == AuthMethod.COMMANDS){
+                                    whitelist.add(this.settings.getRegisterCommand());
+                                    whitelist.add(this.settings.getLoginCommand());
+                                    whitelist.addAll(this.settings.getLoginAliases());
+                                    whitelist.addAll(this.settings.getRegisterAliases());
+                                    boolean res = whitelist.stream().noneMatch(s-> msg.startsWith("/" + s));
+                                    this.log("Testing commands (" + String.join(", ", whitelist) + ") with result: " + (res ? 'y' : 'n'));
+                                    if (res) {
+                                        event.setCancelled(true);
+                                    }
+                                }else{
+                                    whitelist.add(this.settings.getAuthCommand());
+                                    whitelist.addAll(this.settings.getAuthAliases());
+                                    if (whitelist.stream().noneMatch(s-> msg.startsWith("/" + s))) {
+                                        event.setCancelled(true);
+                                    }
                                 }
                             }else{
-                                whitelist.add(this.settings.getAuthCommand());
-                                whitelist.addAll(this.settings.getAuthAliases());
-                                if (whitelist.stream().noneMatch(s-> msg.startsWith("/" + s))) {
+                                if(msg.startsWith("/")){
                                     event.setCancelled(true);
                                 }
                             }
                         }else{
-                            if(msg.startsWith("/")){
-                                event.setCancelled(true);
-                            }
-                        }
-                    }else{
-                        if(!user.getAuthMethod().equals("DIALOG")){
-                            List<String> whitelist = this.settings.getWhitelistedCommands();
-                            if(user.getAuthMethod().equals("COMMANDS")){
-                                whitelist.add(this.settings.getRegisterCommand());
-                                whitelist.add(this.settings.getLoginCommand());
-                                whitelist.addAll(this.settings.getLoginAliases());
-                                whitelist.addAll(this.settings.getRegisterAliases());
-                                if (whitelist.stream().noneMatch(s-> msg.startsWith("/" + s))) {
-                                    event.setCancelled(true);
+                            if(!user.getAuthMethod().equals("DIALOG")){
+                                List<String> whitelist = this.settings.getWhitelistedCommands();
+                                if(user.getAuthMethod().equals("COMMANDS")){
+                                    whitelist.add(this.settings.getRegisterCommand());
+                                    whitelist.add(this.settings.getLoginCommand());
+                                    whitelist.addAll(this.settings.getLoginAliases());
+                                    whitelist.addAll(this.settings.getRegisterAliases());
+                                    if (whitelist.stream().noneMatch(s-> msg.startsWith("/" + s))) {
+                                        event.setCancelled(true);
+                                    }
+                                }else{
+                                    whitelist.add(this.settings.getAuthCommand());
+                                    whitelist.addAll(this.settings.getAuthAliases());
+                                    if (whitelist.stream().noneMatch(s-> msg.startsWith("/" + s))) {
+                                        event.setCancelled(true);
+                                    }
                                 }
                             }else{
-                                whitelist.add(this.settings.getAuthCommand());
-                                whitelist.addAll(this.settings.getAuthAliases());
-                                if (whitelist.stream().noneMatch(s-> msg.startsWith("/" + s))) {
+                                if(msg.startsWith("/")){
                                     event.setCancelled(true);
                                 }
-                            }
-                        }else{
-                            if(msg.startsWith("/")){
-                                event.setCancelled(true);
                             }
                         }
                     }
                 }
-            }
+            });
         }
     }
 
@@ -257,12 +240,11 @@ public class BlockActionsListener extends SpigotModule {
     public void onMove(PlayerMoveEvent event){
         if(this.settings.getBlockedActions().contains("MOVEMENT")){
             Player player = event.getPlayer();
-            User user = this.userStorage.get(player.getName());
-            if(user != null){
-                if(!user.isAuthorized()){
+            this.userStorage.isUserAuthorized(player.getName(), false, authorized -> {
+                if(!authorized){
                     event.setCancelled(true);
                 }
-            }
+            });
         }
     }
 
@@ -279,13 +261,12 @@ public class BlockActionsListener extends SpigotModule {
     private void onDamage(EntityDamageEvent e){
         if (e.getEntity() instanceof Player && this.settings.getBlockedActions().contains("DAMAGE")) {
             Player player = (Player) e.getEntity();
-            User user = this.userStorage.get(player.getName());
-            if(user != null){
-                if(!user.isAuthorized()){
+            this.userStorage.isUserAuthorized(player.getName(), false, authorized -> {
+                if(!authorized){
                     e.setDamage(0);
                     e.setCancelled(true);
                 }
-            }
+            });
         }
     }
 }

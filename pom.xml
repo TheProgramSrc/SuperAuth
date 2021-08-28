@@ -6,7 +6,7 @@
 
     <groupId>xyz.theprogramsrc</groupId>
     <artifactId>SuperAuth</artifactId>
-    <version>3.16.3</version>
+    <version>3.17.0</version>
     <packaging>jar</packaging>
 
     <name>SuperAuth</name>
@@ -49,6 +49,21 @@
                                     <shadedPattern>xyz.theprogramsrc.superauth.supercoreapi</shadedPattern>
                                 </relocation>
                             </relocations>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>module-info.class</exclude>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/DEPENDENCIES</exclude>
+                                        <exclude>META-INF/LICENSE</exclude>
+                                        <exclude>META-INF/NOTICE</exclude>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -95,7 +110,7 @@
         <dependency>
             <groupId>xyz.theprogramsrc</groupId>
             <artifactId>SuperCoreAPI</artifactId>
-            <version>5.0.1-SNAPSHOT</version>
+            <version>5.2.1</version>
             <scope>compile</scope>
         </dependency>
         <!-- Spigot -->

@@ -1,11 +1,14 @@
 package xyz.theprogramsrc.superauth.spigot.listeners;
 
+import java.util.Objects;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+
 import xyz.theprogramsrc.superauth.global.SessionStorage;
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.User;
@@ -17,8 +20,6 @@ import xyz.theprogramsrc.superauth.spigot.storage.DatabaseMigration;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotModule;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.skintexture.SkinTexture;
-
-import java.util.Objects;
 
 public class MainListener extends SpigotModule {
 
@@ -44,12 +45,13 @@ public class MainListener extends SpigotModule {
             Player player = event.getPlayer();
             String ip = Objects.requireNonNull(player.getAddress()).getAddress().getHostAddress();
             this.getSpigotTasks().runAsyncTask(() -> {
-                User user = this.userStorage.get(player.getName());
-                if(user == null) return;
-                if(player.getAddress() != null && user.isAuthorized() && user.isRegistered()){
-                    SessionStorage.i.set(ip + player.getUniqueId(), System.currentTimeMillis()+"");
-                }
-                this.userStorage.removeCache(player.getName());
+                this.userStorage.get(player.getName(), user -> {
+                    if(user == null) return;
+                    if(player.getAddress() != null && user.isAuthorized() && user.isRegistered()){
+                        SessionStorage.i.set(ip + player.getUniqueId(), System.currentTimeMillis()+"");
+                    }
+                    this.userStorage.removeCache(player.getName());
+                });
             });
         }
     }
@@ -61,40 +63,40 @@ public class MainListener extends SpigotModule {
     }
 
     private void handleAuth(Player player, boolean disableAuthorization){
-        String ip = Objects.requireNonNull(player.getAddress()).getAddress().getHostAddress();
         this.getSpigotTasks().runAsyncTask(() -> {
-            User user = this.userStorage.get(player.getName());
-            if(user == null) return;
-            if(user.isAuthorized() && disableAuthorization){
-                user.setAuthorized(false);
-                user = this.userStorage.saveAndGet(user);
-            }
+            String ip = Objects.requireNonNull(player.getAddress()).getAddress().getHostAddress();
+            this.userStorage.get(player.getName(), user -> {
+                if(user == null) return;
+                if(user.isAuthorized() && disableAuthorization){
+                    user.setAuthorized(false);
+                }
+                if((user.getIp() == null || user.getIp().equals("") || user.getIp().equals(" ") || user.getIp().equals("null"))){
+                    user.setIp(ip);
+                }
 
-            if((user.getIp() == null || user.getIp().equals("") || user.getIp().equals(" ") || user.getIp().equals("null"))){
-                user.setIp(ip);
-                user = this.userStorage.saveAndGet(user);
-            }
-
-            if(this.validateIpAddress(player, user, ip)){
-                this.checkSkin(user, player);
-                if(!this.settings.isAuthEnabled()) return;
-                this.executeAntiBot(player, user);
-
-                new AuthHandler(player);
-            }
+                if(this.validateIpAddress(player, user, ip)){
+                    this.userStorage.saveAndGet(user, anotherUser -> {
+                        this.checkSkin(anotherUser, player);
+                        if(!this.settings.isAuthEnabled()) return;
+                        this.executeAntiBot(player, anotherUser);
+                        new AuthHandler(player);
+                    });
+                }
+            });
         });
     }
 
     private void executeAntiBot(final Player player, User user){
         int max = this.settings.getMaxTime();
         this.getSpigotTasks().runTaskLater(Utils.toTicks(max), ()->{
-            User currentUser = this.userStorage.get(user.getUsername());
-            if(currentUser != null){
-                if(!currentUser.isAuthorized()){
-                    player.closeInventory();
-                    player.kickPlayer(this.getSuperUtils().color(LBase.TOOK_TOO_LONG.options().vars(max+"").placeholder("{Time}", max+"").toString())); // Remove var in v3.17
+            this.userStorage.get(user.getUsername(), currentUser -> {
+                if(currentUser != null){
+                    if(!currentUser.isAuthorized()){
+                        player.closeInventory();
+                        player.kickPlayer(this.getSuperUtils().color(LBase.TOOK_TOO_LONG.options().vars(max+"").placeholder("{Time}", max+"").toString())); // Remove var in v3.17
+                    }
                 }
-            }
+            });
         });
     }
 

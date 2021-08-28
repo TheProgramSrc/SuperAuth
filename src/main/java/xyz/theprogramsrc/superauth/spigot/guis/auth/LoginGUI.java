@@ -1,7 +1,10 @@
 package xyz.theprogramsrc.superauth.spigot.guis.auth;
 
+import java.security.NoSuchAlgorithmException;
+
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
@@ -12,19 +15,17 @@ import xyz.theprogramsrc.superauth.spigot.storage.AuthSettings;
 import xyz.theprogramsrc.supercoreapi.global.translations.Base;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.libs.xseries.XMaterial;
-import xyz.theprogramsrc.supercoreapi.spigot.guis.GUI;
-import xyz.theprogramsrc.supercoreapi.spigot.guis.GUIButton;
-import xyz.theprogramsrc.supercoreapi.spigot.guis.action.ClickAction;
-import xyz.theprogramsrc.supercoreapi.spigot.guis.action.ClickType;
-import xyz.theprogramsrc.supercoreapi.spigot.guis.objects.GUIRows;
+import xyz.theprogramsrc.supercoreapi.spigot.gui.Gui;
+import xyz.theprogramsrc.supercoreapi.spigot.gui.objets.GuiAction;
+import xyz.theprogramsrc.supercoreapi.spigot.gui.objets.GuiAction.ClickType;
+import xyz.theprogramsrc.supercoreapi.spigot.gui.objets.GuiEntry;
+import xyz.theprogramsrc.supercoreapi.spigot.gui.objets.GuiModel;
+import xyz.theprogramsrc.supercoreapi.spigot.gui.objets.GuiRows;
+import xyz.theprogramsrc.supercoreapi.spigot.gui.objets.GuiTitle;
 import xyz.theprogramsrc.supercoreapi.spigot.items.SimpleItem;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.skintexture.SkinTexture;
 
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-
-public class LoginGUI extends GUI {
+public class LoginGUI extends Gui {
 
     private final User user;
     private final int pinLength;
@@ -33,11 +34,12 @@ public class LoginGUI extends GUI {
     private final AuthSettings authSettings;
 
     public LoginGUI(Player player, User user){
-        super(player);
+        super(player, false);
         this.authSettings = SuperAuth.spigot.getAuthSettings();
         this.pinLength = SuperAuth.spigot.getAuthSettings().getPinLength();
         this.input = "";
         this.user = user;
+        this.canCloseGui = ForceLoginMemory.i.has(this.player.getName()) && !this.player.isOnline() && this.user.isAuthorized();
         this.open();
 
 
@@ -45,69 +47,55 @@ public class LoginGUI extends GUI {
         new BukkitRunnable(){
             @Override
             public void run() {
-                User user = userStorage.get(player.getName());
-                if(user != null){
-                    if(!user.isAuthorized()){
-                        if(ForceLoginMemory.i.has(player.getName())){
-                            LoginGUI.this.close();
+                userStorage.get(player.getName(), user -> {
+                    if(user != null){
+                        if(!user.isAuthorized()){
+                            if(ForceLoginMemory.i.has(player.getName())){
+                                LoginGUI.this.close();
+                                this.cancel();
+                            }
+                        }else{
                             this.cancel();
                         }
-                    }else{
-                        this.cancel();
                     }
-                }
+                });
             }
-        }.runTaskTimer(this.spigotPlugin, 0L, 5L);
+        }.runTaskTimerAsynchronously(this.spigotPlugin, 0L, 10L);
     }
 
     @Override
-    protected GUIRows getRows() {
-        return GUIRows.SIX;
+    public GuiRows getRows() {
+        return GuiRows.SIX;
     }
 
     @Override
-    protected String getTitle() {
+    public GuiTitle getTitle() {
         if(this.input == null){
-            return LBase.AUTH_LOGIN_GUI_TITLE + " &9» " + LBase.NO_INPUT.options().upper().get();
+            return GuiTitle.of(LBase.AUTH_LOGIN_GUI_TITLE + " &9» " + LBase.NO_INPUT.options().upper().get());
         }else{
-            return LBase.AUTH_LOGIN_GUI_TITLE + " &9» " + (this.input.isEmpty() ? LBase.NO_INPUT.options().upper().get() : this.input);
+            return GuiTitle.of(LBase.AUTH_LOGIN_GUI_TITLE + " &9» " + (this.input.isEmpty() ? LBase.NO_INPUT.options().upper().get() : this.input));
         }
     }
 
     @Override
-    public boolean canCloseGUI() {
-        return ForceLoginMemory.i.has(this.getPlayer().getName()) && !this.getPlayer().isOnline() && this.user.isAuthorized();
+    public void onBuild(GuiModel model) {
+        model.setButton(0, this.getDisconnectButton());
+        model.setButton(8, this.getDeleteButton());
+        model.setButton(53, this.getDoneButton());
+        model.setButton(12, this.createInputButton(1, "https://textures.minecraft.net/texture/71bc2bcfb2bd3759e6b1e86fc7a79585e1127dd357fc202893f9de241bc9e530"));
+        model.setButton(13, this.createInputButton(2, "https://textures.minecraft.net/texture/4cd9eeee883468881d83848a46bf3012485c23f75753b8fbe8487341419847"));
+        model.setButton(14, this.createInputButton(3, "https://textures.minecraft.net/texture/1d4eae13933860a6df5e8e955693b95a8c3b15c36b8b587532ac0996bc37e5"));
+        model.setButton(21, this.createInputButton(4, "https://textures.minecraft.net/texture/d2e78fb22424232dc27b81fbcb47fd24c1acf76098753f2d9c28598287db5"));
+        model.setButton(22, this.createInputButton(5, "https://textures.minecraft.net/texture/6d57e3bc88a65730e31a14e3f41e038a5ecf0891a6c243643b8e5476ae2"));
+        model.setButton(23, this.createInputButton(6, "https://textures.minecraft.net/texture/334b36de7d679b8bbc725499adaef24dc518f5ae23e716981e1dcc6b2720ab"));
+        model.setButton(30, this.createInputButton(7, "https://textures.minecraft.net/texture/6db6eb25d1faabe30cf444dc633b5832475e38096b7e2402a3ec476dd7b9"));
+        model.setButton(31, this.createInputButton(8, "https://textures.minecraft.net/texture/59194973a3f17bda9978ed6273383997222774b454386c8319c04f1f4f74c2b5"));
+        model.setButton(32, this.createInputButton(9, "https://textures.minecraft.net/texture/e67caf7591b38e125a8017d58cfc6433bfaf84cd499d794f41d10bff2e5b840"));
+        model.setButton(40, this.createInputButton(0, "https://textures.minecraft.net/texture/0ebe7e5215169a699acc6cefa7b73fdb108db87bb6dae2849fbe24714b27"));
+        model.fillEmptySlots();
     }
 
-    @Override
-    protected GUIButton[] getButtons() {
-        List<GUIButton> list = new ArrayList<>();
-        list.add(this.createInputButton(40, 0, "https://textures.minecraft.net/texture/0ebe7e5215169a699acc6cefa7b73fdb108db87bb6dae2849fbe24714b27"));
-        list.add(this.createInputButton(12, 1, "https://textures.minecraft.net/texture/71bc2bcfb2bd3759e6b1e86fc7a79585e1127dd357fc202893f9de241bc9e530"));
-        list.add(this.createInputButton(13, 2, "https://textures.minecraft.net/texture/4cd9eeee883468881d83848a46bf3012485c23f75753b8fbe8487341419847"));
-        list.add(this.createInputButton(14, 3, "https://textures.minecraft.net/texture/1d4eae13933860a6df5e8e955693b95a8c3b15c36b8b587532ac0996bc37e5"));
-        list.add(this.createInputButton(21, 4, "https://textures.minecraft.net/texture/d2e78fb22424232dc27b81fbcb47fd24c1acf76098753f2d9c28598287db5"));
-        list.add(this.createInputButton(22, 5, "https://textures.minecraft.net/texture/6d57e3bc88a65730e31a14e3f41e038a5ecf0891a6c243643b8e5476ae2"));
-        list.add(this.createInputButton(23, 6, "https://textures.minecraft.net/texture/334b36de7d679b8bbc725499adaef24dc518f5ae23e716981e1dcc6b2720ab"));
-        list.add(this.createInputButton(30, 7, "https://textures.minecraft.net/texture/6db6eb25d1faabe30cf444dc633b5832475e38096b7e2402a3ec476dd7b9"));
-        list.add(this.createInputButton(31, 8, "https://textures.minecraft.net/texture/59194973a3f17bda9978ed6273383997222774b454386c8319c04f1f4f74c2b5"));
-        list.add(this.createInputButton(32, 9, "https://textures.minecraft.net/texture/e67caf7591b38e125a8017d58cfc6433bfaf84cd499d794f41d10bff2e5b840"));
-        list.add(this.getDoneButton());
-        list.add(this.getDeleteButton());
-        list.add(this.getDisconnectButton());
-        List<Integer> used = Utils.toList(0,8,12,13,14,21,22,23,30,31,32,40,53);
-        for(int i = 0; i < this.getRows().getSize(); ++i){
-            if(!used.contains(i)){
-                used.add(i);
-                list.add(new GUIButton(i, this.getPreloadedItems().emptyItem()));
-            }
-        }
-        GUIButton[] buttons = new GUIButton[list.size()];
-        buttons = list.toArray(buttons);
-        return buttons;
-    }
-
-    private GUIButton getDeleteButton(){
+    private GuiEntry getDeleteButton(){
         SimpleItem item = new SimpleItem(XMaterial.BARRIER)
                 .setDisplayName("&a" + LBase.AUTH_GUI_REMOVE_INPUT_NAME)
                 .setLore(
@@ -115,8 +103,8 @@ public class LoginGUI extends GUI {
                         "&9" + Base.LEFT_CLICK + "&7 " + LBase.AUTH_GUI_REMOVE_INPUT_LEFT,
                         "&9" + Base.RIGHT_CLICK + "&7 " + LBase.AUTH_GUI_REMOVE_INPUT_RIGHT
                 );
-        return new GUIButton(8, item, a->{
-            if(a.getAction() == ClickType.RIGHT_CLICK){
+        return new GuiEntry(item, a->{
+            if(a.clickType == ClickType.RIGHT_CLICK){
                 this.input = "";
                 this.open();
             }else{
@@ -128,34 +116,34 @@ public class LoginGUI extends GUI {
         });
     }
 
-    private GUIButton getDoneButton(){
+    private GuiEntry getDoneButton(){
         SimpleItem item = new SimpleItem(XMaterial.EMERALD)
                 .setDisplayName("&a"+ LBase.AUTH_GUI_CHECK_PASSWORD_NAME +" »")
                 .setLore(
                         "&7",
                         "&7" + LBase.AUTH_GUI_CHECK_PASSWORD_DESCRIPTION
                 );
-        return new GUIButton(53, item, a->{
+        return new GuiEntry(item, a->{
             try{
                 if(this.user.isValid(this.input)){
                     this.finish(a);
                 }else{
-                    this.getSuperUtils().sendMessage(a.getPlayer(), LBase.WRONG_PASSWORD.toString());
+                    this.getSuperUtils().sendMessage(a.player, LBase.WRONG_PASSWORD.toString());
                 }
             }catch (NoSuchAlgorithmException ex){
                 this.plugin.addError(ex);
-                this.getSuperUtils().sendMessage(a.getPlayer(), this.getSettings().getPrefix() + LBase.ERROR_WHILE_HASHING);
+                this.getSuperUtils().sendMessage(a.player, this.getSettings().getPrefix() + LBase.ERROR_WHILE_HASHING);
                 this.log("&c" + LBase.ERROR_WHILE_HASHING_PASSWORD);
                 ex.printStackTrace();
             }
         });
     }
 
-    private GUIButton createInputButton(int slot, final int number, String url){
+    private GuiEntry createInputButton(final int number, String url){
         SimpleItem item = new SimpleItem(XMaterial.PLAYER_HEAD)
                 .setDisplayName("&a" + number)
                 .setSkin(SkinTexture.fromURL(url));
-        return new GUIButton(slot, item, a-> {
+        return new GuiEntry(item, a-> {
             if(this.input.length() != this.pinLength){
                 this.input += number;
                 this.open();
@@ -163,28 +151,28 @@ public class LoginGUI extends GUI {
         });
     }
 
-    private GUIButton getDisconnectButton(){
+    private GuiEntry getDisconnectButton(){
         SimpleItem item = new SimpleItem(XMaterial.REDSTONE_BLOCK)
                 .setDisplayName("&a" + LBase.AUTH_GUI_DISCONNECT_NAME)
                 .setLore("&7")
                 .addLoreLines(Utils.breakText(LBase.AUTH_GUI_DISCONNECT_DESCRIPTION.toString(), 25, "&7"));
-        return new GUIButton(0, item, a-> getSpigotTasks().runTask(()-> {
+        return new GuiEntry(item, a-> getSpigotTasks().runTask(()-> {
             this.close();
-            this.getSpigotTasks().runTask(()->a.getPlayer().kickPlayer("Disconnected"));
+            this.getSpigotTasks().runTask(()->a.player.kickPlayer("Disconnected"));
         }));
     }
 
-    private void finish(ClickAction a){
+    private void finish(GuiAction a){
         if(this.authSettings.isCaptchaEnabled()){
             double random = Utils.random(0.0, 1.0);
             if(random <= this.authSettings.getCaptchaChance()){
                 this.close();
-                new CaptchaGUI(a.getPlayer(), false);
+                new CaptchaGUI(a.player, false);
             }else{
-                new ActionManager(a.getPlayer()).after(true);
+                new ActionManager(a.player).after(true);
             }
         }else{
-            new ActionManager(a.getPlayer()).after(true);
+            new ActionManager(a.player).after(true);
         }
     }
 }

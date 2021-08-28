@@ -27,36 +27,38 @@ public class CommandAuthHandler extends SpigotModule {
         if(!user.isRegistered()){
             actionManager.before(false);
             this.task = this.getSpigotTasks().runAsyncRepeatingTask(0L, Utils.toTicks(authSettings.getCommandUsageTimer()), () -> {
-                User finalUser = userStorage.get(player.getName());
-                if(finalUser != null){
-                    if(!finalUser.isAuthorized()){
-                        if(!CaptchaMemory.i.has(player.getName())) {
-                            CommandAuthHandler.this.getSuperUtils().sendMessage(player, LBase.REGISTER_COMMAND_USAGE.options().placeholder("{Command}", authSettings.getRegisterCommand().toLowerCase()).get());
+                userStorage.get(player.getName(), finalUser -> {
+                    if(finalUser != null){
+                        if(!finalUser.isAuthorized()){
+                            if(!CaptchaMemory.i.has(player.getName())) {
+                                CommandAuthHandler.this.getSuperUtils().sendMessage(player, LBase.REGISTER_COMMAND_USAGE.options().placeholder("{Command}", authSettings.getRegisterCommand().toLowerCase()).get());
+                            }else{
+                                this.task.stop();
+                            }
                         }else{
                             this.task.stop();
                         }
-                    }else{
-                        this.task.stop();
                     }
-                }
+                });
             });
         }else{
             actionManager.before(true);
             user.setAuthorized(false);
             userStorage.save(user);
             this.task = this.getSpigotTasks().runAsyncRepeatingTask(0L, Utils.toTicks(authSettings.getCommandUsageTimer()), () -> {
-                User finalUser = userStorage.get(player.getName());
-                if(finalUser != null){
-                    if(!finalUser.isAuthorized()){
-                        if(!CaptchaMemory.i.has(player.getName())) {
-                            CommandAuthHandler.this.getSuperUtils().sendMessage(player, LBase.LOGIN_COMMAND_USAGE.options().placeholder("{Command}", authSettings.getLoginCommand().toLowerCase()).get());
+                userStorage.get(player.getName(), finalUser -> {
+                    if(finalUser != null){
+                        if(!finalUser.isAuthorized()){
+                            if(!CaptchaMemory.i.has(player.getName())) {
+                                CommandAuthHandler.this.getSuperUtils().sendMessage(player, LBase.LOGIN_COMMAND_USAGE.options().placeholder("{Command}", authSettings.getLoginCommand().toLowerCase()).get());
+                            }else{
+                                this.task.stop();
+                            }
                         }else{
                             this.task.stop();
                         }
-                    }else{
-                        this.task.stop();
                     }
-                }
+                });
             });
         }
     }

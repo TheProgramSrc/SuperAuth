@@ -20,7 +20,6 @@ import xyz.theprogramsrc.superauth.spigot.commands.AuthCommand;
 import xyz.theprogramsrc.superauth.spigot.commands.LoginCommand;
 import xyz.theprogramsrc.superauth.spigot.commands.RegisterCommand;
 import xyz.theprogramsrc.superauth.spigot.commands.SuperAuthCommand;
-import xyz.theprogramsrc.superauth.spigot.hooks.PlaceholderAPIHook;
 import xyz.theprogramsrc.superauth.spigot.listeners.BlockActionsListener;
 import xyz.theprogramsrc.superauth.spigot.listeners.IPSyncListener;
 import xyz.theprogramsrc.superauth.spigot.listeners.MainListener;
@@ -122,13 +121,6 @@ public class SuperAuth extends SpigotPlugin {
             this.log("&aIf you need direct support join to our discord:&b https://go.theprogramsrc.xyz/discord");
             this.checkBungeeMySQL();
             this.updateChecker();
-
-            boolean papi = this.getSuperUtils().isPlugin("PlaceholderAPI");
-
-            if(papi){
-                new PlaceholderAPIHook().register();
-                this.log("&aPlaceholderAPI Hook Registered.");
-            }
 
             if(this.getPluginDataStorage().isShareStatsEnabled()){
                 new Metrics(this, 7004);
@@ -347,28 +339,30 @@ public class SuperAuth extends SpigotPlugin {
         }
 
         DatabaseMigration migration = new DatabaseMigration(from, to);
-
-        this.log("&aInitializing migration... (Users won't be able to join the server)");
-        boolean success = migration.init();
-        if(success){
-            this.log("&aSuccessfully migrated all the users. Now the plugin will modify your configuration to load with the desired Database System and will restart the server.");
-            this.dataBase = to;
-            if(to instanceof MySQLDataBase && !cfg.getBoolean("MySQL.Enabled")){
-                cfg.set("MySQL.Enabled", true);
-                this.log("&aNow the plugin will work with MySQL (External Database)");
-            }else if(to instanceof SQLiteDataBase && cfg.getBoolean("MySQL.Enabled")){
-                cfg.set("MySQL.Enabled", false);
-                this.log("&aNow the plugin will work with SQLite (Local Database)");
-            }
-        }else{
-            this.log("&4FAILED TO MIGRATE THE DATABASE. THE PLUGIN WILL REVERT THE CHANGES RESTART THE SERVER.");
-            this.log("&4If you think this should not happen please contact us in our discord: https://go.theprogramsrc.xyz/discord");
-            this.log("&cReverting the changes...");
-            migration.revert();
-            this.log("&cThe changes were reverted.");
-
-        }
-        this.log("&aRestarting server...");
-        this.getSpigotTasks().runTask(() -> Bukkit.dispatchCommand(this.getServer().getConsoleSender(), "restart"));
+        this.getSpigotTasks().runAsyncTask(() -> {
+            this.log("&aInitializing migration... (Users won't be able to join the server)");
+            migration.init(success -> {
+                if(success){
+                    this.log("&aSuccessfully migrated all the users. Now the plugin will modify your configuration to load with the desired Database System and will restart the server.");
+                    this.dataBase = to;
+                    if(to instanceof MySQLDataBase && !cfg.getBoolean("MySQL.Enabled")){
+                        cfg.set("MySQL.Enabled", true);
+                        this.log("&aNow the plugin will work with MySQL (External Database)");
+                    }else if(to instanceof SQLiteDataBase && cfg.getBoolean("MySQL.Enabled")){
+                        cfg.set("MySQL.Enabled", false);
+                        this.log("&aNow the plugin will work with SQLite (Local Database)");
+                    }
+                }else{
+                    this.log("&4FAILED TO MIGRATE THE DATABASE. THE PLUGIN WILL REVERT THE CHANGES RESTART THE SERVER.");
+                    this.log("&4If you think this should not happen please contact us in our discord: https://go.theprogramsrc.xyz/discord");
+                    this.log("&cReverting the changes...");
+                    migration.revert();
+                    this.log("&cThe changes were reverted.");
+        
+                }
+                this.log("&aRestarting server...");
+                this.getSpigotTasks().runTask(() -> Bukkit.dispatchCommand(this.getServer().getConsoleSender(), "restart"));
+            });
+        });
     }
 }

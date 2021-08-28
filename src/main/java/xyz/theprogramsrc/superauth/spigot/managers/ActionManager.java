@@ -1,11 +1,13 @@
 package xyz.theprogramsrc.superauth.spigot.managers;
 
+import java.util.List;
+
 import org.bukkit.entity.Player;
+
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthAfterLoginEvent;
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthAfterRegisterEvent;
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthBeforeLoginEvent;
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthBeforeRegisterEvent;
-import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
 import xyz.theprogramsrc.superauth.spigot.memory.CaptchaMemory;
@@ -17,8 +19,6 @@ import xyz.theprogramsrc.supercoreapi.global.placeholders.Placeholder;
 import xyz.theprogramsrc.supercoreapi.global.placeholders.SpigotPlaceholderManager;
 import xyz.theprogramsrc.supercoreapi.libs.xseries.messages.Titles;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotModule;
-
-import java.util.List;
 
 public class ActionManager extends SpigotModule {
 
@@ -49,10 +49,11 @@ public class ActionManager extends SpigotModule {
                 this.afterRegister();
             }
 
-            User user = this.userStorage.get(player.getName());
-            user.setAuthorized(true);
-            this.userStorage.save(user);
-            this.getSpigotTasks().runTaskLater(2L, this.player::closeInventory);
+            this.userStorage.get(player.getName(), user -> {
+                user.setAuthorized(true);
+                this.userStorage.save(user);
+                this.getSpigotTasks().runTaskLater(2L, this.player::closeInventory);
+            });
         });
     }
 

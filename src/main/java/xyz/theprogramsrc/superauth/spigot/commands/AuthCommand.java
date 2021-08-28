@@ -1,6 +1,7 @@
 package xyz.theprogramsrc.superauth.spigot.commands;
 
 import org.bukkit.entity.Player;
+
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
@@ -42,20 +43,23 @@ public class AuthCommand extends SpigotCommand {
 
     @Override
     public CommandResult onPlayerExecute(Player player, String[] args) {
-        User user = this.userStorage.get(player.getName(), true);
-        if(user == null) {
-            this.getSuperUtils().sendMessage(player, this.getSettings().getPrefix() + LBase.ERROR_FETCHING_DATA);
-        }else{
-            if(this.authSettings.getAuthMethod() != AuthMethod.GUI){
-                if(user.isRegistered()){
-                    if(user.getAuthMethod().equals("GUI")){
+        this.getSpigotTasks().runAsyncTask(() -> {
+            this.userStorage.get(player.getName(), true, user -> {
+                if(user == null) {
+                    this.getSuperUtils().sendMessage(player, this.getSettings().getPrefix() + LBase.ERROR_FETCHING_DATA);
+                }else{
+                    if(this.authSettings.getAuthMethod() != AuthMethod.GUI){
+                        if(user.isRegistered()){
+                            if(user.getAuthMethod().equals("GUI")){
+                                this.exe(player, user);
+                            }
+                        }
+                    }else{
                         this.exe(player, user);
                     }
                 }
-            }else{
-                this.exe(player, user);
-            }
-        }
+            });
+        });
         return CommandResult.COMPLETED;
     }
 

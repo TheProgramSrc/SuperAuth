@@ -1,6 +1,9 @@
 package xyz.theprogramsrc.superauth.spigot.commands;
 
+import java.security.NoSuchAlgorithmException;
+
 import org.bukkit.entity.Player;
+
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthAfterCaptchaEvent;
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthBeforeCaptchaEvent;
 import xyz.theprogramsrc.superauth.global.languages.LBase;
@@ -17,8 +20,6 @@ import xyz.theprogramsrc.supercoreapi.spigot.commands.CommandResult;
 import xyz.theprogramsrc.supercoreapi.spigot.commands.SpigotCommand;
 import xyz.theprogramsrc.supercoreapi.spigot.dialog.Dialog;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.SpigotConsole;
-
-import java.security.NoSuchAlgorithmException;
 
 public class LoginCommand extends SpigotCommand {
 
@@ -42,35 +43,38 @@ public class LoginCommand extends SpigotCommand {
 
     @Override
     public CommandResult onPlayerExecute(Player player, String[] args) {
-        User user = this.userStorage.get(player.getName(), true);
-        if(user == null){
-            this.getSuperUtils().sendMessage(player, this.getSettings().getPrefix() + LBase.ERROR_FETCHING_DATA);
-        }else{
-            if(this.authSettings.getAuthMethod() != AuthMethod.COMMANDS){
-                if(user.isRegistered()){
-                    if(user.getAuthMethod().equals("COMMANDS")){
-                        if(user.isAuthorized()){
-                            this.getSuperUtils().sendMessage(player, LBase.ALREADY_IDENTIFIED.toString());
-                        }else{
-                            this.exe(user, player, args);
-                        }
-                    }
-                }
-            }else{
-                if(!user.isRegistered()){
-                    String cmd = SuperAuth.spigot.getAuthSettings().getRegisterCommand().toLowerCase(); // Remove var in v3.17
-                    this.getSuperUtils().sendMessage(player, LBase.USE_REGISTER_COMMAND.options().vars(cmd).placeholder("{Command}", cmd).toString());
+        this.getSpigotTasks().runAsyncTask(() -> {
+            this.userStorage.get(player.getName(), true, user -> {
+                if(user == null){
+                    this.getSuperUtils().sendMessage(player, this.getSettings().getPrefix() + LBase.ERROR_FETCHING_DATA);
                 }else{
-                    if(user.getAuthMethod().equals("COMMANDS")){
-                        if(user.isAuthorized()){
-                            this.getSuperUtils().sendMessage(player, LBase.ALREADY_IDENTIFIED.toString());
+                    if(this.authSettings.getAuthMethod() != AuthMethod.COMMANDS){
+                        if(user.isRegistered()){
+                            if(user.getAuthMethod().equals("COMMANDS")){
+                                if(user.isAuthorized()){
+                                    this.getSuperUtils().sendMessage(player, LBase.ALREADY_IDENTIFIED.toString());
+                                }else{
+                                    this.exe(user, player, args);
+                                }
+                            }
+                        }
+                    }else{
+                        if(!user.isRegistered()){
+                            String cmd = SuperAuth.spigot.getAuthSettings().getRegisterCommand().toLowerCase(); // Remove var in v3.17
+                            this.getSuperUtils().sendMessage(player, LBase.USE_REGISTER_COMMAND.options().vars(cmd).placeholder("{Command}", cmd).toString());
                         }else{
-                            this.exe(user, player, args);
+                            if(user.getAuthMethod().equals("COMMANDS")){
+                                if(user.isAuthorized()){
+                                    this.getSuperUtils().sendMessage(player, LBase.ALREADY_IDENTIFIED.toString());
+                                }else{
+                                    this.exe(user, player, args);
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
+            });
+        });
         return CommandResult.COMPLETED;
     }
 
@@ -100,21 +104,18 @@ public class LoginCommand extends SpigotCommand {
 
                             @Override
                             public String getSubtitle() {
-                                // Remove var in v3.17
-                                return LBase.DIALOG_CAPTCHA_SUBTITLE.options().vars(captcha).placeholder("{Captcha}", captcha).toString();
+                                return LBase.DIALOG_CAPTCHA_SUBTITLE.options().placeholder("{Captcha}", captcha).toString();
                             }
 
                             @Override
                             public String getActionbar() {
-                                // Remove var in v3.17
-                                return LBase.DIALOG_CAPTCHA_ACTIONBAR.options().vars(captcha).placeholder("{Captcha}", captcha).toString();
+                                return LBase.DIALOG_CAPTCHA_ACTIONBAR.options().placeholder("{Captcha}", captcha).toString();
                             }
 
                             @Override
                             public boolean onResult(String playerInput) {
                                 if(!playerInput.contentEquals(captcha)){
-                                    // Remove var in v3.17
-                                    this.getSuperUtils().sendMessage(player, LBase.WRONG_CAPTCHA.options().vars(captcha).placeholder("{Captcha}", captcha).toString());
+                                    this.getSuperUtils().sendMessage(player, LBase.WRONG_CAPTCHA.options().placeholder("{Captcha}", captcha).toString());
                                     return false;
                                 }else{
                                     SuperAuth.spigot.runEvent(new SuperAuthAfterCaptchaEvent(LoginCommand.this.authSettings, LoginCommand.this.userStorage, player.getName()));
