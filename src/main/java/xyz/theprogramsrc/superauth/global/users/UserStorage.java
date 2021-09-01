@@ -1,9 +1,9 @@
 package xyz.theprogramsrc.superauth.global.users;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.function.Consumer;
@@ -69,13 +69,32 @@ public class UserStorage extends DataBaseStorage {
                 int admin = user.isAdmin() ? 1 : 0;
                 int authorized = user.isAuthorized() ? 1 : 0;
                 int registered = user.isRegistered() ? 1 : 0;
-                Statement s = c.createStatement();
+                PreparedStatement preparedStatement;
                 if(!exists){
-                    s.executeUpdate("INSERT INTO " + this.table + " (user_name, user_password, user_ip, is_premium, is_admin, is_authorized, is_registered, auth_method, skin_texture) VALUES ('"+username+"', '"+password+"', '"+ip+"', '"+premium+"', '"+admin+"', '"+authorized+"', '"+registered+"', '"+authMethod+"', '"+skin_texture+"');");
+                    preparedStatement = c.prepareStatement("INSERT INTO " + this.table + " (username, password, ip, auth_method, skin_texture, premium, admin, authorized, registered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    preparedStatement.setString(1, username);
+                    preparedStatement.setString(2, password);
+                    preparedStatement.setString(3, ip);
+                    preparedStatement.setString(4, authMethod);
+                    preparedStatement.setString(5, skin_texture);
+                    preparedStatement.setInt(6, premium);
+                    preparedStatement.setInt(7, admin);
+                    preparedStatement.setInt(8, authorized);
+                    preparedStatement.setInt(9, registered);
                 }else{
-                    s.executeUpdate("UPDATE " + this.table + " SET user_password='"+password+"', user_ip='"+ip+"', is_premium='"+premium+"', is_admin='"+admin+"', is_authorized='"+authorized+"', is_registered='"+registered+"', auth_method='"+authMethod+"', skin_texture='"+skin_texture+"' WHERE user_name='"+username+"';");
+                    preparedStatement = c.prepareStatement("UPDATE " + this.table + " SET password = ?, ip = ?, auth_method = ?, skin_texture = ?, premium = ?, admin = ?, authorized = ?, registered = ? WHERE username = ?");
+                    preparedStatement.setString(1, password);
+                    preparedStatement.setString(2, ip);
+                    preparedStatement.setString(3, authMethod);
+                    preparedStatement.setString(4, skin_texture);
+                    preparedStatement.setInt(5, premium);
+                    preparedStatement.setInt(6, admin);
+                    preparedStatement.setInt(7, authorized);
+                    preparedStatement.setInt(8, registered);
+                    preparedStatement.setString(9, username);
                 }
-                s.close();
+                preparedStatement.executeUpdate();
+                preparedStatement.close();
                 this.cache.put(user.getUsername(), user);
                 if(then != null) then.run();
             }catch(SQLException ex){
@@ -98,8 +117,9 @@ public class UserStorage extends DataBaseStorage {
         }
         this.dataBase.connect(c->{
             try{
-                Statement s = c.createStatement();
-                ResultSet rs = s.executeQuery("SELECT * FROM " + this.table + " WHERE user_name='"+username+"';");
+                PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + this.table + " WHERE username = ?");
+                preparedStatement.setString(1, username);
+                ResultSet rs = preparedStatement.executeQuery();
                 if(rs.next()){
                     String password = rs.getString("user_password");
                     String ip = rs.getString("user_ip");
@@ -131,7 +151,7 @@ public class UserStorage extends DataBaseStorage {
                     if(then != null) then.accept(null);
                 }
                 rs.close();
-                s.close();
+                preparedStatement.close();
             }catch (SQLException ex){
                 this.plugin.addError(ex);
                 this.plugin.log("&c" + LBase.ERROR_ON_DATA_REQUEST);
@@ -155,8 +175,9 @@ public class UserStorage extends DataBaseStorage {
 
         this.dataBase.connect(c->{
             try{
-                Statement s = c.createStatement();
-                ResultSet rs = s.executeQuery("SELECT is_authorized FROM " + this.table + " WHERE user_name='"+username+"';");
+                PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + this.table + " WHERE username = ?");
+                preparedStatement.setString(1, username);
+                ResultSet rs = preparedStatement.executeQuery();
                 if(rs.next()){
                     boolean authorized = rs.getBoolean("is_authorized");
                     if(then != null){
@@ -166,7 +187,7 @@ public class UserStorage extends DataBaseStorage {
                     if(then != null) then.accept(false);
                 }
                 rs.close();
-                s.close();
+                preparedStatement.close();
             }catch (SQLException ex){
                 this.plugin.addError(ex);
                 this.plugin.log("&c" + LBase.ERROR_ON_DATA_REQUEST);
@@ -189,8 +210,8 @@ public class UserStorage extends DataBaseStorage {
         this.dataBase.connect(c->{
             LinkedList<User> users = new LinkedList<>();
             try{
-                Statement s = c.createStatement();
-                ResultSet rs = s.executeQuery("SELECT * FROM " + this.table + ";");
+                PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + this.table);
+                ResultSet rs = preparedStatement.executeQuery();
                 while(rs.next()){
                     String username = rs.getString("user_name");
                     this.cache.remove(username);
@@ -220,7 +241,7 @@ public class UserStorage extends DataBaseStorage {
                     users.add(user);
                 }
                 rs.close();
-                s.close();
+                preparedStatement.close();
             }catch (Exception ex){
                 this.plugin.addError(ex);
                 this.plugin.log("&c" + LBase.ERROR_ON_DATA_REQUEST);
@@ -235,11 +256,12 @@ public class UserStorage extends DataBaseStorage {
     public void exists(String username, Consumer<Boolean> then){
         this.dataBase.connect(c->{
             try{
-                Statement s = c.createStatement();
-                ResultSet rs = s.executeQuery("SELECT * FROM " + this.table + " WHERE user_name='"+username+"';");
+                PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + this.table + " WHERE username = ?");
+                preparedStatement.setString(1, username);
+                ResultSet rs = preparedStatement.executeQuery();
                 if(then != null) then.accept(rs.next());
                 rs.close();
-                s.close();
+                preparedStatement.close();
             }catch (Exception ex){
                 this.plugin.addError(ex);
                 this.plugin.log("&c" + LBase.ERROR_ON_DATA_REQUEST);
@@ -252,9 +274,9 @@ public class UserStorage extends DataBaseStorage {
     private void preloadTables(){
         this.dataBase.connect(c->{
             try{
-                Statement s = c.createStatement();
-                s.executeUpdate("CREATE TABLE IF NOT EXISTS " + this.table + " (user_name VARCHAR(100), user_password MEDIUMTEXT, user_ip MEDIUMTEXT, is_premium INT, is_admin INT, is_authorized INT, is_registered INT, auth_method VARCHAR(100), skin_texture VARCHAR(500));");
-                s.close();
+                PreparedStatement preparedStatement = c.prepareStatement("CREATE TABLE IF NOT EXISTS " + this.table + " (user_name VARCHAR(100), user_password MEDIUMTEXT, user_ip MEDIUMTEXT, is_premium INT, is_admin INT, is_authorized INT, is_registered INT, auth_method VARCHAR(100), skin_texture VARCHAR(500));");
+                preparedStatement.executeUpdate();
+                preparedStatement.close();
             }catch (SQLException ex){
                 this.plugin.addError(ex);
                 this.plugin.log("&c" + LBase.ERROR_WHILE_CREATING_TABLES);
@@ -287,9 +309,10 @@ public class UserStorage extends DataBaseStorage {
     public void remove(User user, Runnable then) {
         this.dataBase.connect(c->{
             try{
-                Statement s = c.createStatement();
-                s.executeUpdate("DELETE FROM " + this.table + " WHERE user_name='"+user.getUsername()+"'");
-                s.close();
+                PreparedStatement preparedStatement = c.prepareStatement("DELETE FROM " + this.table + " WHERE username = ?");
+                preparedStatement.setString(1, user.getUsername());
+                preparedStatement.executeUpdate();
+                preparedStatement.close();
                 this.removeCache(user.getUsername());
             }catch (SQLException ex){
                 this.plugin.addError(ex);
