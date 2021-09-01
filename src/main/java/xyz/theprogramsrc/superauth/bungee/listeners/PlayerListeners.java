@@ -36,16 +36,21 @@ public class PlayerListeners extends BungeeModule {
     public void onPreLogin(PreLoginEvent event){
         PendingConnection connection = event.getConnection();
         String username = connection.getName();
-        if(this.userStorage.exists(username)){
-            User user = this.userStorage.get(username, true);
-            if(user != null){
-                if(user.isAuthorized()) {
-                    user.setAuthorized(false);
-                    this.userStorage.save(user);
+        this.getBungeeTasks().runAsync(() -> {
+            this.userStorage.exists(username, exists -> {
+                if(exists){
+                    this.userStorage.get(username, true, user -> {
+                        if(user != null){
+                            if(user.isAuthorized()) {
+                                user.setAuthorized(false);
+                                this.userStorage.save(user);
+                            }
+                            connection.setOnlineMode(user.isPremium());
+                        }
+                    });
                 }
-                connection.setOnlineMode(user.isPremium());
-            }
-        }
+            });
+        });
     }
 
     @EventHandler
@@ -61,27 +66,29 @@ public class PlayerListeners extends BungeeModule {
                 return;
             }
         }
+        String finalIp = ip;
+        this.getBungeeTasks().runAsync(() -> {
+            this.userStorage.exists(username, exists -> {
+                if(exists){
+                    this.userStorage.get(username, true, user -> {
+                        if(user != null && user.isAuthorized()){
+                            user.setAuthorized(false);
+                            if ((user.getIp() == null || user.getIp().equals("") || user.getIp().equals(" ") || user.getIp().equals("null")) && finalIp != null) {
+                                user.setIp(finalIp);
+                            }
 
-        User user;
-        if(this.userStorage.exists(username)){
-            user = this.userStorage.get(username, true);
-            if(user != null){
-                if(user.isAuthorized()) {
-                    user.setAuthorized(false);
-                    if ((user.getIp() == null || user.getIp().equals("") || user.getIp().equals(" ") || user.getIp().equals("null")) && ip != null) {
-                        user.setIp(ip);
+                            this.userStorage.save(user);
+                        }
+                    });
+                }else{
+                    User user = new User(username).setAuthorized(false);
+                    if(finalIp != null){
+                        user.setIp(finalIp);
                     }
-
                     this.userStorage.save(user);
                 }
-            }
-        }else{
-            user = new User(username)
-                    .setAuthorized(false);
-            if(ip != null)
-                user.setIp(ip);
-            this.userStorage.save(user);
-        }
+            });
+        });
     }
 
     @EventHandler
@@ -89,22 +96,25 @@ public class PlayerListeners extends BungeeModule {
         ProxiedPlayer player = event.getPlayer();
         if(player == null)
             return;
-        User user = this.userStorage.get(player.getName());
-        if(user == null)
-            return;
-        if(!user.isAuthorized()){
-            Server server = player.getServer();
-            if(server == null)
+        this.getBungeeTasks().runAsync(() -> {
+            this.userStorage.get(player.getName(), user -> {
+                if(user == null)
                 return;
-            ServerInfo info = server.getInfo();
-            if(info == null)
-                return;
-            if(info.getName() == null)
-                return;
-            if(!info.getName().equals(this.authServer)){
-                this.log("The user '"+user.getUsername()+"' didn't completed successfully the authentication so it was sent to the AuthServer");
-                this.serverUtils.bungee().sendToServer(player, this.authServer);
-            }
-        }
+                if(!user.isAuthorized()){
+                    Server server = player.getServer();
+                    if(server == null)
+                        return;
+                    ServerInfo info = server.getInfo();
+                    if(info == null)
+                        return;
+                    if(info.getName() == null)
+                        return;
+                    if(!info.getName().equals(this.authServer)){
+                        this.log("The user '"+user.getUsername()+"' didn't completed successfully the authentication so it was sent to the AuthServer");
+                        this.serverUtils.bungee().sendToServer(player, this.authServer);
+                    }
+                }
+            });
+        });
     }
 }

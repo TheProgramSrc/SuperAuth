@@ -3,6 +3,8 @@ package xyz.theprogramsrc.superauth.spigot.listeners;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
+
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
@@ -31,23 +33,22 @@ public class PreLoginListener extends SpigotModule  {
                 event.setKickMessage(this.getSuperUtils().color(LBase.VPN_KICK.toString()));
                 event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
             }else{
-                User user;
-                if(!this.userStorage.exists(username)){
-                    user = new User(username)
-                            .setIp(ip)
-                            .setAuthorized(false)
-                            .setRegistered(false);
-                    this.userStorage.save(user);
-                }else{
-                    user = this.userStorage.get(username);
-                }
-
-
-                if(user.isAuthorized()){
-                    user.setAuthorized(false);
-                    this.userStorage.save(user);
-                }
+                
+                this.userStorage.exists(username, exists -> {
+                    if(!exists){
+                        this.userStorage.save(new User(username).setIp(ip).setAuthorized(false).setRegistered(false));
+                    }else{
+                        this.userStorage.get(username, user -> {
+                            if(user.isAuthorized()){
+                                user.setAuthorized(false);
+                            }
+                        });
+                    }
+                });
             }
+        }else{
+            event.setKickMessage(this.getSuperUtils().color("&bSuperAuth &cis currently migrating its data. Please try again later."));
+            event.disallow(Result.KICK_OTHER, this.getSuperUtils().color("&bSuperAuth &cis currently migrating its data. Please try again later."));
         }
     }
 

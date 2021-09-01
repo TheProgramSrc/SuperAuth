@@ -9,12 +9,12 @@ public class SuperAuthAPIEvent {
 
     private final UserStorage userStorage;
     private final AuthSettings authSettings;
-    private final User user;
+    private User user;
 
     public SuperAuthAPIEvent(AuthSettings authSettings, UserStorage userStorage, String user) {
         this.authSettings = authSettings;
         this.userStorage = userStorage;
-        this.user = userStorage.get(user);
+        userStorage.get(user, u -> this.user = u);
     }
 
     public AuthSettings getAuthSettings() {

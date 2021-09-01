@@ -5,7 +5,6 @@ import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.event.EventHandler;
 import xyz.theprogramsrc.superauth.bungee.SuperAuth;
 import xyz.theprogramsrc.superauth.global.languages.LBase;
-import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
 import xyz.theprogramsrc.supercoreapi.bungee.BungeeModule;
 import xyz.theprogramsrc.supercoreapi.global.utils.ServerUtils;
@@ -24,15 +23,18 @@ public class ServerChangeBlocker extends BungeeModule {
     @EventHandler
     public void onServerChange(ServerConnectedEvent event){
         ProxiedPlayer player = event.getPlayer();
-        User user = userStorage.get(player.getName(), true);
-        if(user != null){
-            if(!user.isAuthorized()){
-                String authServer = SuperAuth.bungee.getAuthServer();
-                if(!event.getServer().getInfo().getName().equalsIgnoreCase(authServer)){
-                    this.serverUtils.bungee().sendToServer(player, authServer);
-                    this.getSuperUtils().sendMessage(player, LBase.STILL_IN_AUTH.toString());
+        this.getBungeeTasks().runAsync(() -> {
+            this.userStorage.get(player.getName(), true, user -> {
+                if(user != null){
+                    if(!user.isAuthorized()){
+                        String authServer = SuperAuth.bungee.getAuthServer();
+                        if(!event.getServer().getInfo().getName().equalsIgnoreCase(authServer)){
+                            this.serverUtils.bungee().sendToServer(player, authServer);
+                            this.getSuperUtils().sendMessage(player, LBase.STILL_IN_AUTH.toString());
+                        }
+                    }
                 }
-            }
-        }
+            });
+        });
     }
 }

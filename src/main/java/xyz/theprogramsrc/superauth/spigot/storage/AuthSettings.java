@@ -1,13 +1,13 @@
 package xyz.theprogramsrc.superauth.spigot.storage;
 
+import java.io.File;
+import java.util.List;
+
 import xyz.theprogramsrc.superauth.global.hashing.HashingMethod;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
 import xyz.theprogramsrc.superauth.spigot.objects.AuthMethod;
 import xyz.theprogramsrc.supercoreapi.global.files.yml.YMLConfig;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
-
-import java.io.File;
-import java.util.List;
 
 public class AuthSettings extends YMLConfig {
 
@@ -16,41 +16,75 @@ public class AuthSettings extends YMLConfig {
 
     public AuthSettings(){
         super(new File(SuperAuth.spigot.getDataFolder(), "AuthSettings.yml"));
-        if(!this.contains("AuthEnabled")) this.add("AuthEnabled", true);
-        if(!this.contains("HashingMethod")) this.add("HashingMethod", "SHA512");
-        if(!this.contains("AuthMethod")) this.add("AuthMethod", "DIALOG");
-        if(!this.contains("PinLength")) this.add("PinLength", 4);
-        if(!this.contains("PasswordLength.Min")) this.add("PasswordLength.Min", 8);
-        if(!this.contains("PasswordLength.Max")) this.add("PasswordLength.Max", 12);
-        if(!this.contains("Commands.Register")) this.add("Commands.Register", "register");
-        if(!this.contains("Commands.Login")) this.add("Commands.Login", "login");
-        if(!this.contains("Commands.Auth")) this.add("Commands.Auth", "auth");
-        if(!this.contains("Commands.Aliases.Register")) this.add("Commands.Aliases.Register", Utils.toList("reg", "r"));
-        if(!this.contains("Commands.Aliases.Login")) this.add("Commands.Aliases.Login", Utils.toList("l"));
-        if(!this.contains("Commands.Aliases.Auth")) this.add("Commands.Aliases.Auth", Utils.toList("pin"));
+        this.add("AuthEnabled", true);
+        this.addComment("AuthEnabled", "Should the authentication be enabled?");
+        this.add("HashingMethod", "SHA512");
+        this.addComment("HashingMethod", "We recommend 'SHA512' for you ;D");
+        this.add("AuthMethod", "DIALOG");
+        this.addComment("AuthMethod", "We have DIALOG, GUI and COMMANDS");
+        this.add("PinLength", 4);
+        this.addComment("PinLength","For the GUI Pin, how long should be the pins? (We recommend between 4 and 6)");
+        this.add("PasswordLength.Min", 8);
+        this.addComment("PasswordLength.Min", "Min password lenght. We recommend you 8");
+        this.add("PasswordLength.Max", 12);
+        this.addComment("PasswordLength.Max", "Max password lenght. We recommend you from 12 to 16\n(If you set a higher number make sure to add longer timings so users have the time to write their passwords)");
+        this.add("Commands.Register", "register");
+        this.addComment("Commands.Register","The /register command (Yes, you can change it!)");
+        this.add("Commands.Login", "login");
+        this.addComment("Commands.Login","The /login command (Yes, you can change it!)");
+        this.add("Commands.Auth", "auth");
+        this.addComment("Commands.Auth","The /auth command (Yes, you can change it!) <- Only needed if the user can't see the Pin Gui");
+        this.add("Commands.Aliases.Register", Utils.toList("reg", "r"));
+        this.addComment("Commands.Aliases.Register","The /register command aliases (Yes, you can change it!)");
+        this.add("Commands.Aliases.Login", Utils.toList("l"));
+        this.addComment("Commands.Aliases.Login","The /login command aliases (Yes, you can change it!)");
+        this.add("Commands.Aliases.Auth", Utils.toList("pin"));
+        this.addComment("Commands.Aliases.Auth","The /auth command aliases (Yes, you can change it!) <- Only needed if the user can't see the Pin Gui");
         this.authMethod = AuthMethod.of(this.getString("AuthMethod"));
-        if(!this.contains("AntiBots.MaxTime")) this.add("AntiBots.MaxTime", 30);
-        if(!this.contains("AntiBots.Captcha.Enabled")) this.add("AntiBots.Captcha.Enabled", true);
-        if(!this.contains("AntiBots.Captcha.Chance")) this.add("AntiBots.Captcha.Chance", 0.9D);
-        if(!this.contains("AntiBots.Captcha.Length")) this.add("AntiBots.Captcha.Length", 5);
-        if(!this.contains("AntiBots.BlockIPChanges")) this.add("AntiBots.BlockIPChanges", true);
-        if(!this.contains("AntiBots.VPNBlocker")) this.add("AntiBots.VPNBlocker", false);
-        if(!this.contains("Before.Register")) this.add("Before.Register", Utils.toList("msg:&aHello! Please register yourself"));
-        if(!this.contains("Before.Login")) this.add("Before.Login", Utils.toList("msg:&aHello Again! Please authenticate yourself"));
-        if(!this.contains("After.Register")) this.add("After.Register", Utils.toList("msg:&aGreat! Now you can play", "cmd:kit nooby", "server:rules"));
-        if(!this.contains("After.Login")) this.add("After.Login", Utils.toList("msg:&aGreat! Now you can play", "cmd:kit nooby", "server:lobby"));
-        if(!this.contains("WhitelistedCommands")) this.add("WhitelistedCommands", Utils.toList("register", "login"));
-        if(!this.contains("Title.After.Login")) this.add("Title.After.Login", "&bLogged In!");
-        if(!this.contains("Subtitle.After.Login")) this.add("Subtitle.After.Login", "&7Now you can play!");
-        if(!this.contains("Subtitle.After.Register")) this.add("Subtitle.After.Register", "&7Thank you for choosing us!");
-        if(!this.contains("Title.After.Register")) this.add("Title.After.Register", "&bRegistered In!");
-        if(!this.contains("Title-Time.After.Login")) this.add("Title-Time.After.Login", "10;20;10");
-        if(!this.contains("Title-Time.After.Register")) this.add("Title-Time.After.Register", "10;20;10");
-        if(!this.contains("BlockedActions")) this.add("BlockedActions", Utils.toList("BLOCK_BREAK", "BLOCK_PLACE", "CHAT", "MOVEMENT", "INTERACTION", "CUSTOM_INVENTORY", "DAMAGE"));
-        if(!this.contains("Auth.CommandUsageTimer")) this.add("Auth.CommandUsageTimer", 3);
-        if(!this.contains("Auth.PremiumAutoLogin")) this.add("Auth.PremiumAutoLogin", true);
-        if(!this.contains("Auth.Sessions.Enabled")) this.add("Auth.Sessions.Enabled", true);
-        if(!this.contains("Auth.Sessions.MaxTime")) this.add("Auth.Sessions.MaxTime", 300);
+        this.add("AntiBots.MaxTime", 30);
+        this.addComment("AntiBots.MaxTime", "The max time (in seconds) that the user can be in authentication.");
+        this.add("AntiBots.Captcha.Enabled", true);
+        this.addComment("AntiBots.Captcha.Enabled", "Should the captcha be enabled?");
+        this.add("AntiBots.Captcha.Chance", 0.9D);
+        this.addComment("AntiBots.Captcha.Chance", "The chance that the captcha will be shown (0.0 - 1.0)");
+        this.add("AntiBots.Captcha.Length", 5);
+        this.addComment("AntiBots.Captcha.Length", "The length of the captcha (We recommend a number between 1 and 10)");
+        this.add("AntiBots.BlockIPChanges", true);
+        this.addComment("AntiBots.BlockIPChanges", "Should the IP be blocked if the user changes it?");
+        this.add("AntiBots.VPNBlocker", true);
+        this.addComment("AntiBots.VPNBlocker", "Should the VPN be blocked?");
+        this.add("Before.Register", Utils.toList("msg:&aHello! Please register yourself"));
+        this.addComment("Before.Register", "The actions that will be executed before the user registers");
+        this.add("Before.Login", Utils.toList("msg:&aHello Again! Please authenticate yourself"));
+        this.addComment("Before.Login", "The actions that will be executed before the user logs in");
+        this.add("After.Register", Utils.toList("msg:&aGreat! Now you can play", "cmd:kit nooby", "server:rules"));
+        this.addComment("After.Register", "The actions that will be executed after the user registers");
+        this.add("After.Login", Utils.toList("msg:&aGreat! Now you can play", "cmd:kit nooby", "server:lobby"));
+        this.addComment("After.Login", "The actions that will be executed after the user logs in");
+        this.add("WhitelistedCommands", Utils.toList("register", "login"));
+        this.addComment("WhitelistedCommands", "The commands that can be executed even if the user is not logged in");
+        this.add("Title.After.Login", "&bLogged In!");
+        this.addComment("Title.After.Login", "The title that will be shown after the user logs in");
+        this.add("Subtitle.After.Login", "&7Now you can play!");
+        this.addComment("Subtitle.After.Login", "The subtitle that will be shown after the user logs in");
+        this.add("Subtitle.After.Register", "&7Thank you for choosing us!");
+        this.addComment("Subtitle.After.Register", "The subtitle that will be shown after the user registers");
+        this.add("Title.After.Register", "&bRegistered In!");
+        this.addComment("Title.After.Register", "The title that will be shown after the user registers");
+        this.add("Title-Time.After.Login", "10;20;10");
+        this.addComment("Title-Time.After.Login", "The timing in ticks that the title will be shown (in;stay;out)");
+        this.add("Title-Time.After.Register", "10;20;10");
+        this.addComment("Title-Time.After.Register", "The timing in ticks that the title will be shown (in;stay;out)");
+        this.add("BlockedActions", Utils.toList("BLOCK_BREAK", "BLOCK_PLACE", "CHAT", "MOVEMENT", "INTERACTION", "CUSTOM_INVENTORY", "DAMAGE"));
+        this.addComment("BlockedActions", "The actions that will be blocked if the user is not logged in");
+        this.add("Auth.CommandUsageTimer", 3);
+        this.addComment("Auth.CommandUsageTimer", "Period of time in seconds that will be waited before sending again how to login");
+        this.add("Auth.PremiumAutoLogin", true);
+        this.addComment("Auth.PremiumAutoLogin", "Should the premium players be automatically logged in?");
+        this.add("Auth.Sessions.Enabled", true);
+        this.addComment("Auth.Sessions.Enabled", "Should the sessions be enabled?");
+        this.add("Auth.Sessions.MaxTime", 300);
+        this.addComment("Auth.Sessions.MaxTime", "The max time (in seconds) that the user can have an active session.");
         this.checkTimings();
     }
 

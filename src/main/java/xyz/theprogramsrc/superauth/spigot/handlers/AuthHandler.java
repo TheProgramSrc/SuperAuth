@@ -1,6 +1,10 @@
 package xyz.theprogramsrc.superauth.spigot.handlers;
 
+import static xyz.theprogramsrc.superauth.spigot.objects.AuthMethod.COMMANDS;
+import static xyz.theprogramsrc.superauth.spigot.objects.AuthMethod.GUI;
+
 import org.bukkit.entity.Player;
+
 import xyz.theprogramsrc.superauth.global.SessionStorage;
 import xyz.theprogramsrc.superauth.global.languages.LBase;
 import xyz.theprogramsrc.superauth.global.users.User;
@@ -9,34 +13,38 @@ import xyz.theprogramsrc.superauth.spigot.managers.ActionManager;
 import xyz.theprogramsrc.superauth.spigot.objects.AuthMethod;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotModule;
 
-import static xyz.theprogramsrc.superauth.spigot.objects.AuthMethod.COMMANDS;
-import static xyz.theprogramsrc.superauth.spigot.objects.AuthMethod.GUI;
-
 public class AuthHandler extends SpigotModule {
 
     private final Player player;
-    private final User user;
+    private User user;
 
     public AuthHandler(Player player){
         this.player = player;
-        this.user = SuperAuth.spigot.getUserStorage().get(player.getName());
-
-        this.handle();
+        SuperAuth.spigot.getUserStorage().get(player.getName(), user -> {
+            this.user = user;
+            this.handle();
+        });
     }
 
     private void handle(){
-        new Thread(() -> {
+        this.getSpigotTasks().runAsyncTask(() -> {
             this.debug("Initializing Auth Handler for user '" + this.player.getName() + "'");
-            if(this.user.isRegistered()){
-                if((this.user.isPremium() && SuperAuth.spigot.getAuthSettings().getPremiumAutoLogin()) || (this.hasValidSession() && SuperAuth.spigot.getAuthSettings().isSessionsEnabled())){
-                    new ActionManager(this.player).after(true);
-                }else{
-                    this.execute();
-                }
+            if(this.shouldSkipAuth()){
+                new ActionManager(this.player).after(true);
             }else{
                 this.execute();
             }
-        }).start();
+        });
+    }
+
+    public boolean shouldSkipAuth(){
+        if(this.user.isRegistered()){
+            if((this.user.isPremium() && SuperAuth.spigot.getAuthSettings().getPremiumAutoLogin()) || (this.hasValidSession() && SuperAuth.spigot.getAuthSettings().isSessionsEnabled())){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void execute(){
@@ -61,7 +69,6 @@ public class AuthHandler extends SpigotModule {
                     player,
                     LBase.COMMAND_HOW_TO_USE
                             .options()
-                            .vars(SuperAuth.spigot.getAuthSettings().getRegisterCommand().toLowerCase(), SuperAuth.spigot.getAuthSettings().getLoginCommand().toLowerCase()) // Remove var in v3.17
                             .placeholder("{RegisterCommand}", SuperAuth.spigot.getAuthSettings().getRegisterCommand().toLowerCase())
                             .placeholder("{LoginCommand}", SuperAuth.spigot.getAuthSettings().getLoginCommand().toLowerCase())
                             .toString()
@@ -71,7 +78,6 @@ public class AuthHandler extends SpigotModule {
                     player,
                     LBase.GUI_HOW_TO_USE
                             .options()
-                            .vars(SuperAuth.spigot.getAuthSettings().getAuthCommand().toLowerCase()) // Remove var in v3.17
                             .placeholder("{Command}", SuperAuth.spigot.getAuthSettings().getAuthCommand().toLowerCase())
                             .toString()
             );
