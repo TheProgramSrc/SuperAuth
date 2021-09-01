@@ -136,7 +136,6 @@ public class DialogAuthHandler extends SpigotModule {
 
     private void registerDialog(){
         this.getSpigotTasks().runTaskLater(10, ()->{
-            final AtomicBoolean success = new AtomicBoolean(false);
             new Dialog(player){
                 @Override
                 public String getTitle() {

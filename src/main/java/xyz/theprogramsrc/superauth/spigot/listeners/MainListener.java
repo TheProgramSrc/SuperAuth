@@ -1,11 +1,15 @@
 package xyz.theprogramsrc.superauth.spigot.listeners;
 
+import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashMap;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -25,6 +29,7 @@ public class MainListener extends SpigotModule {
 
     private UserStorage userStorage;
     private AuthSettings settings;
+    private LinkedHashMap<UUID, LinkedHashMap<String, Long>> lastMessagesCache = new LinkedHashMap<>();
     
     @Override
     public void onLoad() {
@@ -52,6 +57,37 @@ public class MainListener extends SpigotModule {
                     }
                     this.userStorage.removeCache(player.getName());
                 });
+            });
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onMessage(AsyncPlayerChatEvent event){
+        if(!DatabaseMigration.migrating) { // Ignore the event if we're migrating
+            Player player = event.getPlayer();
+            this.userStorage.get(player.getName(), user -> {
+                try{
+                    if(user != null && user.isAuthorized() && user.isRegistered()){
+                        String msg = event.getMessage();
+                        for(String word : msg.split(" ")){
+                            if(user.isValid(word)){
+                                LinkedHashMap<String, Long> lastMessages = this.lastMessagesCache.getOrDefault(player.getUniqueId(), new LinkedHashMap<>());
+                                long now = System.currentTimeMillis();
+                                if(!lastMessages.containsKey(msg) || now - lastMessages.getOrDefault(msg, now) > 10000l){
+                                    lastMessages.put(msg, now);
+                                    this.getSuperUtils().sendMessage(player, this.getSettings().getPrefix() + "&c" + LBase.PASSWORD_WRITTEN_WARNING.toString());
+                                    event.setCancelled(true);
+                                }else{
+                                    lastMessages.remove(msg);
+                                }
+                                this.lastMessagesCache.put(player.getUniqueId(), lastMessages);
+                                return;
+                            }
+                        }
+                    }
+                }catch(NoSuchAlgorithmException ingored){
+                    // This can be ignored.
+                }
             });
         }
     }

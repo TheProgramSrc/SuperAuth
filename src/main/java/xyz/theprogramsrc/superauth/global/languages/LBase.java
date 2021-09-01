@@ -25,6 +25,7 @@ public enum LBase implements TranslationPack {
     REGISTER_COMMAND_USAGE("HowToUse.Register","&cUse &e/{Command} <Password> &cto register."),
     LOGIN_COMMAND_USAGE("HowToUse.Login","&cUse &e/{Command} <Password> &cto login."),
     PASSWORD_UPDATED("Messages.PasswordUpdated","&aThe password was updated."),
+    PASSWORD_WRITTEN_WARNING("Messages.PasswordWrittenWarning","&cHey! Your message contains your password. If you're sure on sharing this message send it again in less than 10 seconds."),
 
     ERROR_WHILE_HASHING("Errors.Hashing","&cThe hashing util is not working right now, try again later."),
     WRONG_CAPTCHA("Errors.Captcha","&cWrong captcha! &aEnter this captcha: &b{Captcha}"),

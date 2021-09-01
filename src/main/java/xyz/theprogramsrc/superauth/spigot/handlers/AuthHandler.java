@@ -29,16 +29,22 @@ public class AuthHandler extends SpigotModule {
     private void handle(){
         this.getSpigotTasks().runAsyncTask(() -> {
             this.debug("Initializing Auth Handler for user '" + this.player.getName() + "'");
-            if(this.user.isRegistered()){
-                if((this.user.isPremium() && SuperAuth.spigot.getAuthSettings().getPremiumAutoLogin()) || (this.hasValidSession() && SuperAuth.spigot.getAuthSettings().isSessionsEnabled())){
-                    new ActionManager(this.player).after(true);
-                }else{
-                    this.execute();
-                }
+            if(this.shouldSkipAuth()){
+                new ActionManager(this.player).after(true);
             }else{
                 this.execute();
             }
         });
+    }
+
+    public boolean shouldSkipAuth(){
+        if(this.user.isRegistered()){
+            if((this.user.isPremium() && SuperAuth.spigot.getAuthSettings().getPremiumAutoLogin()) || (this.hasValidSession() && SuperAuth.spigot.getAuthSettings().isSessionsEnabled())){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void execute(){
