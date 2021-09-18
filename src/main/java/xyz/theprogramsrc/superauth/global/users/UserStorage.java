@@ -71,7 +71,7 @@ public class UserStorage extends DataBaseStorage {
                 int registered = user.isRegistered() ? 1 : 0;
                 PreparedStatement preparedStatement;
                 if(!exists){
-                    preparedStatement = c.prepareStatement("INSERT INTO " + this.table + " (user_name, password, ip, auth_method, skin_texture, premium, admin, authorized, registered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    preparedStatement = c.prepareStatement("INSERT INTO " + this.table + " (user_name, user_password, user_ip, auth_method, skin_texture, is_premium, is_admin, is_authorized, is_registered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
                     preparedStatement.setString(1, username);
                     preparedStatement.setString(2, password);
                     preparedStatement.setString(3, ip);
@@ -82,7 +82,7 @@ public class UserStorage extends DataBaseStorage {
                     preparedStatement.setInt(8, authorized);
                     preparedStatement.setInt(9, registered);
                 }else{
-                    preparedStatement = c.prepareStatement("UPDATE " + this.table + " SET password = ?, ip = ?, auth_method = ?, skin_texture = ?, premium = ?, admin = ?, authorized = ?, registered = ? WHERE user_name = ?");
+                    preparedStatement = c.prepareStatement("UPDATE " + this.table + " SET user_password = ?, user_ip = ?, auth_method = ?, skin_texture = ?, is_premium = ?, is_admin = ?, is_authorized = ?, is_registered = ? WHERE user_name = ?");
                     preparedStatement.setString(1, password);
                     preparedStatement.setString(2, ip);
                     preparedStatement.setString(3, authMethod);
