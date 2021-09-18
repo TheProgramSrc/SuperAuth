@@ -71,7 +71,7 @@ public class UserStorage extends DataBaseStorage {
                 int registered = user.isRegistered() ? 1 : 0;
                 PreparedStatement preparedStatement;
                 if(!exists){
-                    preparedStatement = c.prepareStatement("INSERT INTO " + this.table + " (username, password, ip, auth_method, skin_texture, premium, admin, authorized, registered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    preparedStatement = c.prepareStatement("INSERT INTO " + this.table + " (user_name, password, ip, auth_method, skin_texture, premium, admin, authorized, registered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
                     preparedStatement.setString(1, username);
                     preparedStatement.setString(2, password);
                     preparedStatement.setString(3, ip);
@@ -82,7 +82,7 @@ public class UserStorage extends DataBaseStorage {
                     preparedStatement.setInt(8, authorized);
                     preparedStatement.setInt(9, registered);
                 }else{
-                    preparedStatement = c.prepareStatement("UPDATE " + this.table + " SET password = ?, ip = ?, auth_method = ?, skin_texture = ?, premium = ?, admin = ?, authorized = ?, registered = ? WHERE username = ?");
+                    preparedStatement = c.prepareStatement("UPDATE " + this.table + " SET password = ?, ip = ?, auth_method = ?, skin_texture = ?, premium = ?, admin = ?, authorized = ?, registered = ? WHERE user_name = ?");
                     preparedStatement.setString(1, password);
                     preparedStatement.setString(2, ip);
                     preparedStatement.setString(3, authMethod);
@@ -117,7 +117,7 @@ public class UserStorage extends DataBaseStorage {
         }
         this.dataBase.connect(c->{
             try{
-                PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + this.table + " WHERE username = ?");
+                PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + this.table + " WHERE user_name = ?");
                 preparedStatement.setString(1, username);
                 ResultSet rs = preparedStatement.executeQuery();
                 if(rs.next()){
@@ -175,7 +175,7 @@ public class UserStorage extends DataBaseStorage {
 
         this.dataBase.connect(c->{
             try{
-                PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + this.table + " WHERE username = ?");
+                PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + this.table + " WHERE user_name = ?");
                 preparedStatement.setString(1, username);
                 ResultSet rs = preparedStatement.executeQuery();
                 if(rs.next()){
@@ -256,7 +256,7 @@ public class UserStorage extends DataBaseStorage {
     public void exists(String username, Consumer<Boolean> then){
         this.dataBase.connect(c->{
             try{
-                PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + this.table + " WHERE username = ?");
+                PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + this.table + " WHERE user_name = ?");
                 preparedStatement.setString(1, username);
                 ResultSet rs = preparedStatement.executeQuery();
                 if(then != null) then.accept(rs.next());
@@ -309,7 +309,7 @@ public class UserStorage extends DataBaseStorage {
     public void remove(User user, Runnable then) {
         this.dataBase.connect(c->{
             try{
-                PreparedStatement preparedStatement = c.prepareStatement("DELETE FROM " + this.table + " WHERE username = ?");
+                PreparedStatement preparedStatement = c.prepareStatement("DELETE FROM " + this.table + " WHERE user_name = ?");
                 preparedStatement.setString(1, user.getUsername());
                 preparedStatement.executeUpdate();
                 preparedStatement.close();
