@@ -266,7 +266,7 @@ public class UserStorage extends DataBaseStorage {
                 this.plugin.addError(ex);
                 this.plugin.log("&c" + LBase.ERROR_ON_DATA_REQUEST);
                 ex.printStackTrace();
-                if(then != null) then.accept(false);;
+                if(then != null) then.accept(false);
             }
         });
     }

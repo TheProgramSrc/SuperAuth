@@ -1,8 +1,8 @@
 package xyz.theprogramsrc.superauth.global.users;
 
-import xyz.theprogramsrc.superauth.global.hashing.Hashing;
-
 import java.security.NoSuchAlgorithmException;
+
+import xyz.theprogramsrc.superauth.global.hashing.Hashing;
 
 public class User {
 
@@ -31,7 +31,7 @@ public class User {
     }
 
     public String getIp() {
-        return ip;
+        return ip != null ? ip : "null";
     }
 
     public boolean isPremium() {
