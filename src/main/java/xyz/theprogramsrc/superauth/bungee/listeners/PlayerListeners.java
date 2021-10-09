@@ -36,20 +36,18 @@ public class PlayerListeners extends BungeeModule {
     public void onPreLogin(PreLoginEvent event){
         PendingConnection connection = event.getConnection();
         String username = connection.getName();
-        this.getBungeeTasks().runAsync(() -> {
-            this.userStorage.exists(username, exists -> {
-                if(exists){
-                    this.userStorage.get(username, true, user -> {
-                        if(user != null){
-                            if(user.isAuthorized()) {
-                                user.setAuthorized(false);
-                                this.userStorage.save(user);
-                            }
-                            connection.setOnlineMode(user.isPremium());
+        this.userStorage.exists(username, exists -> {
+            if(exists){
+                this.userStorage.get(username, true, user -> {
+                    if(user != null){
+                        if(user.isAuthorized()) {
+                            user.setAuthorized(false);
+                            this.userStorage.save(user);
                         }
-                    });
-                }
-            });
+                        connection.setOnlineMode(user.isPremium());
+                    }
+                });
+            }
         });
     }
 
