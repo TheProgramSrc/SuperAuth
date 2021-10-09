@@ -260,7 +260,7 @@ public class UserStorage extends DataBaseStorage {
                 preparedStatement.setString(1, username);
                 ResultSet rs = preparedStatement.executeQuery();
                 if(then != null) {
-                    then.accept(rs.getBoolean("exists"));
+                    then.accept(rs.next() ? rs.getBoolean("exists") : false);
                 }
                 rs.close();
                 preparedStatement.close();
