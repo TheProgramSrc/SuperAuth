@@ -6,7 +6,7 @@
 
     <groupId>xyz.theprogramsrc</groupId>
     <artifactId>SuperAuth</artifactId>
-    <version>3.17.2</version>
+    <version>3.17.3</version>
     <packaging>jar</packaging>
 
     <name>SuperAuth</name>

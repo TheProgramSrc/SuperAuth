@@ -256,10 +256,12 @@ public class UserStorage extends DataBaseStorage {
     public void exists(String username, Consumer<Boolean> then){
         this.dataBase.connect(c->{
             try{
-                PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + this.table + " WHERE user_name = ?");
+                PreparedStatement preparedStatement = c.prepareStatement("SELECT EXISTS(SELECT * FROM " + this.table + " WHERE user_name = ?) AS `exists`");
                 preparedStatement.setString(1, username);
                 ResultSet rs = preparedStatement.executeQuery();
-                if(then != null) then.accept(rs.next());
+                if(then != null) {
+                    then.accept(rs.getBoolean("exists"));
+                }
                 rs.close();
                 preparedStatement.close();
             }catch (Exception ex){
