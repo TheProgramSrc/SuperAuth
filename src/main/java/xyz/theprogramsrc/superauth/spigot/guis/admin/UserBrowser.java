@@ -29,7 +29,7 @@ public abstract class UserBrowser extends BrowserGui<User> {
         super(player, false);
         this.backEnabled = true;
         this.userStorage = SuperAuth.spigot.getUserStorage();
-        this.userStorage.requestUsers(users-> this.users = users);
+        this.userStorage.requestUsers(u-> this.users = u);
         this.open();
     }
 
@@ -55,14 +55,10 @@ public abstract class UserBrowser extends BrowserGui<User> {
         if(user.hasSkin()) item.setSkin(new SkinTexture(user.getSkinTexture()));
         return new GuiEntry(item, a->{
             if(a.clickType == ClickType.Q){
-                this.getSpigotTasks().runAsyncTask(()->{
-                    this.userStorage.remove(user, () -> {
-                        this.userStorage.requestUsers(true, users -> {
-                            this.users = users;
-                            this.getSpigotTasks().runTask(this::open);
-                        });
-                    });
-                });
+                this.getSpigotTasks().runAsyncTask(()-> this.userStorage.remove(user, () -> this.userStorage.requestUsers(true, u -> {
+                    this.users = u;
+                    this.getSpigotTasks().runTask(this::open);
+                })));
             }else{
                 new ManageUser(a.player, user){
                     @Override

@@ -70,4 +70,5 @@ Temporary Items
 .project
 .settings/
 .apt_generated_tests/
+.apt_generated/
 .factorypath
