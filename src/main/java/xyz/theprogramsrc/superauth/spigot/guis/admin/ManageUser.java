@@ -1,7 +1,6 @@
 package xyz.theprogramsrc.superauth.spigot.guis.admin;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.bukkit.entity.Player;
 
@@ -38,12 +37,10 @@ public abstract class ManageUser extends Gui {
 
     @Override
     public void open() {
-        this.getSpigotTasks().runAsyncTask(() -> {
-            this.userStorage.get(this.user.getUsername(), user -> {
-                this.user = user;
-                super.open();
-            });
-        });
+        this.getSpigotTasks().runAsyncTask(() -> this.userStorage.get(this.user.getUsername(), u -> {
+            this.user = u;
+            super.open();
+        }));
     }
 
     @Override
@@ -60,32 +57,26 @@ public abstract class ManageUser extends Gui {
     public void onBuild(GuiModel model) {
         model.setButton(this.getRows().size-1, new GuiEntry(this.getPreloadedItems().getBackItem(), this::onBack));
         model.setButton(12, this.getChangePasswordButton());
-        model.setButton(14, this.getTogglePremiumMode());
-        model.fillEmptySlots();
+        this.getSpigotTasks().runAsyncTask(() -> this.userStorage.get(this.user.getUsername(), u-> this.getSpigotTasks().runTask(() -> {
+            model.setButton(14, this.getTogglePremiumMode(u));
+            model.fillEmptySlots();
+        })));
     }
 
     public abstract void onBack(GuiAction a);
 
-    private GuiEntry getTogglePremiumMode(){
-        AtomicBoolean premium = new AtomicBoolean();
-        this.getSpigotTasks().runAsyncTask(() -> {
-            this.userStorage.get(this.player.getName(), user -> premium.set(user.isPremium()));
-        });
-        SimpleItem item = new SimpleItem(premium.get() ? XMaterial.GOLD_BLOCK : XMaterial.DIAMOND_BLOCK)
+    private GuiEntry getTogglePremiumMode(User u){
+        SimpleItem item = new SimpleItem(u.isPremium() ? XMaterial.GOLD_BLOCK : XMaterial.DIAMOND_BLOCK)
                 .setDisplayName("&a" + LBase.MANAGE_USER_TOGGLE_MODE_NAME)
                 .setLore(
                         "&7",
                         "&7" + LBase.MANAGE_USER_TOGGLE_MODE_DESCRIPTION
-                ).addPlaceholder("{Mode}", (premium.get() ? ("&a&l" + LBase.CRACKED) : ("&6&l" + LBase.PREMIUM)) + "&7");
-        return new GuiEntry(item, a-> this.getSpigotTasks().runAsyncTask(() -> {
-            this.getSpigotTasks().runAsyncTask(() -> {
-                this.userStorage.get(a.player.getName(), user -> {
-                    user.setPremium(!user.isPremium());
-                    this.userStorage.save(user);
-                    this.open();
-                });
-            });
-        }));
+                ).addPlaceholder("{Mode}", (u.isPremium() ? ("&a&l" + LBase.CRACKED) : ("&6&l" + LBase.PREMIUM)) + "&7");
+        return new GuiEntry(item, a-> this.getSpigotTasks().runAsyncTask(() -> this.getSpigotTasks().runAsyncTask(() -> this.userStorage.get(u.getUsername(), u1 -> {
+            u1.setPremium(!u1.isPremium());
+            this.userStorage.save(user);
+            this.open();
+        }))));
     }
 
     private GuiEntry getChangePasswordButton(){
@@ -120,12 +111,10 @@ public abstract class ManageUser extends Gui {
                             ManageUser self = ManageUser.this;
                             HashingMethod method = self.authSettings.getHashingMethod();
                             String hash = Hashing.hash(method, s);
-                            this.getSpigotTasks().runAsyncTask(() -> {
-                                self.userStorage.get(getPlayer().getName(), user -> {
-                                    self.userStorage.save(user.setPassword(hash));
-                                    this.getSuperUtils().sendMessage(a.player, this.getSettings().getPrefix() + LBase.PASSWORD_UPDATED);
-                                });
-                            });
+                            this.getSpigotTasks().runAsyncTask(() -> self.userStorage.get(user.getUsername(), u1 -> {
+                                self.userStorage.save(u1.setPassword(hash));
+                                this.getSuperUtils().sendMessage(a.player, this.getSettings().getPrefix() + LBase.PASSWORD_UPDATED);
+                            }));
                             return true;
                         }catch (NoSuchAlgorithmException ex){
                             this.plugin.addError(ex);

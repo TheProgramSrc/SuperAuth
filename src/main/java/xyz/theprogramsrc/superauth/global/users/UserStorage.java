@@ -55,46 +55,40 @@ public class UserStorage extends DataBaseStorage {
     public void saveUser(User user, Connection c, Runnable then, Consumer<Exception> error){
         String username = user.getUsername();
         this.exists(username, exists -> {
-            try{
-                String password = user.getPassword();
-                String ip = user.getIp();
-                String authMethod = user.getAuthMethod();
-                String skin_texture;
-                if(user.hasSkin()){
-                    skin_texture = Utils.encodeBase64(user.getSkinTexture());
-                }else{
-                    skin_texture = "no_skin";
-                }
-                int premium = user.isPremium() ? 1 : 0;
-                int admin = user.isAdmin() ? 1 : 0;
-                int authorized = user.isAuthorized() ? 1 : 0;
-                int registered = user.isRegistered() ? 1 : 0;
-                PreparedStatement preparedStatement;
-                if(!exists){
-                    preparedStatement = c.prepareStatement("INSERT INTO " + this.table + " (user_name, user_password, user_ip, auth_method, skin_texture, is_premium, is_admin, is_authorized, is_registered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    preparedStatement.setString(1, username);
-                    preparedStatement.setString(2, password);
-                    preparedStatement.setString(3, ip);
-                    preparedStatement.setString(4, authMethod);
-                    preparedStatement.setString(5, skin_texture);
-                    preparedStatement.setInt(6, premium);
-                    preparedStatement.setInt(7, admin);
-                    preparedStatement.setInt(8, authorized);
-                    preparedStatement.setInt(9, registered);
-                }else{
-                    preparedStatement = c.prepareStatement("UPDATE " + this.table + " SET user_password = ?, user_ip = ?, auth_method = ?, skin_texture = ?, is_premium = ?, is_admin = ?, is_authorized = ?, is_registered = ? WHERE user_name = ?");
+            String password = user.getPassword();
+            String ip = user.getIp();
+            String authMethod = user.getAuthMethod();
+            String skinTexture = user.hasSkin() ? Utils.encodeBase64(user.getSkinTexture()) : "no_skin";
+            int premium = user.isPremium() ? 1 : 0;
+            int admin = user.isAdmin() ? 1 : 0;
+            int authorized = user.isAuthorized() ? 1 : 0;
+            int registered = user.isRegistered() ? 1 : 0;
+            String query = String.format(exists ? "UPDATE %s SET user_password = ?, user_ip = ?, auth_method = ?, skin_texture = ?, is_premium = ?, is_admin = ?, is_authorized = ?, is_registered = ? WHERE user_name = ?" : "INSERT INTO %s (user_name, user_password, user_ip, auth_method, skin_texture, is_premium, is_admin, is_authorized, is_registered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", this.table);
+            try(PreparedStatement preparedStatement = c.prepareStatement(query)){
+                if(exists){
                     preparedStatement.setString(1, password);
                     preparedStatement.setString(2, ip);
                     preparedStatement.setString(3, authMethod);
-                    preparedStatement.setString(4, skin_texture);
+                    preparedStatement.setString(4, skinTexture);
                     preparedStatement.setInt(5, premium);
                     preparedStatement.setInt(6, admin);
                     preparedStatement.setInt(7, authorized);
                     preparedStatement.setInt(8, registered);
-                    preparedStatement.setString(9, username);
+                    preparedStatement.setString(9, username);   
+                }else{
+                    preparedStatement.setString(1, username);
+                    preparedStatement.setString(2, password);
+                    preparedStatement.setString(3, ip);
+                    preparedStatement.setString(4, authMethod);
+                    preparedStatement.setString(5, skinTexture);
+                    preparedStatement.setInt(6, premium);
+                    preparedStatement.setInt(7, admin);
+                    preparedStatement.setInt(8, authorized);
+                    preparedStatement.setInt(9, registered);
                 }
+                preparedStatement.setQueryTimeout(5);
                 preparedStatement.executeUpdate();
-                preparedStatement.close();
+                preparedStatement.closeOnCompletion();
                 this.cache.put(user.getUsername(), user);
                 if(then != null) then.run();
             }catch(SQLException ex){
@@ -108,12 +102,10 @@ public class UserStorage extends DataBaseStorage {
         this.get(username, false, then);
     }
 
-    public void get(final String username, boolean override_cache, Consumer<User> then){
-        if(!override_cache){
-            if(this.cache.containsKey(username) && then != null){
-                then.accept(this.cache.get(username));
-                return;
-            }
+    public void get(final String username, boolean overrideCache, Consumer<User> then){
+        if(!overrideCache && this.cache.containsKey(username) && then != null){
+            then.accept(this.cache.get(username));
+            return;
         }
         this.dataBase.connect(c->{
             try{
@@ -256,10 +248,12 @@ public class UserStorage extends DataBaseStorage {
     public void exists(String username, Consumer<Boolean> then){
         this.dataBase.connect(c->{
             try{
-                PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + this.table + " WHERE user_name = ?");
+                PreparedStatement preparedStatement = c.prepareStatement("SELECT EXISTS(SELECT * FROM " + this.table + " WHERE user_name = ?) AS `exists`");
                 preparedStatement.setString(1, username);
                 ResultSet rs = preparedStatement.executeQuery();
-                if(then != null) then.accept(rs.next());
+                if(then != null) {
+                    then.accept(rs.next() ? rs.getBoolean("exists") : false);
+                }
                 rs.close();
                 preparedStatement.close();
             }catch (Exception ex){
