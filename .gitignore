@@ -1,3 +1,5 @@
+.gradle
+build
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -72,3 +74,7 @@ Temporary Items
 .apt_generated_tests/
 .apt_generated/
 .factorypath
+.env
+.secrets.env
+bin/
+gradle/gradle-wrapper.jar

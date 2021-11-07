@@ -1,0 +1,64 @@
+import org.apache.tools.ant.filters.ReplaceTokens 
+
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
+}
+
+group 'xyz.theprogramsrc'
+version "3.17.4"
+description 'Secure your users and server.'
+
+repositories{
+    mavenCentral()
+    mavenLocal()
+
+    maven { url 'https://repo.theprogramsrc.xyz/repository/maven-public/' }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url 'https://oss.sonatype.org/content/repositories/releases/' }
+    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url 'https://repo.codemc.org/repository/maven-public' }
+    maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+}
+
+dependencies {
+    implementation 'xyz.theprogramsrc:SuperCoreAPI:5.2.4'
+    implementation 'org.apache.logging.log4j:log4j-core:2.14.1'
+
+    compileOnly 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
+    compileOnly 'net.md-5:bungeecord-api:1.17-R0.1-SNAPSHOT'
+    compileOnly 'me.clip:placeholderapi:2.10.9'
+}
+
+processResources {
+    filter ReplaceTokens, tokens: [name: rootProject.name, version: project.version.toString(), description: project.description]
+}
+
+java.sourceCompatibility = 1.8
+java.targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+tasks.withType(Copy) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+shadowJar {
+    relocate 'xyz.theprogramsrc.supercoreapi', 'xyz.theprogramsrc.superauth.supercoreapi'
+    relocate 'org.apache.logging.log4j', 'xyz.theprogramsrc.superauth.logging'
+
+    exclude 'META-INF/module-info.class'
+    exclude 'META-INF/**'
+
+    archiveBaseName.set('SuperAuth')
+    archiveClassifier.set('')
+    archiveVersion.set('')
+}
+
+sourceSets.main.java.srcDir 'src/main/java'
+sourceSets.main.resources.srcDir 'src/main/resources'
+
+test {
+    useJUnitPlatform()
+}
