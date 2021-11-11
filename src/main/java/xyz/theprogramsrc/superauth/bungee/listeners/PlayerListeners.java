@@ -33,34 +33,42 @@ public class PlayerListeners extends BungeeModule {
     }
 
     @EventHandler
-    public void onPreLogin(PreLoginEvent event){
-        if(event.isCancelled()) return;
+    public void onPreLogin(PreLoginEvent event) {
+        if (event.isCancelled())
+            return;
         PendingConnection connection = event.getConnection();
-        if(connection == null) return;
-        if(!connection.isConnected()) return;
+        if (connection == null)
+            return;
+        if (!connection.isConnected())
+            return;
         String username = connection.getName();
-        if(username == null) return;
+        if (username == null)
+            return;
         event.registerIntent(this.bungeePlugin);
-        this.userStorage.exists(username, exists -> {
-            if(exists){
+        this.getBungeeTasks().runAsync(() -> this.userStorage.exists(username, exists -> {
+            if (exists.booleanValue()) {
                 this.userStorage.get(username, user -> {
-                    if(user != null){
+                    if (user != null) {
                         connection.setOnlineMode(user.isPremium());
                         event.completeIntent(this.bungeePlugin);
                     }
                 });
             }
-        });
+        }, ex -> {
+            if (!ex.getMessage().toLowerCase().contains("timed out")) {
+                ex.printStackTrace();
+            }
+        }));
     }
 
     @EventHandler
-    public void onLogin(LoginEvent event){
+    public void onLogin(LoginEvent event) {
         PendingConnection connection = event.getConnection();
         String username = connection.getName();
         String ip = null;
-        if(connection.getVirtualHost() != null && connection.getVirtualHost().getAddress() != null){
+        if (connection.getVirtualHost() != null && connection.getVirtualHost().getAddress() != null) {
             ip = connection.getVirtualHost().getAddress().getHostAddress();
-            if(this.vpnBlocker.isVPN(ip)){
+            if (this.vpnBlocker.isVPN(ip)) {
                 event.setCancelReason(new TextComponent(this.getSuperUtils().color(LBase.VPN_KICK.toString())));
                 event.setCancelled(true);
                 return;
@@ -68,42 +76,52 @@ public class PlayerListeners extends BungeeModule {
         }
         String finalIp = ip;
         this.getBungeeTasks().runAsync(() -> this.userStorage.exists(username, exists -> {
-            if(exists){
+            if (exists.booleanValue()) {
                 this.userStorage.get(username, true, user -> {
-                    if(user != null && user.isAuthorized()){
+                    if (user != null && user.isAuthorized()) {
                         user.setAuthorized(false);
-                        if ((user.getIp() == null || user.getIp().equals("") || user.getIp().equals(" ") || user.getIp().equals("null")) && finalIp != null) {
+                        if ((user.getIp() == null || user.getIp().equals("") || user.getIp().equals(" ")
+                                || user.getIp().equals("null")) && finalIp != null) {
                             user.setIp(finalIp);
                         }
 
                         this.userStorage.save(user);
                     }
                 });
-            }else{
+            } else {
                 User user = new User(username).setAuthorized(false);
-                if(finalIp != null){
+                if (finalIp != null) {
                     user.setIp(finalIp);
                 }
                 this.userStorage.save(user);
+            }
+        }, ex -> {
+            if (!ex.getMessage().toLowerCase().contains("timed out")) {
+                ex.printStackTrace();
             }
         }));
     }
 
     @EventHandler
-    public void onConnect(ServerConnectEvent event){
+    public void onConnect(ServerConnectEvent event) {
         ProxiedPlayer player = event.getPlayer();
-        if(player == null)
+        if (player == null)
             return;
         this.getBungeeTasks().runAsync(() -> this.userStorage.get(player.getName(), user -> {
-            if(user == null) return;
-            if(!user.isAuthorized()){
+            if (user == null)
+                return;
+            if (!user.isAuthorized()) {
                 Server server = player.getServer();
-                if(server == null) return;
+                if (server == null)
+                    return;
                 ServerInfo info = server.getInfo();
-                if(info == null) return;
-                if(info.getName() == null) return;
-                if(!info.getName().equals(this.authServer)){
-                    this.log("The user '"+user.getUsername()+"' didn't completed successfully the authentication so it was sent to the AuthServer");
+                if (info == null)
+                    return;
+                if (info.getName() == null)
+                    return;
+                if (!info.getName().equals(this.authServer)) {
+                    this.log("The user '" + user.getUsername()
+                            + "' didn't completed successfully the authentication so it was sent to the AuthServer");
                     this.serverUtils.bungee().sendToServer(player, this.authServer);
                 }
             }

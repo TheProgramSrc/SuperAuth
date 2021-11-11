@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'xyz.theprogramsrc'
-version "3.17.4"
+version "3.17.5"
 description 'Secure your users and server.'
 
 repositories{
@@ -46,7 +46,6 @@ tasks.withType(Copy) {
 
 shadowJar {
     relocate 'xyz.theprogramsrc.supercoreapi', 'xyz.theprogramsrc.superauth.supercoreapi'
-    relocate 'org.apache.logging.log4j', 'xyz.theprogramsrc.superauth.logging'
 
     exclude 'META-INF/module-info.class'
     exclude 'META-INF/**'
