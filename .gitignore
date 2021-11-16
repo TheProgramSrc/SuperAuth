@@ -77,4 +77,3 @@ Temporary Items
 .env
 .secrets.env
 bin/
-gradle/gradle-wrapper.jar
