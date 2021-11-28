@@ -1,9 +1,6 @@
 package xyz.theprogramsrc.superauth.spigot.commands;
 
-import java.security.NoSuchAlgorithmException;
-
 import org.bukkit.entity.Player;
-
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthAfterCaptchaEvent;
 import xyz.theprogramsrc.superauth.api.auth.SuperAuthBeforeCaptchaEvent;
 import xyz.theprogramsrc.superauth.global.hashing.Hashing;
@@ -21,6 +18,8 @@ import xyz.theprogramsrc.supercoreapi.spigot.commands.CommandResult;
 import xyz.theprogramsrc.supercoreapi.spigot.commands.SpigotCommand;
 import xyz.theprogramsrc.supercoreapi.spigot.dialog.Dialog;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.SpigotConsole;
+
+import java.security.NoSuchAlgorithmException;
 
 public class RegisterCommand extends SpigotCommand {
 
@@ -105,13 +104,11 @@ public class RegisterCommand extends SpigotCommand {
     
                             @Override
                             public String getSubtitle() {
-                                // Remove var in v3.17
                                 return LBase.DIALOG_CAPTCHA_SUBTITLE.options().placeholder("{Captcha}", captcha).toString();
                             }
     
                             @Override
                             public String getActionbar() {
-                                // Remove var in v3.17
                                 return LBase.DIALOG_CAPTCHA_ACTIONBAR.options().placeholder("{Captcha}", captcha).toString();
                             }
     

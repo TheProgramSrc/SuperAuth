@@ -1,5 +1,11 @@
 package xyz.theprogramsrc.superauth.global.users;
 
+import xyz.theprogramsrc.superauth.global.languages.LBase;
+import xyz.theprogramsrc.supercoreapi.SuperPlugin;
+import xyz.theprogramsrc.supercoreapi.global.storage.DataBase;
+import xyz.theprogramsrc.supercoreapi.global.storage.DataBaseStorage;
+import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,12 +13,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.function.Consumer;
-
-import xyz.theprogramsrc.superauth.global.languages.LBase;
-import xyz.theprogramsrc.supercoreapi.SuperPlugin;
-import xyz.theprogramsrc.supercoreapi.global.storage.DataBase;
-import xyz.theprogramsrc.supercoreapi.global.storage.DataBaseStorage;
-import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 
 public class UserStorage extends DataBaseStorage {
 
@@ -35,9 +35,7 @@ public class UserStorage extends DataBaseStorage {
     }
 
     public void saveAndGet(User user, Consumer<User> then) {
-        this.save(user, () -> {
-            this.get(user.getUsername(), then);
-        });
+        this.save(user, () -> this.get(user.getUsername(), then));
     }
 
     public void save(User user) {
@@ -56,43 +54,25 @@ public class UserStorage extends DataBaseStorage {
     public void saveUser(User user, Connection c, Runnable then, Consumer<Exception> error) {
         String username = user.getUsername();
         this.exists(username, exists -> {
-            String password = user.getPassword();
-            String ip = user.getIp();
-            String authMethod = user.getAuthMethod();
-            String skinTexture = user.hasSkin() ? Utils.encodeBase64(user.getSkinTexture()) : "no_skin";
-            int premium = user.isPremium() ? 1 : 0;
-            int admin = user.isAdmin() ? 1 : 0;
-            int authorized = user.isAuthorized() ? 1 : 0;
-            int registered = user.isRegistered() ? 1 : 0;
             String query = String.format(exists
                     ? "UPDATE %s SET user_password = ?, user_ip = ?, auth_method = ?, skin_texture = ?, is_premium = ?, is_admin = ?, is_authorized = ?, is_registered = ? WHERE user_name = ?"
-                    : "INSERT INTO %s (user_name, user_password, user_ip, auth_method, skin_texture, is_premium, is_admin, is_authorized, is_registered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    : "INSERT INTO %s (user_password, user_ip, auth_method, skin_texture, is_premium, is_admin, is_authorized, is_registered, user_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     this.table);
             try (PreparedStatement preparedStatement = c.prepareStatement(query)) {
-                if (exists) {
-                    preparedStatement.setString(1, password);
-                    preparedStatement.setString(2, ip);
-                    preparedStatement.setString(3, authMethod);
-                    preparedStatement.setString(4, skinTexture);
-                    preparedStatement.setInt(5, premium);
-                    preparedStatement.setInt(6, admin);
-                    preparedStatement.setInt(7, authorized);
-                    preparedStatement.setInt(8, registered);
-                    preparedStatement.setString(9, username);
-                } else {
-                    preparedStatement.setString(1, username);
-                    preparedStatement.setString(2, password);
-                    preparedStatement.setString(3, ip);
-                    preparedStatement.setString(4, authMethod);
-                    preparedStatement.setString(5, skinTexture);
-                    preparedStatement.setInt(6, premium);
-                    preparedStatement.setInt(7, admin);
-                    preparedStatement.setInt(8, authorized);
-                    preparedStatement.setInt(9, registered);
+                preparedStatement.setString(1, user.getPassword());
+                if(user.getIp() == null){
+                    preparedStatement.setNull(2, java.sql.Types.VARCHAR);
+                }else{
+                    preparedStatement.setString(2, user.getIp());
                 }
-                preparedStatement.setQueryTimeout(5);
+                preparedStatement.setString(3, user.getAuthMethod());
+                preparedStatement.setString(4, user.hasSkin() ? Utils.encodeBase64(user.getSkinTexture()) : "no_skin");
+                preparedStatement.setBoolean(5, user.isPremium());
+                preparedStatement.setBoolean(6, user.isAdmin());
+                preparedStatement.setBoolean(7, user.isAuthorized());
+                preparedStatement.setBoolean(8, user.isRegistered());
+                preparedStatement.setString(9, username);
                 preparedStatement.executeUpdate();
-                preparedStatement.closeOnCompletion();
                 this.cache.put(user.getUsername(), user);
                 if (then != null)
                     then.run();
