@@ -46,18 +46,21 @@ public class PlayerListeners extends BungeeModule {
             return;
         event.registerIntent(this.bungeePlugin);
         this.getBungeeTasks().runAsync(() -> this.userStorage.exists(username, exists -> {
-            if (exists.booleanValue()) {
+            if (exists) {
                 this.userStorage.get(username, user -> {
                     if (user != null) {
                         connection.setOnlineMode(user.isPremium());
-                        event.completeIntent(this.bungeePlugin);
                     }
+                    event.completeIntent(this.bungeePlugin);
                 });
+            } else {
+                event.completeIntent(this.bungeePlugin);
             }
         }, ex -> {
             if (!ex.getMessage().toLowerCase().contains("timed out")) {
                 ex.printStackTrace();
             }
+            event.completeIntent(this.bungeePlugin);
         }));
     }
 

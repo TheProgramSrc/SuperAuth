@@ -51,7 +51,7 @@ tasks.withType(Jar) {
 
 shadowJar {
     relocate 'xyz.theprogramsrc.supercoreapi', 'xyz.theprogramsrc.superauth.supercoreapi'
-    relocate 'org.apache.logging.log4j', 'xyz.theprogramsrc.superauth.logging'
+    // relocate 'org.apache.logging.log4j', 'xyz.theprogramsrc.superauth.logging'
 
     archiveBaseName.set('SuperAuth')
     archiveClassifier.set('')
