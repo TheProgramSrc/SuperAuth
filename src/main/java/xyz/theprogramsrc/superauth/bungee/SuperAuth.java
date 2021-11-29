@@ -1,5 +1,7 @@
 package xyz.theprogramsrc.superauth.bungee;
 
+import java.util.List;
+
 import xyz.theprogramsrc.superauth.bungee.commands.CrackedCommand;
 import xyz.theprogramsrc.superauth.bungee.commands.MainCommand;
 import xyz.theprogramsrc.superauth.bungee.commands.PremiumCommand;
@@ -15,8 +17,7 @@ import xyz.theprogramsrc.supercoreapi.global.storage.DataBaseSettings;
 import xyz.theprogramsrc.supercoreapi.global.storage.MySQLDataBase;
 import xyz.theprogramsrc.supercoreapi.global.utils.ServerUtils;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
-
-import java.util.List;
+import xyz.theprogramsrc.supercoreapi.libs.hikari.HikariConfig;
 
 public class SuperAuth extends BungeePlugin {
 
@@ -30,9 +31,12 @@ public class SuperAuth extends BungeePlugin {
 
     private boolean stop;
     private String authServer;
-    private List<String> blockedActions, enabledCommands;
-    private String premiumCommand, premiumPermission;
-    private String crackedCommand, crackedPermission;
+    private List<String> blockedActions;
+    private List<String> enabledCommands;
+    private String premiumCommand;
+    private String premiumPermission;
+    private String crackedCommand;
+    private String crackedPermission;
 
     @Override
     public void onPluginLoad() {
@@ -124,6 +128,7 @@ public class SuperAuth extends BungeePlugin {
             if(!cfg.contains("MySQL.UserName")) cfg.add("MySQL.UserName", "superauth");
             if(!cfg.contains("MySQL.Password")) cfg.add("MySQL.Password", Utils.randomPassword(16));
             if(!cfg.contains("MySQL.UseSSL")) cfg.add("MySQL.UseSSL", false);
+            if(!cfg.contains("MySQL.ConnectionUrl")) cfg.add("MySQL.ConnectionUrl", "jdbc:mysql://{Host}:{Port}/{Database}?useSSL={UseSSL}");
             this.log("&cPlease fill in the MySQL Settings");
             this.log("&9Information: If the path 'MySQL.Password' is empty, the plugin will generate a random password with 16 characters length");
             this.stop = true;
@@ -163,7 +168,23 @@ public class SuperAuth extends BungeePlugin {
                     public String password() {
                         return cfg.getString("MySQL.Password");
                     }
+
+                    @Override
+                    public String getURL() {
+                        return cfg.getString("MySQL.ConnectionUrl", "jdbc:mysql://{Host}:{Port}/{Database}?useSSL={UseSSL}");
+                    }
                 };
+            }
+
+            @Override
+            public void processSettings(HikariConfig config) {
+                config.setMaximumPoolSize(25);
+                config.setAutoCommit(true);
+                config.setConnectionTimeout(10000);
+                config.setIdleTimeout(10000);
+                config.setMaxLifetime(10000);
+                config.setConnectionTestQuery("SELECT 1");
+                config.setPoolName("SuperAuth");
             }
         };
     }

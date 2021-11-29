@@ -1,10 +1,10 @@
 name: SuperAuth
-version: ${project.version}
+version: "@version@"
 main: xyz.theprogramsrc.superauth.spigot.SuperAuth
 api-version: "1.13"
 authors: [TheProgramSrc]
 description: Secure your users and server
-website: ${project.url}
+website: https://theprogramsrc.xyz/products/1
 softdepend: [PlaceholderAPI]
 
 libraries:

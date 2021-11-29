@@ -1,9 +1,9 @@
 main: xyz.theprogramsrc.superauth.bungee.SuperAuth
 name: SuperAuth
-version: ${project.version}
+version: "@version@"
 author: TheProgramSrc
 description: Secure your users and server
-website: ${project.url}
+website: https://theprogramsrc.xyz/products/1
 
 libraries:
   - org.xerial:sqlite-jdbc:3.25.2

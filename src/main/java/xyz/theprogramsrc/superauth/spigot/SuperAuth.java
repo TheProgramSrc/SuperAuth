@@ -41,6 +41,7 @@ import xyz.theprogramsrc.supercoreapi.global.updater.SongodaUpdateChecker;
 import xyz.theprogramsrc.supercoreapi.global.utils.ServerUtils;
 import xyz.theprogramsrc.supercoreapi.global.utils.Utils;
 import xyz.theprogramsrc.supercoreapi.global.utils.VersioningUtil;
+import xyz.theprogramsrc.supercoreapi.libs.hikari.HikariConfig;
 import xyz.theprogramsrc.supercoreapi.spigot.SpigotPlugin;
 
 public class SuperAuth extends SpigotPlugin {
@@ -189,6 +190,7 @@ public class SuperAuth extends SpigotPlugin {
             if(!cfg.contains("MySQL.UserName")) cfg.add("MySQL.UserName", "superauth");
             if(!cfg.contains("MySQL.Password")) cfg.add("MySQL.Password", Utils.randomPassword(16));
             if(!cfg.contains("MySQL.UseSSL")) cfg.add("MySQL.UseSSL", false);
+            if(!cfg.contains("MySQL.ConnectionUrl")) cfg.add("MySQL.ConnectionUrl", "jdbc:mysql://{Host}:{Port}/{Database}?useSSL={UseSSL}");
             if(this.isFirstStart()){
                 this.log("&cPlease fill in the MySQL Settings. If you're going to use SQLite you can ignore this message.");
                 this.log("&9Information: If the path 'MySQL.Password' doesn't exists, the plugin will generate a random password with 16 characters length");
@@ -196,12 +198,10 @@ public class SuperAuth extends SpigotPlugin {
         }
 
 
-        if(cfg.getBoolean("MySQL.Enabled")){
-            if(cfg.getString("MySQL.Host").equals("sql.example.com")){
-                this.log("&cPlease fill in the MySQL Host!");
-                this.emergencyStop();
-                return;
-            }
+        if(cfg.getBoolean("MySQL.Enabled") && cfg.getString("MySQL.Host").equals("sql.example.com")){
+            this.log("&cPlease fill in the MySQL Host!");
+            this.emergencyStop();
+            return;
         }
 
         if(this.isEmergencyStop()) return;
@@ -240,7 +240,23 @@ public class SuperAuth extends SpigotPlugin {
                         public boolean useSSL() {
                             return cfg.getBoolean("MySQL.UseSSL");
                         }
+
+                        @Override
+                        public String getURL() {
+                            return cfg.getString("MySQL.ConnectionUrl", "jdbc:mysql://{Host}:{Port}/{Database}?useSSL={UseSSL}");
+                        }
                     };
+                }
+
+                @Override
+                public void processSettings(HikariConfig config) {
+                    config.setMaximumPoolSize(25);
+                    config.setAutoCommit(true);
+                    config.setConnectionTimeout(10000);
+                    config.setIdleTimeout(10000);
+                    config.setMaxLifetime(10000);
+                    config.setConnectionTestQuery("SELECT 1");
+                    config.setPoolName("SuperAuth");
                 }
             };
         }else{
