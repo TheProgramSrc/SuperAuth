@@ -1,4 +1,4 @@
-name: Test with Maven
+name: Test with Gradle
 
 on:
   push:
@@ -9,22 +9,23 @@ on:
 jobs:
   testBuild:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        java-version: [8, 11, 16]
     steps:
       - name: "Checkout Code"
         uses: actions/checkout@v2
-      - name: "Prepare Java ${{ matrix.java-version }}"
+      - name: "Setup JDK"
         uses: actions/setup-java@v2
         with:
           distribution: "adopt"
-          java-version: "${{ matrix.java-version }}"
+          java-version: "8"
+      # Validate Gradle Wrapper
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+      # Make Gradle Executable
       - name: "Make build.gradle executable"
         run: "chmod +x gradlew"
-      - name: "Build jar with Java ${{ matrix.java-version }}"
-        run: "./gradlew shadowJar"
+      # Build with Gradle
+      - name: "Build jar with Java 8"
+        run: "./gradlew shadow"
+      # Delete The Artifacts
       - name: "Delete Artifacts"
         run: "rm -rf build/libs/*.jar"
