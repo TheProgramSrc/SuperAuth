@@ -21,11 +21,11 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
       # Make Gradle Executable
-      - name: "Make build.gradle executable"
-        run: "chmod +x gradlew"
+      - name: Make build.gradle executable
+        run: chmod +x gradlew
       # Build with Gradle
-      - name: "Build jar with Java 8"
-        run: "./gradlew shadow"
+      - name: Build jar with Java 8
+        run: ./gradlew shadow --info
       # Delete The Artifacts
-      - name: "Delete Artifacts"
-        run: "rm -rf build/libs/*.jar"
+      - name: Delete Artifacts
+        run: rm -rf build/libs/*.jar
