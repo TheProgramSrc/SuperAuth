@@ -25,7 +25,7 @@ jobs:
         run: chmod +x gradlew
       # Build with Gradle
       - name: Build jar with Java 8
-        run: ./gradlew shadow --info
+        run: ./gradlew shadow
       # Delete The Artifacts
       - name: Delete Artifacts
         run: rm -rf build/libs/*.jar
