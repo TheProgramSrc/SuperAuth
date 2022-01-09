@@ -1,10 +1,9 @@
 package xyz.theprogramsrc.superauth.spigot.guis.admin;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.bukkit.entity.Player;
 
 import xyz.theprogramsrc.superauth.global.languages.LBase;
+import xyz.theprogramsrc.superauth.global.users.User;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
 import xyz.theprogramsrc.supercoreapi.global.translations.Base;
 import xyz.theprogramsrc.supercoreapi.libs.xseries.XMaterial;
@@ -21,7 +20,10 @@ import xyz.theprogramsrc.supercoreapi.spigot.gui.precreated.settings.precreated.
 import xyz.theprogramsrc.supercoreapi.spigot.items.SimpleItem;
 import xyz.theprogramsrc.supercoreapi.spigot.utils.skintexture.SkinTexture;
 
-public class AdminGUI extends Gui { 
+public class AdminGUI extends Gui {
+
+    private User lastUser;
+    private long lastTime;
 
     public AdminGUI(Player player){
         super(player, false);
@@ -46,12 +48,13 @@ public class AdminGUI extends Gui {
     }
 
     private GuiEntry getManageUsersButton(){
-        AtomicReference<SkinTexture> skin = new AtomicReference<>(null);
-        this.getSpigotTasks().runAsyncTask(() -> {
-            SuperAuth.spigot.getUserStorage().getRandomUserWithSkin(user -> skin.set(new SkinTexture(user.getSkinTexture())));
-        });
+        if(this.lastUser == null || this.lastTime == 0L || (this.lastTime - System.currentTimeMillis() > 5000L)){
+            SuperAuth.spigot.getUserStorage().getRandomUserWithSkin(user-> this.lastUser = user);
+            this.lastTime = System.currentTimeMillis();
+        }
+        SkinTexture skin = new SkinTexture(lastUser.getSkinTexture());
         SimpleItem item = new SimpleItem(XMaterial.PLAYER_HEAD)
-                .setSkin(skin.get())
+                .setSkin(skin)
                 .setDisplayName("&a" + LBase.ADMIN_GUI_USERS_NAME)
                 .setLore(
                         "&7",

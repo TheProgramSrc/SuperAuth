@@ -257,20 +257,25 @@ public class UserStorage extends DataBaseStorage {
     }
 
     public void getRandomUserWithSkin(Consumer<User> then) {
-        this.requestUsers(users -> {
-            if (users.length == 0) {
-                if (then != null)
+        if(then != null){
+            this.requestUsers(users -> {
+                if (users.length == 0) {
                     then.accept(null);
-            } else {
-                int rand = Utils.random(0, users.length);
-                User user;
-                while (!(user = users[rand]).hasSkin()) {
-                    rand = Utils.random(0, users.length);
+                } else {
+                    User user = null;
+                    try{
+                        if(users.length > 1){
+                            while(!(user = users[Utils.random(0, users.length)]).hasSkin()){
+                                user = users[Utils.random(0, users.length)];
+                            }
+                        }else{
+                            user = users[0];
+                        }
+                    }catch(Exception ignored){} // We ignore the exception
+                    then.accept(user != null ? (user.hasSkin() ? user : null) : null);
                 }
-                if (then != null)
-                    then.accept(user);
-            }
-        });
+            });
+        }
     }
 
     public void remove(User user, Runnable then) {
