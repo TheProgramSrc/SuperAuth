@@ -2,11 +2,11 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '7.1.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 group 'xyz.theprogramsrc'
-version '3.17.7'
+version '3.18.0'
 description 'Secure your users and server.'
 
 repositories{

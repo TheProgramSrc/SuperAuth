@@ -1,5 +1,6 @@
 package xyz.theprogramsrc.superauth.spigot.listeners;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.entity.Player;
@@ -11,11 +12,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.*;
 
 import xyz.theprogramsrc.superauth.global.users.UserStorage;
 import xyz.theprogramsrc.superauth.spigot.SuperAuth;
@@ -42,28 +39,10 @@ public class BlockActionsListener extends SpigotModule {
             List<String> blocked = settings.getBlockedActions();
             int enabled = 0;
             try{
-                if(blocked.contains("BLOCK_PLACE")){
-                    enabled++;
-                }
-
-                if(blocked.contains("BLOCK_BREAK")){
-                    enabled++;
-                }
-
-                if(blocked.contains("CHAT")){
-                    enabled++;
-                }
-
-                if(blocked.contains("MOVEMENT")){
-                    enabled++;
-                }
-
-                if(blocked.contains("INTERACTION")){
-                    enabled++;
-                }
-
-                if(blocked.contains("DAMAGE")){
-                    enabled++;
+                for(String s : Arrays.asList("BLOCK_PLACE", "BLOCK_BREAK", "INTERACTION", "CHAT", "MOVEMENT", "DAMAGE", "ITEM_DROP")){
+                    if(blocked.contains(s)){
+                        enabled++;
+                    }
                 }
                 this.log("Loaded &a" + enabled + "&r Action Blockers");
             }catch (Exception ex){
@@ -264,6 +243,18 @@ public class BlockActionsListener extends SpigotModule {
             this.userStorage.isUserAuthorized(player.getName(), false, authorized -> {
                 if(!authorized){
                     e.setDamage(0);
+                    e.setCancelled(true);
+                }
+            });
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onDrop(PlayerDropItemEvent e){
+        if(this.settings.getBlockedActions().contains("ITEM_DROP")){
+            Player player = e.getPlayer();
+            this.userStorage.isUserAuthorized(player.getName(), false, authorized -> {
+                if(!authorized){
                     e.setCancelled(true);
                 }
             });
