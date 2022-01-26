@@ -75,7 +75,7 @@ public class AuthSettings extends YMLConfig {
         this.addComment("Title-Time.After.Login", "The timing in ticks that the title will be shown (in;stay;out)");
         this.add("Title-Time.After.Register", "10;20;10");
         this.addComment("Title-Time.After.Register", "The timing in ticks that the title will be shown (in;stay;out)");
-        this.add("BlockedActions", Utils.toList("BLOCK_BREAK", "BLOCK_PLACE", "CHAT", "MOVEMENT", "INTERACTION", "CUSTOM_INVENTORY", "DAMAGE"));
+        this.add("BlockedActions", Utils.toList("BLOCK_BREAK", "BLOCK_PLACE", "CHAT", "MOVEMENT", "INTERACTION", "CUSTOM_INVENTORY", "DAMAGE", "ITEM_DROP"));
         this.addComment("BlockedActions", "The actions that will be blocked if the user is not logged in");
         this.add("Auth.CommandUsageTimer", 3);
         this.addComment("Auth.CommandUsageTimer", "Period of time in seconds that will be waited before sending again how to login");
