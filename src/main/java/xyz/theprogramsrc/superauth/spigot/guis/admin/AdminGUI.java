@@ -52,7 +52,7 @@ public class AdminGUI extends Gui {
             SuperAuth.spigot.getUserStorage().getRandomUserWithSkin(user-> this.lastUser = user);
             this.lastTime = System.currentTimeMillis();
         }
-        SkinTexture skin = new SkinTexture(lastUser.getSkinTexture());
+        SkinTexture skin = lastUser != null ? new SkinTexture(lastUser.getSkinTexture()) : null;
         SimpleItem item = new SimpleItem(XMaterial.PLAYER_HEAD)
                 .setSkin(skin)
                 .setDisplayName("&a" + LBase.ADMIN_GUI_USERS_NAME)

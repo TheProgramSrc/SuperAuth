@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: "adopt"
-          java-version: "8"
+          java-version: "11"
       # Validate Gradle Wrapper
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
@@ -24,7 +24,7 @@ jobs:
       - name: Make build.gradle executable
         run: chmod +x gradlew
       # Build with Gradle
-      - name: Build jar with Java 8
+      - name: Build jar with Java 11
         run: ./gradlew shadow
       # Delete The Artifacts
       - name: Delete Artifacts
