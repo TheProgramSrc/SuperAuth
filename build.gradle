@@ -1,12 +1,14 @@
-import org.apache.tools.ant.filters.ReplaceTokens 
+import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    id 'java'
+    id 'java' // Remove once migration is finished
+    id 'org.jetbrains.kotlin.jvm' version '1.6.20'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'org.jetbrains.dokka' version '1.6.10'
 }
 
 group 'xyz.theprogramsrc'
-version '3.18.0'
+version '4.0.0'
 description 'Secure your users and server.'
 
 repositories{
@@ -14,20 +16,52 @@ repositories{
     mavenLocal()
 
     maven { url 'https://repo.theprogramsrc.xyz/repository/maven-public/' }
+    maven { url 'https://repo.theprogramsrc.xyz/repository/simplecoreapi-modules/' }
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     maven { url 'https://oss.sonatype.org/content/repositories/releases/' }
+    maven { url 'https://oss.sonatype.org/content/groups/public/' }
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    maven { url 'https://repo.codemc.org/repository/maven-public' }
     maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+    maven { url 'https://repo.codemc.org/repository/maven-public/' }
     maven { url 'https://jitpack.io/' }
 }
 
+// Versions
+def exposedVersion = "0.38.1"
+
 dependencies {
-    implementation 'xyz.theprogramsrc:supercoreapi:5.3.4-SNAPSHOT'
-    
-    compileOnly 'org.apache.logging.log4j:log4j-core:2.17.1'
-    compileOnly 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
-    compileOnly 'net.md-5:bungeecord-api:1.17-R0.1-SNAPSHOT'
+    compileOnly 'xyz.theprogramsrc:supercoreapi:5.3.4-SNAPSHOT' // Remove depend once the migration is finished!
+
+    /* Kotlin and Minecraft */
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.6.20'
+    compileOnly 'org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT'
+    compileOnly 'net.md-5:bungeecord-api:1.18-R0.1-SNAPSHOT'
+
+    /* SimpleCoreAPI */
+    compileOnly 'xyz.theprogramsrc:simplecoreapi:0.3.4-SNAPSHOT'
+    compileOnly 'xyz.theprogramsrc:commandsmodule:0.1.0-SNAPSHOT'
+    compileOnly 'xyz.theprogramsrc:filesmodule:0.1.1-SNAPSHOT'
+    compileOnly 'xyz.theprogramsrc:tasksmodule:0.1.0-SNAPSHOT'
+    compileOnly 'xyz.theprogramsrc:translationsmodule:0.1.5-SNAPSHOT'
+    compileOnly 'xyz.theprogramsrc:dependencydownloadermodule:0.1.1-SNAPSHOT'
+    compileOnly 'xyz.theprogramsrc:uismodule:0.1.1-SNAPSHOT'
+    compileOnly 'xyz.theprogramsrc:networkingmodule:0.1.0-SNAPSHOT'
+    compileOnly 'xyz.theprogramsrc:loggingmodule:0.2.1-SNAPSHOT'
+
+
+    /* DataBase */
+    compileOnly "org.jetbrains.exposed:exposed-core:$exposedVersion"
+    compileOnly "org.jetbrains.exposed:exposed-dao:$exposedVersion"
+    compileOnly "org.jetbrains.exposed:exposed-jdbc:$exposedVersion"
+    compileOnly "org.jetbrains.exposed:exposed-java-time:$exposedVersion"
+    compileOnly 'mysql:mysql-connector-java:8.0.28'
+    compileOnly 'org.xerial:sqlite-jdbc:3.36.0.3'
+
+
+    /* Hashing */
+    implementation 'at.favre.lib:bcrypt:0.9.0'
+
+    /* Extras */
     compileOnly 'me.clip:placeholderapi:2.10.9'
 }
 
@@ -35,35 +69,44 @@ processResources {
     filter ReplaceTokens, tokens: [name: rootProject.name, version: project.version.toString(), description: project.description]
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-tasks.withType(JavaCompile) {
-    options.encoding = "UTF-8"
-}
-
-tasks.withType(Copy) {
-    duplicatesStrategy = 'include'
-}
-
-tasks.withType(Jar) {
-    duplicatesStrategy = 'include'
-}
-
 shadowJar {
-    relocate 'xyz.theprogramsrc.supercoreapi', 'xyz.theprogramsrc.superauth.supercoreapi'
-    // relocate 'org.apache.logging.log4j', 'xyz.theprogramsrc.superauth.logging'
+    mergeServiceFiles()
+    exclude('**/*.kotlin_metadata')
+    exclude('**/*.kotlin_builtins')
 
     archiveBaseName.set('SuperAuth')
     archiveClassifier.set('')
     archiveVersion.set('')
-
-    minimize()
 }
 
-sourceSets.main.java.srcDir 'src/main/java'
-sourceSets.main.resources.srcDir 'src/main/resources'
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Jar) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType(Copy){
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
 
 test {
     useJUnitPlatform()
+}
+
+configurations {
+    testImplementation {
+        extendsFrom(compileOnly)
+    }
+}
+
+tasks.named("dokkaHtml") {
+    outputDirectory.set(file(project.buildDir.absolutePath + '/dokka'))
 }

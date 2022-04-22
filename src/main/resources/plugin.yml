@@ -1,6 +1,6 @@
 name: SuperAuth
 version: "@version@"
-main: xyz.theprogramsrc.superauth.spigot.SuperAuth
+main: xyz.theprogramsrc.superauth_v3.spigot.SuperAuth
 api-version: "1.13"
 authors: [TheProgramSrc]
 description: Secure your users and server

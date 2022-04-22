@@ -1,4 +1,4 @@
-main: xyz.theprogramsrc.superauth.bungee.SuperAuth
+main: xyz.theprogramsrc.superauth_v3.bungee.SuperAuth
 name: SuperAuth
 version: "@version@"
 author: TheProgramSrc
