@@ -121,7 +121,7 @@ public class SuperAuth extends SpigotPlugin {
             this.log("&aIf you need help first check the wiki:&b https://wiki.theprogramsrc.xyz");
             this.log("&aIf you need direct support join to our discord:&b https://go.theprogramsrc.xyz/discord");
             this.checkBungeeMySQL();
-            this.updateChecker();
+            // this.updateChecker();
 
             if(this.getPluginDataStorage().isShareStatsEnabled()){
                 new Metrics(this, 7004);

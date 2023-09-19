@@ -13,7 +13,6 @@ repositories{
     mavenCentral()
     mavenLocal()
 
-    maven { url 'https://repo.theprogramsrc.xyz/repository/maven-public/' }
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     maven { url 'https://oss.sonatype.org/content/repositories/releases/' }
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
@@ -23,7 +22,7 @@ repositories{
 }
 
 dependencies {
-    implementation 'xyz.theprogramsrc:supercoreapi:5.3.4-SNAPSHOT'
+    implementation 'com.github.theprogramsrc:SuperCoreAPI:5.3.4-SNAPSHOT'
     
     compileOnly 'org.apache.logging.log4j:log4j-core:2.17.1'
     compileOnly 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
